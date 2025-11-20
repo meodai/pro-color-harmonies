@@ -6,7 +6,7 @@
   font-weight: 300;
 
   --white: #fff;
-  --black: #111414;
+  --black: #292f2f;
 
   --bg: light-dark(
     var(--white),
