@@ -44,18 +44,20 @@ export type PaletteType =
   | 'tetradic'
   | 'split-complementary';
 
-export interface PaletteColor {
-  code: string;      // e.g. "triadic-1"
-  isBase: boolean;   // true for the primary color
-  color: CuloriColor;// culori Color object
+export interface OKLCH {
+  l: number;  // Lightness (0-1)
+  c: number;  // Chroma (0-0.37)
+  h: number;  // Hue (0-360)
 }
+
+export type PaletteColor = OKLCH;
 
 export interface GeneratorOptions {
   style: PaletteStyle;
   colorSpace: { space: ColorSpace };
   chromaAdjust?: number;                  // fine-tune saturation response for some generators
   count?: number;                         // total colors requested (>= 5; extra colors are interpolated)
-  modifiers?: [number, number, number, number]; // 4 modulation knobs, each 0–100
+  modifiers?: [number, number, number, number]; // 4 modulation knobs, each 0–1
 }
 ```
 
@@ -77,9 +79,9 @@ Generate a single palette.
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts:
     - For fewer colors (< 6): the demo uses sampling to select evenly distributed colors from the base palette.
     - For more colors (> 6): use OKLAB interpolation between the base colors for smooth transitions (as shown in the demo using `culori`).
-  - `modifiers` (optional): `[sine, wave, zap, block]` (each `0–100`); see **Modifiers** below.
+  - `modifiers` (optional): `[sine, wave, zap, block]` (each `0–1`); see **Modifiers** below.
 
-Returns: `PaletteColor[]`.
+Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 
 #### `ColorPaletteGenerator.generateAll(baseColor, options)`
 
@@ -103,23 +105,22 @@ Each palette is run through the modifiers (if provided), just like `generate`.
 Convert a palette to CSS custom properties.
 
 - `prefix` default: `'color'`.
+- `palette`: array of OKLCH colors
 - Output example:
 
 ```css
 --color-1: oklch(0.65 0.14 250);
---color-1-contrast: #000;
 --color-2: oklch(0.52 0.18 260);
---color-2-contrast: #000;
 /* ... */
 ```
 
 #### `ColorPaletteGenerator.toHexArray(palette)`
 
-Returns an array of sRGB hex values derived via `culori` (`rgb` + `formatRgb`).
+Returns an array of sRGB hex values derived via `culori`.
 
 ### Individual generators
 
-All of these operate primarily in OKLCH, then wrap results into `PaletteColor[]`. Each generator produces exactly **6 base colors**.
+All of these operate primarily in OKLCH, then return `OKLCH[]`. Each generator produces exactly **6 base colors**.
 
 - `generateAnalogous(baseColor, options)`
   - Produces 6 base colors by walking the hue around the base within a band.
@@ -148,16 +149,15 @@ import { generators } from './src/color-palette-generator';
 const tri = generators.triadic('#4c6fff', {
   style: 'triangle',
   colorSpace: { space: 'oklch' },
-  count: 7,
 });
 ```
 
 ### Modifiers (the four knobs)
 
-These are post-processors that sculpt an existing palette. They work on `PaletteColor[]` and are controlled via the `modifiers` tuple in `GeneratorOptions`:
+These are post-processors that sculpt an existing palette. They work on `OKLCH[]` and are controlled via the `modifiers` tuple in `GeneratorOptions`:
 
 ```ts
-modifiers: [sine, wave, zap, block]; // each 0–100
+modifiers: [sine, wave, zap, block]; // each 0–1
 ```
 
 Behind the scenes:
@@ -214,7 +214,6 @@ import {
 
 import { 
   extendPalette, 
-  colorFactory, 
   createPaletteGenerator 
 } from './src/utils/palette';
 ```
@@ -243,15 +242,16 @@ Controls:
 - **Count**: range 3–24; the library generates 6 base colors, then:
   - Values < 6: evenly samples from the base palette
   - Values > 6: uses OKLAB interpolation (via culori) between the 6 base colors for smooth color transitions
-- **Sine / Wave / Zap / Block**: the four 0–100 modulation sliders described above.
+- **Sine / Wave / Zap / Block**: the four 0–1 modulation sliders described above.
 - **Random base**: chooses a random hex color.
 
-The palette is displayed as a single flat bar of swatches with the base color outlined.
+The palette is displayed as a single flat bar of swatches.
 
 ## Notes
 
 - All palette generators produce exactly **6 base colors** internally.
 - Generation logic operates in OKLCH for perceptually uniform color harmony.
+- Palette colors are simple OKLCH objects (`{ l, c, h }`) without metadata like `code` or `isBase`.
 - For extended palettes (> 6 colors), use OKLAB interpolation for smoother transitions between colors (as demonstrated in the demo app).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
-- The port is designed to be close to the original `color-palette-generator-main` behavior while exposing culori `Color` objects directly for integration into other tools.
+- The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools.
