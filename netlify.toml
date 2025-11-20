@@ -1,4 +1,5 @@
 [build]
+  base = "."
   command = "npm run build:demo"
   publish = "dist-demo"
 
