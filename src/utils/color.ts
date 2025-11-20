@@ -3,13 +3,7 @@
  */
 
 import type { OKLCH } from '../index';
-
-export const OKLCH_LIMITS = {
-  l: { min: 0.01, max: 0.99 },
-  c: { min: 0, max: 0.37 },
-  h: { min: 0, max: 360 },
-};
-
+import { OKLCH_LIMITS, MUDDY_ZONES } from './constants';
 
 /**
  * Normalize hue to 0-360 range
@@ -34,13 +28,8 @@ export function clampOKLCH(l: number, c: number, h: number): OKLCH {
  * Avoid muddy zones in the color space
  */
 export function avoidMuddyZones(hue: number, lightness: number, chroma: number): OKLCH {
-  const muddyZones = [
-    { start: 60, end: 90, shift: -10 },   // Yellow-green (tends toward brown)
-    { start: 30, end: 50, shift: 15 },    // Orange (can become muddy)
-  ];
-
   let adjustedHue = hue;
-  for (const zone of muddyZones) {
+  for (const zone of MUDDY_ZONES) {
     if (hue >= zone.start && hue <= zone.end && chroma < 0.15) {
       adjustedHue = (hue + zone.shift + 360) % 360;
       break;
@@ -48,4 +37,12 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
   }
 
   return clampOKLCH(lightness, chroma, adjustedHue);
+}
+
+/**
+ * Safely get a hue, avoiding muddy zones if enhanced mode is on
+ */
+export function safeHue(hue: number, lightness: number, chroma: number, enhanced: boolean): number {
+  if (!enhanced) return hue;
+  return avoidMuddyZones(hue, lightness, chroma).h;
 }

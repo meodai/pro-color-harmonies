@@ -67,7 +67,7 @@ describe('ColorPaletteGenerator', () => {
     it('should apply modifiers when provided', () => {
       const optionsWithModifiers: GeneratorOptions = {
         style: 'square',
-        modifiers: [0.5, 0, 0, 0],
+        modifiers: { sine: 0.5 },
       };
       const optionsWithout: GeneratorOptions = { style: 'square' };
       
@@ -122,7 +122,7 @@ describe('ColorPaletteGenerator', () => {
     it('should apply modifiers to all palettes', () => {
       const options: GeneratorOptions = {
         style: 'square',
-        modifiers: [0.3, 0, 0, 0],
+        modifiers: { sine: 0.3 },
       };
       const result = ColorPaletteGenerator.generateAll(baseColor, options);
       

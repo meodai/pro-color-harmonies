@@ -5,6 +5,7 @@ import {
   type PaletteType,
   type PaletteStyle,
   type GeneratorOptions,
+  type PaletteModifiers,
 } from './index';
 import { extendPalette } from './utils/demo-palette';
 
@@ -361,17 +362,17 @@ function renderPalette() {
   const count = Number.parseInt(countInput.value, 10) || 5;
   if (countValue) countValue.textContent = String(count);
   updateCountProgress();
-  const modifiers: [number, number, number, number] = [
-    mod1 / 100,
-    mod2 / 100,
-    mod3 / 100,
-    mod4 / 100,
-  ];
+  const modifiers: PaletteModifiers = {
+    sine: mod1 / 100,
+    wave: mod2 / 100,
+    zap: mod3 / 100,
+    block: mod4 / 100,
+  };
 
-  if (mod1Value) mod1Value.textContent = String(modifiers[0].toFixed(2));
-  if (mod2Value) mod2Value.textContent = String(modifiers[1].toFixed(2));
-  if (mod3Value) mod3Value.textContent = String(modifiers[2].toFixed(2));
-  if (mod4Value) mod4Value.textContent = String(modifiers[3].toFixed(2));
+  if (mod1Value) mod1Value.textContent = String(modifiers.sine?.toFixed(2));
+  if (mod2Value) mod2Value.textContent = String(modifiers.wave?.toFixed(2));
+  if (mod3Value) mod3Value.textContent = String(modifiers.zap?.toFixed(2));
+  if (mod4Value) mod4Value.textContent = String(modifiers.block?.toFixed(2));
   
   updateGridDotPosition();
 

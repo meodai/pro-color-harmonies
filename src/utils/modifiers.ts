@@ -2,7 +2,7 @@
  * Palette modifiers that apply transformations to color palettes
  */
 
-import type { PaletteColor } from '../index';
+import type { PaletteColor, PaletteModifiers } from '../index';
 import { clampOKLCH, normalizeHue } from './color';
 
 export function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
@@ -97,17 +97,16 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
  */
 export function applyModifiers(
   palette: PaletteColor[],
-  modifiers: [number, number, number, number] | undefined,
+  modifiers: PaletteModifiers | undefined,
 ): PaletteColor[] {
   if (!modifiers) return palette;
 
-  const [m1, m2, m3, m4] = modifiers;
   let result = [...palette];
 
-  if (m1) result = sineModifier(result, m1);
-  if (m2) result = waveModifier(result, m2);
-  if (m3) result = zapModifier(result, m3);
-  if (m4) result = blockModifier(result, m4);
+  if (modifiers.sine) result = sineModifier(result, modifiers.sine);
+  if (modifiers.wave) result = waveModifier(result, modifiers.wave);
+  if (modifiers.zap) result = zapModifier(result, modifiers.zap);
+  if (modifiers.block) result = blockModifier(result, modifiers.block);
 
   return result;
 }

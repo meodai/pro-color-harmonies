@@ -199,7 +199,7 @@ describe('palette modifiers', () => {
 
     it('should apply single modifier', () => {
       const palette = createTestPalette();
-      const result = applyModifiers(palette, [0.5, 0, 0, 0]);
+      const result = applyModifiers(palette, { sine: 0.5 });
 
       // Should apply sineModifier
       result.forEach((color, idx) => {
@@ -209,7 +209,7 @@ describe('palette modifiers', () => {
 
     it('should apply multiple modifiers in sequence', () => {
       const palette = createTestPalette();
-      const result = applyModifiers(palette, [0.3, 0.3, 0, 0]);
+      const result = applyModifiers(palette, { sine: 0.3, wave: 0.3 });
 
       // Should apply both sine and wave modifiers
       expect(result).toHaveLength(palette.length);
@@ -221,7 +221,7 @@ describe('palette modifiers', () => {
 
     it('should apply all four modifiers', () => {
       const palette = createTestPalette();
-      const result = applyModifiers(palette, [0.2, 0.2, 0.2, 0.2]);
+      const result = applyModifiers(palette, { sine: 0.2, wave: 0.2, zap: 0.2, block: 0.2 });
 
       expect(result).toHaveLength(palette.length);
       
@@ -232,7 +232,7 @@ describe('palette modifiers', () => {
 
     it('should skip modifiers with zero value', () => {
       const palette = createTestPalette();
-      const resultWithZeros = applyModifiers(palette, [0, 0, 0.5, 0]);
+      const resultWithZeros = applyModifiers(palette, { sine: 0, wave: 0, zap: 0.5, block: 0 });
       const resultJustZap = zapModifier(palette, 0.5);
 
       // Should be equivalent to just applying zap modifier
@@ -245,7 +245,7 @@ describe('palette modifiers', () => {
 
     it('should maintain valid OKLCH values after all modifiers', () => {
       const palette = createTestPalette();
-      const result = applyModifiers(palette, [0.8, 0.8, 0.8, 0.8]);
+      const result = applyModifiers(palette, { sine: 0.8, wave: 0.8, zap: 0.8, block: 0.8 });
 
       result.forEach(color => {
         expect(color.l).toBeGreaterThanOrEqual(0.01);

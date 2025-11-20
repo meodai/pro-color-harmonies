@@ -5,7 +5,7 @@
  */
 
 // Utils
-import { avoidMuddyZones } from './utils/color';
+import { safeHue } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
 import { createPaletteGenerator } from './utils/palette';
 import { getTriadicVariations } from './utils/variations';
@@ -30,9 +30,16 @@ export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic'
 
 export type PaletteColor = OKLCH;
 
+export interface PaletteModifiers {
+  sine?: number;
+  wave?: number;
+  zap?: number;
+  block?: number;
+}
+
 export interface GeneratorOptions {
   style: PaletteStyle;
-  modifiers?: [number, number, number, number]; // Optional palette modulation knobs (0-1)
+  modifiers?: PaletteModifiers; // Optional palette modulation knobs (0-1)
 }
 
 // ============= Generators =============
@@ -42,10 +49,7 @@ export const generateComplementary = createPaletteGenerator('complementary', (ba
   const chromaAdjust = 0.9;
   
   let complementHue = getComplementaryHue(base, options.style);
-
-  if (enhanced) {
-    complementHue = avoidMuddyZones(complementHue, baseLightness, baseChroma * chromaAdjust).h;
-  }
+  complementHue = safeHue(complementHue, baseLightness, baseChroma * chromaAdjust, enhanced);
 
   return [
     { l: baseLightness, c: baseChroma, h: baseHue },
@@ -76,16 +80,9 @@ export const generateAnalogous = createPaletteGenerator('analogous', (base, opti
     if (index === 0) return { l: baseLightness, c: baseChroma, h: baseHue };
 
     const v = variations[index];
-    let finalHue = hue;
     let finalL = baseLightness + v.l;
     let finalC = baseChroma * v.c * chromaAdjust;
-
-    if (enhanced) {
-      const cleaned = avoidMuddyZones(finalHue, finalL, finalC);
-      finalHue = cleaned.h;
-      finalL = cleaned.l;
-      finalC = cleaned.c;
-    }
+    let finalHue = safeHue(hue, finalL, finalC, enhanced);
 
     return { l: finalL, c: finalC, h: finalHue };
   });
@@ -103,10 +100,7 @@ export const generateTriadic = createPaletteGenerator('triadic', (base, options,
       colors.push({ l: baseLightness + baseVariations.dark.l, c: baseChroma * baseVariations.dark.c, h: hue });
     } else {
       const v = idx === 1 ? triadVariations.first : triadVariations.second;
-      let finalHue = hue;
-      if (enhanced) {
-        finalHue = avoidMuddyZones(hue, baseLightness + v.pure.l, baseChroma * v.pure.c).h;
-      }
+      let finalHue = safeHue(hue, baseLightness + v.pure.l, baseChroma * v.pure.c, enhanced);
       colors.push({ l: baseLightness + v.pure.l, c: baseChroma * v.pure.c, h: finalHue });
       colors.push({ l: baseLightness + v.muted.l, c: baseChroma * v.muted.c, h: finalHue });
     }
@@ -122,13 +116,13 @@ export const generateTetradic = createPaletteGenerator('tetradic', (base, option
   colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
 
   tetradicHues.slice(1, 3).forEach((hue, idx) => {
-    let finalHue = enhanced ? avoidMuddyZones(hue, baseLightness, baseChroma).h : hue;
+    let finalHue = safeHue(hue, baseLightness, baseChroma, enhanced);
     const v = idx === 0 ? { l: 0.1, c: 0.9 } : { l: -0.15, c: 0.85 };
     colors.push({ l: baseLightness + v.l, c: baseChroma * v.c, h: finalHue });
   });
 
   const fourthHue = tetradicHues[3];
-  const finalFourthHue = enhanced ? avoidMuddyZones(fourthHue, baseLightness + 0.2, baseChroma * 0.7).h : fourthHue;
+  const finalFourthHue = safeHue(fourthHue, baseLightness + 0.2, baseChroma * 0.7, enhanced);
   colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.7, h: finalFourthHue });
   colors.push({ l: baseLightness - 0.25, c: baseChroma * 1.1, h: baseHue });
   colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.8, h: baseHue });
@@ -146,12 +140,12 @@ export const generateSplitComplementary = createPaletteGenerator('split-compleme
   colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.85, h: baseHue });
 
   splitHues.slice(1).forEach((hue, idx) => {
-    let finalHue = enhanced ? avoidMuddyZones(hue, baseLightness, baseChroma).h : hue;
+    let finalHue = safeHue(hue, baseLightness, baseChroma, enhanced);
     const v = idx === 0 ? { l: 0.08, c: 0.9 } : { l: -0.08, c: 0.75 };
     colors.push({ l: baseLightness + v.l, c: baseChroma * v.c, h: finalHue });
   });
 
-  const mutedHue = enhanced ? avoidMuddyZones(splitHues[1], baseLightness + 0.2, baseChroma * 0.6).h : splitHues[1];
+  const mutedHue = safeHue(splitHues[1], baseLightness + 0.2, baseChroma * 0.6, enhanced);
   colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.6, h: mutedHue });
 
   return colors;

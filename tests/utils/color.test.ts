@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
-  OKLCH_LIMITS,
   clampOKLCH,
   normalizeHue,
   avoidMuddyZones,
 } from '../../src/utils/color';
+import { OKLCH_LIMITS } from '../../src/utils/constants';
 
 describe('color utilities', () => {
   describe('clampOKLCH', () => {
