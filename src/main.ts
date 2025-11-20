@@ -93,7 +93,7 @@ app.innerHTML = `
             </label>
 
             <label class="palette-type-tab">
-              <input type="radio" name="paletteType" value="split-complementary" />
+              <input type="radio" name="paletteType" value="splitComplementary" />
               <div class="palette-type-icon">
                 <i style="--angle: 0deg"></i>
                 <i style="--angle: 150deg"></i>
@@ -189,7 +189,7 @@ const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
   complementary: 'Complementary',
   triadic: 'Triadic',
   tetradic: 'Tetradic',
-  'split-complementary': 'Split Complementary',
+  splitComplementary: 'Split Complementary',
 };
 
 // Set random initial color
@@ -483,7 +483,7 @@ randomizeButton.addEventListener('click', () => {
 
 randomizeSettingsButton.addEventListener('click', () => {
   // Randomize palette type
-  const types = ['analogous', 'complementary', 'triadic', 'tetradic', 'split-complementary'];
+  const types = ['analogous', 'complementary', 'triadic', 'tetradic', 'splitComplementary'];
   const randomType = types[Math.floor(Math.random() * types.length)] as PaletteType;
   const radioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteType"][value="${randomType}"]`);
   if (radioToCheck) {

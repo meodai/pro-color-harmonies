@@ -26,7 +26,7 @@ export interface OKLCH {
 }
 
 export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
-export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'split-complementary';
+export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'splitComplementary';
 
 export type PaletteColor = OKLCH;
 
@@ -130,7 +130,7 @@ export const generateTetradic = createPaletteGenerator('tetradic', (base, option
   return colors;
 });
 
-export const generateSplitComplementary = createPaletteGenerator('split-complementary', (base, options, enhanced) => {
+export const generateSplitComplementary = createPaletteGenerator('splitComplementary', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const splitHues = getSplitComplementaryHues(base, options.style);
 
@@ -164,7 +164,7 @@ export class ColorPaletteGenerator {
       case 'complementary': palette = generateComplementary(baseColor, baseOptions); break;
       case 'triadic': palette = generateTriadic(baseColor, baseOptions); break;
       case 'tetradic': palette = generateTetradic(baseColor, baseOptions); break;
-      case 'split-complementary': palette = generateSplitComplementary(baseColor, baseOptions); break;
+      case 'splitComplementary': palette = generateSplitComplementary(baseColor, baseOptions); break;
       default: throw new Error(`Unknown palette type: ${paletteType}`);
     }
 
@@ -177,7 +177,7 @@ export class ColorPaletteGenerator {
       complementary: applyModifiers(generateComplementary(baseColor, options), options.modifiers),
       triadic: applyModifiers(generateTriadic(baseColor, options), options.modifiers),
       tetradic: applyModifiers(generateTetradic(baseColor, options), options.modifiers),
-      'split-complementary': applyModifiers(generateSplitComplementary(baseColor, options), options.modifiers),
+      splitComplementary: applyModifiers(generateSplitComplementary(baseColor, options), options.modifiers),
     };
   }
 }

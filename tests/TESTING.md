@@ -34,7 +34,7 @@ Tests for palette modification functions:
 
 ### `src/color-palette-generator.test.ts`
 Tests for the main palette generator:
-- All 5 palette types (analogous, complementary, triadic, tetradic, split-complementary)
+- All 5 palette types (analogous, complementary, triadic, tetradic, splitComplementary)
 - All 4 style variations (square, triangle, circle, diamond)
 - Edge cases (extreme lightness, zero chroma, high chroma)
 - All hue ranges (0-360°)

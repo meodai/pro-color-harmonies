@@ -53,7 +53,7 @@ export type PaletteType =
   | 'complementary'
   | 'triadic'
   | 'tetradic'
-  | 'split-complementary';
+  | 'splitComplementary';
 
 export interface OKLCH {
   l: number;  // Lightness (0-1)
@@ -106,7 +106,7 @@ const all = ColorPaletteGenerator.generateAll({
   modifiers: [0.1, 0, 0, 0],
 });
 
-// all.analogous, all.complementary, all.triadic, all.tetradic, all['split-complementary']
+// all.analogous, all.complementary, all.triadic, all.tetradic, all.splitComplementary
 ```
 
 Each palette is run through the modifiers (if provided), just like `generate`.
@@ -305,7 +305,7 @@ npm run test:ui
 ```
 
 Tests are located in the `tests/` directory and cover:
-- All 5 palette types (analogous, complementary, triadic, tetradic, split-complementary)
+- All 5 palette types (analogous, complementary, triadic, tetradic, splitComplementary)
 - All 4 styles (square, triangle, circle, diamond)
 - Color utilities and interpolation functions
 - All palette modifiers
@@ -324,7 +324,7 @@ npm run build:demo
 Controls:
 
 - **Base color**: free text color input (hex, CSS color, etc.).
-- **Palette type**: selects one of analogous / complementary / triadic / tetradic / split-complementary.
+- **Palette type**: selects one of analogous / complementary / triadic / tetradic / splitComplementary.
 - **Style**: square / triangle / circle / diamond.
 - **Count**: range 3–24; the library generates 6 base OKLCH colors, then the demo:
   - For values < 6: evenly samples from the base palette

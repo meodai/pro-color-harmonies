@@ -38,7 +38,7 @@ npm run test:coverage
 ## 🎨 What's Tested
 
 ### Core Functions
-- ✅ All 5 palette types (analogous, complementary, triadic, tetradic, split-complementary)
+- ✅ All 5 palette types (analogous, complementary, triadic, tetradic, splitComplementary)
 - ✅ All 4 styles (square, triangle, circle, diamond)
 - ✅ All color utilities (clamp, normalize, muddy zones)
 - ✅ All modifiers (sine, wave, zap, block)

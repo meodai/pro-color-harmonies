@@ -77,7 +77,7 @@ function getChromaNarrative(
     }
   }
 
-  if (paletteType === 'split-complementary') {
+  if (paletteType === 'splitComplementary') {
     switch (style) {
       case 'square':
         return {
@@ -198,7 +198,7 @@ function getColorHierarchy(
     ];
   }
 
-  if (paletteType === 'split-complementary') {
+  if (paletteType === 'splitComplementary') {
     return [
       { name: 'protagonist', chromaMultiplier: 1.0, lightnessShift: 0, presence: 0.5 },
       { name: 'supporting', chromaMultiplier: 0.9, lightnessShift: -0.08, presence: 0.2 },

@@ -21,7 +21,7 @@ describe('ColorPaletteGenerator', () => {
     'complementary',
     'triadic',
     'tetradic',
-    'split-complementary',
+    'splitComplementary',
   ];
 
   describe('generate', () => {
@@ -112,7 +112,7 @@ describe('ColorPaletteGenerator', () => {
       expect(result).toHaveProperty('complementary');
       expect(result).toHaveProperty('triadic');
       expect(result).toHaveProperty('tetradic');
-      expect(result).toHaveProperty('split-complementary');
+      expect(result).toHaveProperty('splitComplementary');
       
       Object.values(result).forEach(palette => {
         expect(palette).toHaveLength(6);
@@ -267,8 +267,8 @@ describe('ColorPaletteGenerator', () => {
     });
   });
 
-  describe('split-complementary generator', () => {
-    it('should generate split-complementary colors', () => {
+  describe('splitComplementary generator', () => {
+    it('should generate splitComplementary colors', () => {
       const options: GeneratorOptions = { style: 'square' };
       const result = generateSplitComplementary(baseColor, options);
       
