@@ -378,12 +378,54 @@ function renderPalette() {
   const options: GeneratorOptions = {
     style,
     colorSpace: { space: 'oklch' },
-    count,
     modifiers,
   };
 
   try {
-    const palette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
+    const basePalette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
+    
+    // Spread or reduce palette to match desired count
+    let palette: typeof basePalette;
+    if (count <= basePalette.length) {
+      // Remove colors: evenly distribute which ones to keep
+      const step = basePalette.length / count;
+      palette = Array.from({ length: count }, (_, i) => {
+        const index = Math.min(Math.floor(i * step), basePalette.length - 1);
+        return basePalette[index];
+      });
+    } else {
+      // Spread colors: interpolate between existing colors
+      palette = [];
+      const segmentSize = (basePalette.length - 1) / (count - 1);
+      
+      for (let i = 0; i < count; i++) {
+        const position = i * segmentSize;
+        const lowerIndex = Math.floor(position);
+        const upperIndex = Math.min(Math.ceil(position), basePalette.length - 1);
+        const t = position - lowerIndex;
+        
+        if (t === 0 || lowerIndex === upperIndex) {
+          palette.push(basePalette[lowerIndex]);
+        } else {
+          // Interpolate between two colors
+          const lower = basePalette[lowerIndex].color;
+          const upper = basePalette[upperIndex].color;
+          
+          const interpolated = {
+            l: lower.l + (upper.l - lower.l) * t,
+            c: lower.c + (upper.c - lower.c) * t,
+            h: lower.h + (upper.h - lower.h) * t,
+          };
+          
+          palette.push({
+            code: `${paletteType}-${i + 1}`,
+            isBase: i === 0,
+            color: interpolated,
+          });
+        }
+      }
+    }
+    
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
       const { l, c: chroma, h } = c.color;

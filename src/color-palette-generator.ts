@@ -33,7 +33,6 @@ export interface GeneratorOptions {
     space: ColorSpace;
   };
   chromaAdjust?: number;
-  count?: number; // Number of colors to generate (minimum 5, default 5)
   modifiers?: [number, number, number, number]; // Optional palette modulation knobs (0-1)
 }
 
@@ -795,7 +794,7 @@ export const generateSplitComplementary = createPaletteGenerator(
 export class ColorPaletteGenerator {
   /**
    * Generate a color palette based on the specified type and options
-   * Returns exactly 5 colors for each palette type
+   * Returns exactly 5 colors as designed by each palette type
    */
   static generate(
     baseColor: string,

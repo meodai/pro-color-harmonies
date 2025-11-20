@@ -62,9 +62,8 @@ export function createPaletteGenerator(
   ) => OKLCH[]
 ) {
   return (baseColor: string, options: GeneratorOptions): PaletteColor[] => {
-    const { style, count = 5 } = options;
+    const { style } = options;
     const enhanced = style !== 'square';
-    const targetCount = Math.max(1, count);
 
     try {
       const parsed = parse(baseColor);
@@ -79,11 +78,9 @@ export function createPaletteGenerator(
 
       const colors = generatorFn(base, options, enhanced);
 
-      const basePalette = colors.map((color, index) =>
+      return colors.map((color, index) =>
         colorFactory(color, paletteType, index, index === 0)
       );
-
-      return extendPalette(basePalette, targetCount, paletteType);
     } catch (error) {
       throw new Error(`Failed to generate ${paletteType} colors: ${error}`);
     }
