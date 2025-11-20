@@ -366,12 +366,12 @@ body {
   width: var(--dotSize);
   height: var(--dotSize);
   border-radius: 50%;
-  box-shadow: 0 0 0 1px currentColor;
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--bg);
   top: 100%;
   left: 0%;
+  box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
 }
 
 .control__input {
@@ -416,7 +416,7 @@ body {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
-  box-shadow: 0 0 0 1px currentColor;
+  box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
 }
 
 .control--small {
