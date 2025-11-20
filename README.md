@@ -281,7 +281,7 @@ Then open the printed `http://localhost:517x/` URL.
 
 ### Testing
 
-The project includes comprehensive test coverage (88%+) using Vitest:
+The project includes comprehensive testing using Vitest:
 
 ```bash
 # Run tests in watch mode
@@ -289,9 +289,6 @@ npm test
 
 # Run tests once
 npm run test:run
-
-# Run tests with coverage report
-npm run test:coverage
 
 # Run tests with UI
 npm run test:ui
@@ -342,3 +339,4 @@ The project includes GitHub Actions workflows:
 - For extended palettes (> 6 colors), interpolate between OKLCH colors yourself, or reuse the demo's `extendPalette` (which uses `culori` and lives in `src/utils/demo-palette.ts`).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
 - The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools, with the core kept free of parsing/formatting concerns.
+- The core algorithms and "magic numbers" for color harmony are derived from [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator), but the codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
