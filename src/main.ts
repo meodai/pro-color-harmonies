@@ -1,11 +1,12 @@
 import './style.css';
-import { formatHex, formatCss, oklch, oklab, interpolate } from 'culori';
+import { formatHex, formatCss, oklch } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
   type PaletteStyle,
   type GeneratorOptions,
 } from './color-palette-generator';
+import { extendPalette } from './utils/palette';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -174,10 +175,24 @@ const baseColorValue = document.querySelector<HTMLSpanElement>('#baseColorValue'
 const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteType"]')!;
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
 
+const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
+  analogous: 'Analogous',
+  complementary: 'Complementary',
+  triadic: 'Triadic',
+  tetradic: 'Tetradic',
+  'split-complementary': 'Split Complementary',
+};
+
 // Set random initial color
 baseInput.value = randomHexColor();
 const styleRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteStyle"]')!;
 const styleLabel = document.querySelector<HTMLSpanElement>('#styleLabel')!;
+const PALETTE_STYLE_LABELS: Record<PaletteStyle, string> = {
+  square: 'Square',
+  triangle: 'Triangle',
+  circle: 'Circle',
+  diamond: 'Diamond',
+};
 const countInput = document.querySelector<HTMLInputElement>('#colorCount')!;
 const countValue = document.querySelector<HTMLSpanElement>('#countValue')!;
 const mod1Value = document.querySelector<HTMLSpanElement>('#mod1Value')!;
@@ -280,60 +295,45 @@ function updateGridDotPosition() {
   gridDot2.style.top = `${y2}%`;
 }
 
-function handleGrid1Interaction(e: MouseEvent) {
-  const rect = gridControl1.getBoundingClientRect();
-  const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-  
+function createGridInteractionHandler(
+  gridElement: HTMLDivElement,
+  updateModifiers: (x: number, y: number) => void,
+) {
+  const handleInteraction = (e: MouseEvent) => {
+    const rect = gridElement.getBoundingClientRect();
+    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+    updateModifiers(x, y);
+    updateGridDotPosition();
+    renderPalette();
+  };
+
+  gridElement.addEventListener('mousedown', (e) => {
+    handleInteraction(e);
+
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      handleInteraction(moveEvent);
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  });
+}
+
+createGridInteractionHandler(gridControl1, (x, y) => {
   mod1 = (x * 2 - 1) * 100;
   mod3 = ((1 - y) * 2 - 1) * 100;
-  
-  updateGridDotPosition();
-  renderPalette();
-}
-
-function handleGrid2Interaction(e: MouseEvent) {
-  const rect = gridControl2.getBoundingClientRect();
-  const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-  const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
-  
-  mod2 = (x * 2 - 1) * 100;
-  mod4 = ((1 - y) * 2 - 1) * 100;
-  
-  updateGridDotPosition();
-  renderPalette();
-}
-
-gridControl1.addEventListener('mousedown', (e) => {
-  handleGrid1Interaction(e);
-  
-  const onMouseMove = (e: MouseEvent) => {
-    handleGrid1Interaction(e);
-  };
-  
-  const onMouseUp = () => {
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  };
-  
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
 });
 
-gridControl2.addEventListener('mousedown', (e) => {
-  handleGrid2Interaction(e);
-  
-  const onMouseMove = (e: MouseEvent) => {
-    handleGrid2Interaction(e);
-  };
-  
-  const onMouseUp = () => {
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-  };
-  
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
+createGridInteractionHandler(gridControl2, (x, y) => {
+  mod2 = (x * 2 - 1) * 100;
+  mod4 = ((1 - y) * 2 - 1) * 100;
 });
 
 function updateCountProgress() {
@@ -382,44 +382,7 @@ function renderPalette() {
 
   try {
     const basePalette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
-    
-    // Spread or reduce palette to match desired count
-    let palette: typeof basePalette;
-    if (count <= basePalette.length) {
-      // Remove colors: evenly distribute which ones to keep
-      const step = basePalette.length / count;
-      palette = Array.from({ length: count }, (_, i) => {
-        const index = Math.min(Math.floor(i * step), basePalette.length - 1);
-        return basePalette[index];
-      });
-    } else {
-      // Spread colors: interpolate between existing colors using OKLAB
-      palette = [];
-      
-      // Convert base palette OKLCH to culori OKLCH colors, then to OKLAB for interpolation
-      const baseColors = basePalette.map(p => {
-        const oklchColor = oklch({ mode: 'oklch', l: p.l, c: p.c, h: p.h });
-        return oklab(oklchColor);
-      });
-      
-      // Create interpolator in OKLAB space
-      const interpolator = interpolate(baseColors, 'oklab');
-      
-      for (let i = 0; i < count; i++) {
-        // Map index to 0-1 range across the palette
-        const t = i / (count - 1);
-        const interpolatedColor = interpolator(t);
-        
-        // Convert back to OKLCH for consistency
-        const oklchColor = oklch(interpolatedColor);
-        
-        palette.push({
-          l: oklchColor.l,
-          c: oklchColor.c,
-          h: oklchColor.h || 0,
-        });
-      }
-    }
+    const palette = extendPalette(basePalette, count);
     
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
@@ -478,26 +441,13 @@ baseInput.addEventListener('blur', renderPalette);
 baseInput.addEventListener('input', renderPalette);
 paletteTypeRadios.forEach(radio => {
   radio.addEventListener('change', () => {
-    const labels: Record<string, string> = {
-      'analogous': 'Analogous',
-      'complementary': 'Complementary',
-      'triadic': 'Triadic',
-      'tetradic': 'Tetradic',
-      'split-complementary': 'Split Complementary'
-    };
-    paletteTypeLabel.textContent = labels[radio.value] || radio.value;
+    paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[radio.value as PaletteType] || radio.value;
     renderPalette();
   });
 });
 styleRadios.forEach(radio => {
   radio.addEventListener('change', () => {
-    const labels: Record<string, string> = {
-      'square': 'Square',
-      'triangle': 'Triangle',
-      'circle': 'Circle',
-      'diamond': 'Diamond'
-    };
-    styleLabel.textContent = labels[radio.value] || radio.value;
+    styleLabel.textContent = PALETTE_STYLE_LABELS[radio.value as PaletteStyle] || radio.value;
     renderPalette();
   });
 });
@@ -513,33 +463,20 @@ randomizeButton.addEventListener('click', () => {
 randomizeSettingsButton.addEventListener('click', () => {
   // Randomize palette type
   const types = ['analogous', 'complementary', 'triadic', 'tetradic', 'split-complementary'];
-  const randomType = types[Math.floor(Math.random() * types.length)];
+  const randomType = types[Math.floor(Math.random() * types.length)] as PaletteType;
   const radioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteType"][value="${randomType}"]`);
   if (radioToCheck) {
     radioToCheck.checked = true;
-    const labels: Record<string, string> = {
-      'analogous': 'Analogous',
-      'complementary': 'Complementary',
-      'triadic': 'Triadic',
-      'tetradic': 'Tetradic',
-      'split-complementary': 'Split Complementary'
-    };
-    paletteTypeLabel.textContent = labels[randomType] || randomType;
+    paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[randomType] || randomType;
   }
   
   // Randomize style
   const styles = ['square', 'triangle', 'circle', 'diamond'];
-  const randomStyle = styles[Math.floor(Math.random() * styles.length)];
+  const randomStyle = styles[Math.floor(Math.random() * styles.length)] as PaletteStyle;
   const styleRadioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteStyle"][value="${randomStyle}"]`);
   if (styleRadioToCheck) {
     styleRadioToCheck.checked = true;
-    const styleLabels: Record<string, string> = {
-      'square': 'Square',
-      'triangle': 'Triangle',
-      'circle': 'Circle',
-      'diamond': 'Diamond'
-    };
-    styleLabel.textContent = styleLabels[randomStyle] || randomStyle;
+    styleLabel.textContent = PALETTE_STYLE_LABELS[randomStyle] || randomStyle;
   }
   
   // Randomize modifiers (-100 to 100 for all grids)

@@ -2,9 +2,8 @@
  * Palette generation helper utilities
  */
 
-import { parse, oklch } from 'culori';
+import { parse, oklch, oklab, interpolate } from 'culori';
 import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../color-palette-generator';
-import { scaleSpreadArray, lerpOKLCH } from './interpolation';
 
 /**
  * Extends a palette to the desired count using interpolation
@@ -14,17 +13,35 @@ export function extendPalette(
   targetCount: number
 ): PaletteColor[] {
   if (targetCount <= basePalette.length) {
-    // If target count is less than or equal to base palette, just return the base
-    return basePalette.slice(0, targetCount);
+    const step = basePalette.length / targetCount;
+    return Array.from({ length: targetCount }, (_, i) => {
+      const index = Math.min(Math.floor(i * step), basePalette.length - 1);
+      return basePalette[index];
+    });
   }
 
-  // Use interpolation to extend the palette
-  return scaleSpreadArray<OKLCH>(
-    basePalette,
-    targetCount,
-    0,
-    lerpOKLCH
-  );
+  // For larger palettes, mirror main.ts: interpolate in OKLAB via culori
+  const baseColors = basePalette.map(p => {
+    const oklchColor = oklch({ mode: 'oklch', l: p.l, c: p.c, h: p.h });
+    return oklab(oklchColor);
+  });
+
+  const interpolator = interpolate(baseColors, 'oklab');
+
+  const result: PaletteColor[] = [];
+  for (let i = 0; i < targetCount; i++) {
+    const t = targetCount === 1 ? 0 : i / (targetCount - 1);
+    const interpolatedColor = interpolator(t);
+    const oklchColor = oklch(interpolatedColor);
+
+    result.push({
+      l: oklchColor.l,
+      c: oklchColor.c,
+      h: oklchColor.h || 0,
+    });
+  }
+
+  return result;
 }
 
 

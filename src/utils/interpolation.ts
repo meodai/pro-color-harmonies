@@ -4,6 +4,7 @@
 
 import type { Color as CuloriColor } from 'culori';
 import { oklab } from 'culori';
+import { normalizeHue } from './color';
 
 export type FillFunction<T> = T extends number
   ? (amt: number, from: T, to: T) => T
@@ -48,7 +49,7 @@ export const lerpOKLCH = (amt: number, from: { l: number; c: number; h: number }
   return {
     l: lerp(amt, from.l, to.l),
     c: lerp(amt, from.c, to.c),
-    h: ((h % 360) + 360) % 360,
+    h: normalizeHue(h),
   };
 };
 
