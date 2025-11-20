@@ -1,0 +1,23 @@
+{
+  "name": "pro-palette",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config vite.demo.config.ts",
+    "build": "tsc && vite build",
+    "build:lib": "tsc && vite build --config vite.config.ts",
+    "preview": "vite preview --config vite.demo.config.ts"
+  },
+  "devDependencies": {
+    "@types/culori": "^4.0.1",
+    "typescript": "~5.9.3",
+    "vite": "npm:rolldown-vite@7.2.2"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.2.2"
+  },
+  "dependencies": {
+    "culori": "^4.0.2"
+  }
+}

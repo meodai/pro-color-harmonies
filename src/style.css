@@ -1,0 +1,528 @@
+:root {
+  font-family: 'Iosevka Web', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text',
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 300;
+
+  --bg: #fff;
+  --line: color-mix(in lab, currentColor 20%, var(--bg));
+
+  --dotSize: .75rem;
+
+  background-color: var(--bg);
+  color: #000;
+
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  font-size: 1.2rem;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+
+}
+
+#app {
+  width: 100%;
+}
+
+.demo {
+  position: relative;
+  width: 70rem;
+  padding-top: 5rem;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset:0;
+    background: linear-gradient(90deg, var(--grad));
+    filter: blur(80px);
+  }
+  &::after {
+    content: '';
+    position: absolute;
+    inset:-1rem;
+    background: linear-gradient(90deg, var(--grad-stops));
+    z-index: 1;
+  }
+}
+
+.demo__title {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.demo__subtitle {
+  margin: 0;
+}
+
+.demo__controls {
+  display: flex;
+  gap: 2rem;
+  align-items: stretch;
+  background: var(--bg);
+  position: relative;
+  padding: 1.5rem 2rem 2rem 2rem;
+  z-index: 2;
+  &>div {
+    flex: 1;
+  }
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.control--combined {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  min-height: 100%;
+}
+
+.control--base-color {
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  gap: 0.5rem;
+}
+
+.control--base-color .control {
+  flex: 1;
+}
+
+.control--base-color .button {
+  flex-shrink: 0;
+}
+
+.control__label {
+  font-size: 0.9rem;
+  max-width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control__label-text {
+  flex: 1 0 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.control__label-value {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: .8em;
+}
+
+.palette-type-tabs {
+  display: flex;
+  border: 2px solid currentColor;
+}
+
+.palette-type-tabs input[type="radio"] {
+  display: none;
+}
+
+.palette-type-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  position: relative;
+}
+
+.palette-type-tab::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 1.1rem;
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(.3);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s linear, transform 0.2s cubic-bezier(0.3, 0.7, 0, 1);
+}
+
+.palette-type-tab+.palette-type-tab {
+  border-left: 1px solid var(--line);
+}
+
+.palette-type-tab:has(input[type="radio"]:checked) {
+  &::after {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.palette-type-icon {
+  height: .75rem;
+  aspect-ratio: 1;
+  position: relative;
+  border: 1px solid color-mix(in lab, currentColor 30%, var(--bg));
+  border-radius: 50%;
+  container-type: inline-size;
+  display: block;
+}
+
+
+.palette-type-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.palette-type-icon i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: currentColor;
+  top: 50%;
+  left: 50%;
+  transform:
+    translate(-50%, -50%) rotate(var(--angle)) translateY(-50cqi) translateY(-50%);
+  transform-origin: center;
+}
+
+.palette-type-name {
+  font-size: 0.7rem;
+  text-align: center;
+  display: none;
+}
+
+.style-tabs {
+  display: flex;
+  border: 2px solid currentColor;
+}
+
+.style-tabs input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.style-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.7rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.style-tab+.style-tab {
+  border-left: 1px solid var(--line);
+}
+
+.style-icon {
+  height: .75rem;
+  aspect-ratio: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.4;
+  transform: scale(0.9);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.style-tab:has(input[type="radio"]:checked) .style-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.style-tab:hover .style-icon {
+  opacity: 0.7;
+}
+
+.style-icon--square {
+  border: 1px solid currentColor;
+}
+
+.style-icon--triangle svg {
+  width: 150%;
+  height: 150%;
+  opacity: 0.9;
+  display: block;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.style-icon--circle {
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+
+.style-icon--diamond {
+  border: 1px solid currentColor;
+  transform: rotate(45deg) scale(0.85);
+  opacity: 0.9;
+}
+
+.style-name {
+  font-size: 0.7rem;
+  text-align: center;
+  display: none;
+}
+
+.control--grid {
+  grid-column: span 1;
+}
+
+.grid-control {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background-image:
+    repeating-linear-gradient(0deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent calc(100% / 16)),
+    repeating-linear-gradient(90deg,
+      var(--line) 0,
+      var(--line) 1px,
+      transparent 1px,
+      transparent calc(100% / 16));
+  box-shadow: inset 0 0 0 2px currentColor;
+
+  cursor: crosshair;
+  user-select: none;
+  background-size: calc(100% + 1px);
+}
+
+.grid-control__dot {
+  position: absolute;
+  width: var(--dotSize);
+  height: var(--dotSize);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px currentColor;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  top: 100%;
+  left: 0%;
+}
+
+.control__input {
+  font: inherit;
+  border: 2px solid currentColor;
+  background: inherit;
+  color: inherit;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.control__input--color {
+  padding: 0 2px;
+  width: 100%;
+  height: 2.5rem;
+  cursor: pointer;
+}
+
+.range-wrapper {
+  position: relative;
+  width: 100%;
+  height: 1.25rem;
+}
+
+.control__input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 1;
+  margin: 0;
+}
+
+.range-marker {
+  position: absolute;
+  left: calc(var(--progress, 0) * 100%);
+  top: 14px;
+  width: var(--dotSize);
+  height: var(--dotSize);
+  background: transparent;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  box-shadow: 0 0 0 1px currentColor;
+}
+
+.control--small {
+  position: relative;
+}
+
+.control--small::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: currentColor;
+  pointer-events: none;
+}
+
+/* Main graduations at 3, 10, 17, 24 */
+.control--small::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background-image:
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to right, currentColor 1px, transparent 1px),
+    linear-gradient(to right, currentColor 1px, transparent 1px);
+  background-size: 1px 8px;
+  background-position: 0% 0, calc(100% / 21 * 7) 0, calc(100% / 21 * 14) 0, 100% 0;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+/* Smaller graduations in between */
+.control--small .range-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-image: linear-gradient(to right,
+      transparent,
+      transparent calc(100% - 0.5px),
+      var(--line) calc(100% - 0.5px));
+  background-size: calc(100% / 20) 100%;
+  pointer-events: none;
+}
+
+
+.button {
+  font: inherit;
+  padding: 0.46rem 0.9rem;
+  background: inherit;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  border: 2px solid currentColor;
+  box-shadow: 0 0 0 0 currentColor;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s linear;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 0 0 currentColor;
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button--last,
+.control--palette-type {
+  margin-top: 1.55rem;
+}
+
+.demo__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.palette {
+  display: flex;
+  gap: 0;
+  overflow: hidden;
+  border: 2px solid currentColor;
+}
+
+.swatch {
+  flex: 1 1 auto;
+  display: block;
+  box-shadow: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.swatch +.swatch {
+  border-left: 1px solid var(--line);
+}
+
+.swatch::before {
+  content: '';
+  display: block;
+  padding-top: 100%;
+  pointer-events: none;
+}
+
+.swatch::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: var(--color);
+  transform: scale(.85);
+  transition: transform 0.2s cubic-bezier(0.3, 0.7, 0, 1);
+}
+
+.swatch:hover::after {
+  transform: scale(1);
+}
+
+
+
+.swatch__meta {
+  display: none;
+}
+
+.demo__palettes {
+  display: none;
+}
+
+.palette-title {
+  position: absolute;
+  font-size: 1.75rem;
+  font-weight: 200;
+  margin-bottom: 1rem;
+  z-index: 2;
+  top: calc(100% + 1rem);
+  left: 1.7rem;
+}
