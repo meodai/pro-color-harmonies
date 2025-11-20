@@ -1,8 +1,14 @@
 # Pro Palette
 
-A TypeScript color-harmony library and tiny demo built on top of [`culori`](https://github.com/Evercoder/culori). It generates perceptually-tuned OKLCH/OKLAB-based palettes from a single base color, with support for different harmony types, styles, interpolation, and four post-processing "modulator" knobs.
+A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data (no `culori` dependency) and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs. The **demo app** uses [`culori`](https://github.com/Evercoder/culori) for parsing, interpolation, and CSS/hex formatting.
 
 ## Installation
+
+```bash
+npm install pro-palette
+```
+
+If you want to run the included demo or reuse its helpers, you will also need:
 
 ```bash
 npm install culori
@@ -19,8 +25,9 @@ The library is organized into modular utilities for better maintainability:
 - `src/utils/color.ts` - OKLCH color space utilities (clamping, normalization, muddy zone avoidance)
 - `src/utils/interpolation.ts` - Interpolation functions and array manipulation
 - `src/utils/modifiers.ts` - Palette modifiers (sine, wave, zap, block)
-- `src/utils/palette.ts` - Palette generation helpers and factory functions
-- `src/utils/index.ts` - Central export point for all utilities
+- `src/utils/palette.ts` - Palette generation helpers and factory functions (no `culori`)
+- `src/utils/demo-palette.ts` - Demo-only helpers that use `culori` for interpolation (`extendPalette`)
+- `src/utils/index.ts` - Central export point for all **core** utilities
 
 ### Types
 
@@ -55,7 +62,7 @@ export interface GeneratorOptions {
 
 Generate a single palette.
 
-- **`baseColor`**: any culori-parsable color string (hex, `rgb(...)`, `oklch(...)`, etc.).
+- **`baseColor`**: an `OKLCH` object `{ l, c, h }`.
 - **`paletteType`**: one of the five harmony types.
 - **`options`**:
   - `style`: how the relationships are shaped perceptually:
@@ -64,9 +71,9 @@ Generate a single palette.
     - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.).
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
   - `chromaAdjust` (optional): fine-tune saturation response for some generators (default varies by generator).
-  - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts:
-    - For fewer colors (< 6): the demo uses sampling to select evenly distributed colors from the base palette.
-    - For more colors (> 6): use OKLAB interpolation between the base colors for smooth transitions (as shown in the demo using `culori`).
+  - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
+    - For fewer colors (< 6): sample evenly from the base palette.
+    - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
   - `modifiers` (optional): `[sine, wave, zap, block]` (each `0–1`); see **Modifiers** below.
 
 Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
@@ -76,7 +83,11 @@ Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 Generate every palette type at once.
 
 ```ts
-const all = ColorPaletteGenerator.generateAll('#4c6fff', {
+const all = ColorPaletteGenerator.generateAll({
+  l: 0.7,
+  c: 0.13,
+  h: 260,
+}, {
   style: 'triangle',
   modifiers: [0.1, 0, 0, 0],
 });
@@ -88,12 +99,16 @@ Each palette is run through the modifiers (if provided), just like `generate`.
 
 ### Individual generators
 
-All of these operate primarily in OKLCH, then return `OKLCH[]`. Each generator produces exactly **6 base colors**.
+All of these operate in OKLCH and return `OKLCH[]`. Each generator produces exactly **6 base colors**.
 
 ```ts
 import { generateAnalogous } from './src/color-palette-generator';
 
-const palette = generateAnalogous('#4c6fff', {
+const palette = generateAnalogous({
+  l: 0.7,
+  c: 0.13,
+  h: 260,
+}, {
   style: 'triangle',
   modifiers: [0.1, 0, 0, 0],
 });
@@ -124,7 +139,11 @@ You can also import them via the `generators` export:
 ```ts
 import { generators } from './src/color-palette-generator';
 
-const tri = generators.triadic('#4c6fff', {
+const tri = generators.triadic({
+  l: 0.7,
+  c: 0.13,
+  h: 260,
+}, {
   style: 'triangle',
 });
 ```
@@ -203,8 +222,7 @@ import {
 
 ```ts
 import { 
-  extendPalette,           // Extend palette via interpolation
-  createPaletteGenerator   // Factory for creating palette generators
+  createPaletteGenerator   // Factory for creating palette generators (OKLCH in/out only)
 } from './src/utils/palette';
 ```
 
@@ -216,7 +234,7 @@ import * as utils from './src/utils';
 
 ## Demo app
 
-The demo lives in `src/main.ts` + `src/style.css` and is built with Vite.
+The demo lives in `src/main.ts` + `src/style.css` and is built with Vite. It wires the core OKLCH-based generator to real-world usage via `culori`.
 
 - Start dev server:
 
@@ -233,9 +251,9 @@ Controls:
 - **Base color**: free text color input (hex, CSS color, etc.).
 - **Palette type**: selects one of analogous / complementary / triadic / tetradic / split-complementary.
 - **Style**: square / triangle / circle / diamond.
-- **Count**: range 3–24; the library generates 6 base colors, then:
-  - Values < 6: evenly samples from the base palette
-  - Values > 6: uses OKLAB interpolation (via culori) between the 6 base colors for smooth color transitions
+- **Count**: range 3–24; the library generates 6 base OKLCH colors, then the demo:
+  - For values < 6: evenly samples from the base palette
+  - For values > 6: uses OKLAB interpolation (via `culori` in `src/utils/demo-palette.ts`) between the 6 base colors for smooth color transitions
 - **Sine / Wave / Zap / Block**: the four 0–1 modulation sliders described above.
 - **Random base**: chooses a random hex color.
 
@@ -246,6 +264,6 @@ The palette is displayed as a single flat bar of swatches.
 - All palette generators produce exactly **6 base colors** internally.
 - Generation logic operates in OKLCH for perceptually uniform color harmony.
 - Palette colors are simple OKLCH objects (`{ l, c, h }`) without metadata like `code` or `isBase`.
-- For extended palettes (> 6 colors), use OKLAB interpolation for smoother transitions between colors (as demonstrated in the demo app).
+- For extended palettes (> 6 colors), interpolate between OKLCH colors yourself, or reuse the demo's `extendPalette` (which uses `culori` and lives in `src/utils/demo-palette.ts`).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
-- The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools.
+- The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools, with the core kept free of parsing/formatting concerns.

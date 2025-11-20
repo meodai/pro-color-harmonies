@@ -6,7 +6,7 @@ import {
   type PaletteStyle,
   type GeneratorOptions,
 } from './color-palette-generator';
-import { extendPalette } from './utils/palette';
+import { extendPalette } from './utils/demo-palette';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
