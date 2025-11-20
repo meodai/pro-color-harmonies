@@ -377,7 +377,6 @@ function renderPalette() {
 
   const options: GeneratorOptions = {
     style,
-    colorSpace: { space: 'oklch' },
     modifiers,
   };
 

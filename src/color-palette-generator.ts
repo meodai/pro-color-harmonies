@@ -17,7 +17,6 @@ export interface OKLCH {
   h: number;
 }
 
-export type ColorSpace = 'hex' | 'rgb' | 'hsl' | 'oklch' | 'oklab' | 'lch' | 'lab' | 'p3';
 export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
 export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'split-complementary';
 
@@ -25,9 +24,6 @@ export type PaletteColor = OKLCH;
 
 export interface GeneratorOptions {
   style: PaletteStyle;
-  colorSpace: {
-    space: ColorSpace;
-  };
   chromaAdjust?: number;
   modifiers?: [number, number, number, number]; // Optional palette modulation knobs (0-1)
 }

@@ -25,16 +25,6 @@ The library is organized into modular utilities for better maintainability:
 ### Types
 
 ```ts
-export type ColorSpace =
-  | 'hex'
-  | 'rgb'
-  | 'hsl'
-  | 'oklch'
-  | 'oklab'
-  | 'lch'
-  | 'lab'
-  | 'p3';
-
 export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
 
 export type PaletteType =
@@ -54,7 +44,6 @@ export type PaletteColor = OKLCH;
 
 export interface GeneratorOptions {
   style: PaletteStyle;
-  colorSpace: { space: ColorSpace };
   chromaAdjust?: number;                  // fine-tune saturation response for some generators
   modifiers?: [number, number, number, number]; // 4 modulation knobs, each 0–1
 }
@@ -74,7 +63,7 @@ Generate a single palette.
     - `triangle` (perceptual): bends angles and variations so the palette looks balanced, especially in tricky red/orange/yellow regions.
     - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.).
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
-  - `colorSpace.space`: currently most generators work internally in OKLCH but you can request other output encodings via helper functions.
+  - `chromaAdjust` (optional): fine-tune saturation response for some generators (default varies by generator).
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts:
     - For fewer colors (< 6): the demo uses sampling to select evenly distributed colors from the base palette.
     - For more colors (> 6): use OKLAB interpolation between the base colors for smooth transitions (as shown in the demo using `culori`).
@@ -89,7 +78,6 @@ Generate every palette type at once.
 ```ts
 const all = ColorPaletteGenerator.generateAll('#4c6fff', {
   style: 'triangle',
-  colorSpace: { space: 'oklch' },
   modifiers: [0.1, 0, 0, 0],
 });
 
@@ -101,6 +89,16 @@ Each palette is run through the modifiers (if provided), just like `generate`.
 ### Individual generators
 
 All of these operate primarily in OKLCH, then return `OKLCH[]`. Each generator produces exactly **6 base colors**.
+
+```ts
+import { generateAnalogous } from './src/color-palette-generator';
+
+const palette = generateAnalogous('#4c6fff', {
+  style: 'triangle',
+  modifiers: [0.1, 0, 0, 0],
+});
+// Returns: OKLCH[] with 6 colors
+```
 
 - `generateAnalogous(baseColor, options)`
   - Produces 6 base colors by walking the hue around the base within a band.
@@ -128,7 +126,6 @@ import { generators } from './src/color-palette-generator';
 
 const tri = generators.triadic('#4c6fff', {
   style: 'triangle',
-  colorSpace: { space: 'oklch' },
 });
 ```
 
