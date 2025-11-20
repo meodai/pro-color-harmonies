@@ -374,6 +374,7 @@ body {
   box-shadow: 0 0 0 1px currentColor;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  background: var(--bg);
   top: 100%;
   left: 0%;
 }
@@ -416,7 +417,7 @@ body {
   top: 14px;
   width: var(--dotSize);
   height: var(--dotSize);
-  background: transparent;
+  background: var(--bg);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   pointer-events: none;
