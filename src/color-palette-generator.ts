@@ -879,8 +879,6 @@ export class ColorPaletteGenerator {
 
 // ============= Export convenience functions =============
 
-export default ColorPaletteGenerator;
-
 // Export individual generators for direct use
 export const generators = {
   analogous: generateAnalogous,
