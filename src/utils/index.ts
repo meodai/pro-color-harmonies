@@ -10,3 +10,4 @@ export * from './modifiers';
 export * from './palette';
 export * from './hue-strategies';
 export * from './variations';
+export * from './enhancer';
