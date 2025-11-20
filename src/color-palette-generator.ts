@@ -875,23 +875,6 @@ export class ColorPaletteGenerator {
   static toHexArray(palette: PaletteColor[]): string[] {
     return palette.map(color => formatRgb(rgb(color.color)));
   }
-
-  /**
-   * Get palette info including color values and metadata
-   */
-  static getPaletteInfo(palette: PaletteColor[]): {
-    colors: string[];
-    format: string;
-    baseIndex: number;
-    contrastColors: string[];
-  } {
-    return {
-      colors: palette.map(c => formatCss(oklch(c.color))),
-      format: 'oklch',
-      baseIndex: palette.findIndex(c => c.isBase),
-      contrastColors: palette.map(() => '#000'),
-    };
-  }
 }
 
 // ============= Export convenience functions =============

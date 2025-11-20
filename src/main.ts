@@ -1,5 +1,5 @@
 import './style.css';
-import { formatHex } from 'culori';
+import { formatHex, formatCss, oklch } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
@@ -384,7 +384,7 @@ function renderPalette() {
 
   try {
     const palette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
-    const colors = ColorPaletteGenerator.getPaletteInfo(palette).colors;
+    const colors = palette.map(c => formatCss(oklch(c.color)));
 
     // Console log colors as hex
     console.log('Colors (hex):', colorsToHex(colors));
