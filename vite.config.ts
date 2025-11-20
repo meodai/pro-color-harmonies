@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     lib: {
-      entry: 'src/color-palette-generator.ts',
+      entry: 'src/index.ts',
       name: 'ColorPaletteGenerator',
       fileName: (format) => `color-palette-generator.${format}.js`,
       formats: ['es', 'umd'],

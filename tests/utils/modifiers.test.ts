@@ -6,7 +6,7 @@ import {
   blockModifier,
   applyModifiers,
 } from '../../src/utils/modifiers';
-import type { PaletteColor } from '../../src/color-palette-generator';
+import type { PaletteColor } from '../../src/index';
 
 describe('palette modifiers', () => {
   const createTestPalette = (): PaletteColor[] => [
