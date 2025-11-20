@@ -250,6 +250,7 @@ const getColorNames = async (colors: string[]) => {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'X-Referrer': 'pro-color-harmonies-demo',
             },
             body: JSON.stringify({ colors }),
             signal: colorNameAbortController!.signal,
