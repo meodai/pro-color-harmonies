@@ -339,4 +339,4 @@ The project includes GitHub Actions workflows:
 - For extended palettes (> 6 colors), interpolate between OKLCH colors yourself, or reuse the demo's `extendPalette` (which uses `culori` and lives in `src/utils/demo-palette.ts`).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
 - The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools, with the core kept free of parsing/formatting concerns.
-- The core algorithms and "magic numbers" for color harmony are derived from [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator), but the codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
+- This project heavily leans on the logic of [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator) while taking a few shortcuts to make it easier to integrate. The codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
