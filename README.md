@@ -56,7 +56,6 @@ export interface GeneratorOptions {
   style: PaletteStyle;
   colorSpace: { space: ColorSpace };
   chromaAdjust?: number;                  // fine-tune saturation response for some generators
-  count?: number;                         // total colors requested (>= 5; extra colors are interpolated)
   modifiers?: [number, number, number, number]; // 4 modulation knobs, each 0–1
 }
 ```
@@ -91,32 +90,13 @@ Generate every palette type at once.
 const all = ColorPaletteGenerator.generateAll('#4c6fff', {
   style: 'triangle',
   colorSpace: { space: 'oklch' },
-  count: 9,
-  modifiers: [10, 0, 0, 0],
+  modifiers: [0.1, 0, 0, 0],
 });
 
 // all.analogous, all.complementary, all.triadic, all.tetradic, all['split-complementary']
 ```
 
 Each palette is run through the modifiers (if provided), just like `generate`.
-
-#### `ColorPaletteGenerator.toCSS(palette, prefix?)`
-
-Convert a palette to CSS custom properties.
-
-- `prefix` default: `'color'`.
-- `palette`: array of OKLCH colors
-- Output example:
-
-```css
---color-1: oklch(0.65 0.14 250);
---color-2: oklch(0.52 0.18 260);
-/* ... */
-```
-
-#### `ColorPaletteGenerator.toHexArray(palette)`
-
-Returns an array of sRGB hex values derived via `culori`.
 
 ### Individual generators
 
@@ -184,41 +164,58 @@ Ordering: modifiers are applied in sequence (`sine` → `wave` → `zap` → `bl
 
 ### Utility exports
 
-- `isValidColor(color: string): boolean`
-  - Thin wrapper around `culori.parse` to check parsability.
+The library exposes all its internal utilities for custom palette generation:
 
-#### Internal utilities (src/utils/)
-
-If you need direct access to the underlying utilities:
+#### Color utilities (`src/utils/color.ts`)
 
 ```ts
 import { 
-  normalizeHue, 
-  createOklch, 
-  avoidMuddyZones 
+  OKLCH_LIMITS,        // Constants for valid OKLCH ranges
+  clampOKLCH,          // Clamp OKLCH values to valid ranges
+  normalizeHue,        // Normalize hue to 0-360 range
+  extractOKLCH,        // Extract OKLCH from culori color
+  createOklch,         // Create culori OKLCH color with clamping
+  avoidMuddyZones      // Adjust hues to avoid muddy color zones
 } from './src/utils/color';
+```
 
+#### Interpolation utilities (`src/utils/interpolation.ts`)
+
+```ts
 import { 
-  lerp, 
-  lerpColor, 
-  scaleSpreadArray 
+  lerp,                // Linear interpolation between numbers
+  lerpColor,           // Interpolate between culori colors in OKLAB
+  lerpOKLCH,           // Interpolate between OKLCH colors
+  scaleSpreadArray     // Spread/interpolate array to target size
 } from './src/utils/interpolation';
+```
 
+#### Modifier utilities (`src/utils/modifiers.ts`)
+
+```ts
 import { 
-  sineModifier, 
-  waveModifier, 
-  zapModifier, 
-  blockModifier,
-  applyModifiers 
+  sineModifier,        // Sine wave modulation
+  waveModifier,        // Chaotic wave modulation
+  zapModifier,         // Spiral modulation
+  blockModifier,       // Triangle wave modulation
+  applyModifiers       // Apply all modifiers in sequence
 } from './src/utils/modifiers';
+```
 
+#### Palette utilities (`src/utils/palette.ts`)
+
+```ts
 import { 
-  extendPalette, 
-  createPaletteGenerator 
+  extendPalette,           // Extend palette via interpolation
+  createPaletteGenerator   // Factory for creating palette generators
 } from './src/utils/palette';
 ```
 
-These utilities are used internally by the generators but can be useful for custom palette generation or processing.
+All utilities are also available via a single import:
+
+```ts
+import * as utils from './src/utils';
+```
 
 ## Demo app
 
