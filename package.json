@@ -7,6 +7,7 @@
     "dev": "vite --config vite.demo.config.ts",
     "build": "tsc && vite build",
     "build:lib": "tsc && vite build --config vite.config.ts",
+    "build:demo": "vite build --config vite.demo.config.ts",
     "preview": "vite preview --config vite.demo.config.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
