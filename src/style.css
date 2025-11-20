@@ -1,16 +1,27 @@
 :root {
+  color-scheme: light dark;
   font-family: 'Iosevka Web', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text',
     sans-serif;
   line-height: 1.5;
   font-weight: 300;
 
-  --bg: #fff;
+  --white: #fff;
+  --black: #000;
+
+  --bg: light-dark(
+    var(--white),
+    var(--black)
+  );
+  --text: light-dark(
+    var(--black),
+    var(--white)
+  );
   --line: color-mix(in lab, currentColor 20%, var(--bg));
 
   --dotSize: .75rem;
 
   background-color: var(--bg);
-  color: #000;
+  color: var(--text);
 
 
   font-synthesis: none;
