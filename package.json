@@ -3,11 +3,24 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "./dist/pro-color-harmonies.umd.js",
+  "module": "./dist/pro-color-harmonies.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/pro-color-harmonies.es.js",
+      "require": "./dist/pro-color-harmonies.umd.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite --config vite.demo.config.ts",
-    "build": "tsc && vite build",
-    "build:lib": "tsc && vite build --config vite.config.ts",
-    "build:demo": "vite build --config vite.demo.config.ts",
+    "build": "npm run build:lib && npm run build:demo",
+    "build:lib": "vite build --config vite.config.ts && tsc -p tsconfig.build.json",
+    "build:demo": "tsc && vite build --config vite.demo.config.ts",
     "preview": "vite preview --config vite.demo.config.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
