@@ -146,7 +146,11 @@ app.innerHTML = `
 
       <div class="control control--grid">
         <span class="control__label">
-          <span class="control__label-text">Sine / Zap</span>
+          <span class="control__label-text">
+            Sine <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 12c5-9 10-9 10 0s5 9 10 0" /></svg>
+            /
+            Zap <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M4 12 l4 -6 l4 12 l4 -12 l4 6" /></svg>
+          </span>
           <span class="control__label-value"><span id="mod1Value">0</span> / <span id="mod3Value">0</span></span>
         </span>
         <div id="gridControl1" class="grid-control">
@@ -156,7 +160,11 @@ app.innerHTML = `
 
       <div class="control control--grid">
         <span class="control__label">
-          <span class="control__label-text">Wave / Block</span>
+          <span class="control__label-text">
+            Wave <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 15c3-6 6-8 10-4s6 4 10-4" /></svg>
+            /
+            Block <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M3 17h4V7h10v10h4" /></svg>
+          </span>
           <span class="control__label-value"><span id="mod2Value">0</span> / <span id="mod4Value">0</span></span>
         </span>
         <div id="gridControl2" class="grid-control">

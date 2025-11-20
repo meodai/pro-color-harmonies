@@ -134,6 +134,10 @@ body {
   font-size: .8em;
 }
 
+.control__icon {
+  vertical-align: middle;
+}
+
 .palette-type-tabs {
   display: flex;
   border: 2px solid currentColor;
