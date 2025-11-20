@@ -21,11 +21,7 @@ export type ColorSpace = 'hex' | 'rgb' | 'hsl' | 'oklch' | 'oklab' | 'lch' | 'la
 export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
 export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'split-complementary';
 
-export interface PaletteColor {
-  code: string;
-  isBase: boolean;
-  color: OKLCH;
-}
+export type PaletteColor = OKLCH;
 
 export interface GeneratorOptions {
   style: PaletteStyle;

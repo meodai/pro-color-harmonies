@@ -11,8 +11,7 @@ import { scaleSpreadArray, lerpOKLCH } from './interpolation';
  */
 export function extendPalette(
   basePalette: PaletteColor[],
-  targetCount: number,
-  paletteType: string
+  targetCount: number
 ): PaletteColor[] {
   if (targetCount <= basePalette.length) {
     // If target count is less than or equal to base palette, just return the base
@@ -20,35 +19,15 @@ export function extendPalette(
   }
 
   // Use interpolation to extend the palette
-  const extendedColors = scaleSpreadArray<OKLCH>(
-    basePalette.map(p => p.color),
+  return scaleSpreadArray<OKLCH>(
+    basePalette,
     targetCount,
     0,
     lerpOKLCH
   );
-
-  return extendedColors.map((color, index) => ({
-    code: `${paletteType}-${index + 1}`,
-    isBase: index === 0,
-    color,
-  }));
 }
 
-/**
- * Factory function to create a palette color entry
- */
-export function colorFactory(
-  base: OKLCH,
-  paletteType: string,
-  idx: number = 0,
-  isBase: boolean = false
-): PaletteColor {
-  return {
-    code: `${paletteType}-${idx + 1}`,
-    isBase,
-    color: base,
-  };
-}
+
 
 /**
  * Creates a palette generator function with common boilerplate
@@ -76,11 +55,7 @@ export function createPaletteGenerator(
         h: baseColorObj.h || 0,
       };
 
-      const colors = generatorFn(base, options, enhanced);
-
-      return colors.map((color, index) =>
-        colorFactory(color, paletteType, index, index === 0)
-      );
+      return generatorFn(base, options, enhanced);
     } catch (error) {
       throw new Error(`Failed to generate ${paletteType} colors: ${error}`);
     }

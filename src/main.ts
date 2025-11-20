@@ -399,7 +399,7 @@ function renderPalette() {
       
       // Convert base palette OKLCH to culori OKLCH colors, then to OKLAB for interpolation
       const baseColors = basePalette.map(p => {
-        const oklchColor = oklch({ mode: 'oklch', l: p.color.l, c: p.color.c, h: p.color.h });
+        const oklchColor = oklch({ mode: 'oklch', l: p.l, c: p.c, h: p.h });
         return oklab(oklchColor);
       });
       
@@ -415,20 +415,16 @@ function renderPalette() {
         const oklchColor = oklch(interpolatedColor);
         
         palette.push({
-          code: `${paletteType}-${i + 1}`,
-          isBase: i === 0 || i === count - 1,
-          color: {
-            l: oklchColor.l,
-            c: oklchColor.c,
-            h: oklchColor.h || 0,
-          },
+          l: oklchColor.l,
+          c: oklchColor.c,
+          h: oklchColor.h || 0,
         });
       }
     }
     
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
-      const { l, c: chroma, h } = c.color;
+      const { l, c: chroma, h } = c;
       // Convert to Culori OKLCH format for CSS output
       return formatCss(oklch({ mode: 'oklch', l, c: chroma, h }));
     });
@@ -458,16 +454,15 @@ function renderPalette() {
     }
 
     paletteContainer.innerHTML = palette
-      .map((p, index) => {
+      .map((_, index) => {
         const cssColor = colors[index];
         return `
           <div
-            class="swatch${p.isBase ? ' swatch--base' : ''}"
+            class="swatch"
             style="--color: ${cssColor}"
           >
             <div class="swatch__meta">
               <span class="swatch__index">${index + 1}</span>
-              <span class="swatch__code">${p.code}</span>
               <span class="swatch__value">${cssColor}</span>
             </div>
           </div>

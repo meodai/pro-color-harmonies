@@ -9,7 +9,7 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
   const hueIntensity = modifier * 45;
   const lightnessIntensity = modifier * 0.15;
 
-  return palette.map((entry, idx) => {
+  return palette.map((color, idx) => {
     const wavePosition = (idx / Math.max(1, palette.length - 1)) * Math.PI * 2;
     const fundamental = Math.sin(wavePosition + modifier * 1);
     const harmonic = Math.sin(wavePosition * 2 + modifier * 0.5) * 0.3;
@@ -18,12 +18,9 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
     const hueShift = sineValue * hueIntensity;
     const lightnessShift = Math.sin(wavePosition * 1.5 + modifier * 0.8) * lightnessIntensity;
 
-    const { l, c, h } = entry.color;
+    const { l, c, h } = color;
 
-    return {
-      ...entry,
-      color: clampOKLCH(l + lightnessShift, c, h + hueShift),
-    };
+    return clampOKLCH(l + lightnessShift, c, h + hueShift);
   });
 }
 
@@ -32,7 +29,7 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
   const hueRange = modifier * 120;
   const lightnessRange = modifier * 0.35;
 
-  return palette.map((entry, idx) => {
+  return palette.map((color, idx) => {
     let x = 0.2 + (idx / Math.max(1, palette.length)) * 0.6 + Math.sin(idx * 0.7) * 0.15;
 
     for (let i = 0; i < 8; i++) {
@@ -45,12 +42,9 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
     const lightnessShift = (smoothedX - 0.5) * lightnessRange;
     const chromaMultiplier = 0.4 + smoothedX * 1.2;
 
-    const { l, c, h } = entry.color;
+    const { l, c, h } = color;
 
-    return {
-      ...entry,
-      color: clampOKLCH(l + lightnessShift, c * chromaMultiplier, h + hueShift),
-    };
+    return clampOKLCH(l + lightnessShift, c * chromaMultiplier, h + hueShift);
   });
 }
 
@@ -58,7 +52,7 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
   const spiralTightness = 0.2 + modifier * 1.0;
   const maxHueShift = modifier * 90;
 
-  return palette.map((entry, idx) => {
+  return palette.map((color, idx) => {
     const normalizedPos = idx / Math.max(1, palette.length - 1);
     const angle = normalizedPos * spiralTightness * Math.PI * 2;
     const radius = Math.sqrt(normalizedPos) * 2;
@@ -70,12 +64,9 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
     const lightnessShift = spiralY * 0.12;
     const chromaShift = Math.sin(angle * 1.5) * 0.08;
 
-    const { l, c, h } = entry.color;
+    const { l, c, h } = color;
 
-    return {
-      ...entry,
-      color: clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift),
-    };
+    return clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift);
   });
 }
 
@@ -84,7 +75,7 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
   const hueAmplitude = modifier * 30;
   const chromaAmplitude = modifier * 0.1;
 
-  return palette.map((entry, idx) => {
+  return palette.map((color, idx) => {
     const frequency = Math.max(1, Math.floor(palette.length / 8));
     const wavePosition = (idx / Math.max(1, palette.length - 1)) * Math.PI * frequency;
 
@@ -95,12 +86,9 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
     const hueShift = Math.sin(wavePosition + Math.PI * 0.25) * rawTriangle * hueAmplitude;
     const chromaShift = Math.cos(wavePosition + Math.PI * 0.5) * rawTriangle * chromaAmplitude;
 
-    const { l, c, h } = entry.color;
+    const { l, c, h } = color;
 
-    return {
-      ...entry,
-      color: clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift),
-    };
+    return clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift);
   });
 }
 
