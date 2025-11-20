@@ -74,9 +74,9 @@ Generate a single palette.
     - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.).
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
   - `colorSpace.space`: currently most generators work internally in OKLCH but you can request other output encodings via helper functions.
-  - `count` (optional):
-    - Generators always construct 5 base colors.
-    - If `count > 5`, the library uses OKLAB interpolation to extend the palette smoothly with `scaleSpreadArray`/`extendPalette`.
+  - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts:
+    - For fewer colors (< 6): the demo uses sampling to select evenly distributed colors from the base palette.
+    - For more colors (> 6): use OKLAB interpolation between the base colors for smooth transitions (as shown in the demo using `culori`).
   - `modifiers` (optional): `[sine, wave, zap, block]` (each `0–100`); see **Modifiers** below.
 
 Returns: `PaletteColor[]`.
@@ -119,25 +119,26 @@ Returns an array of sRGB hex values derived via `culori` (`rgb` + `formatRgb`).
 
 ### Individual generators
 
-All of these operate primarily in OKLCH, then wrap results into `PaletteColor[]`. They all respect `options.count` (>= 5) and use OKLAB interpolation for extra colors.
+All of these operate primarily in OKLCH, then wrap results into `PaletteColor[]`. Each generator produces exactly **6 base colors**.
 
 - `generateAnalogous(baseColor, options)`
-  - Produces 5 base colors by walking the hue around the base within a band.
+  - Produces 6 base colors by walking the hue around the base within a band.
   - `style` affects the hue spread and how it avoids "muddy" zones in orange/yellow areas.
 
 - `generateComplementary(baseColor, options)`
-  - Calculates style-dependent complements (not just a rigid +180°), then builds 5 roles: base, main complement, dark base, light complement, muted complement.
+  - Calculates style-dependent complements (not just a rigid +180°), then builds 6 roles: base, main complement, dark base, light base, light complement, muted complement.
 
 - `generateTriadic(baseColor, options)`
   - Faithful port of the OG triadic logic.
   - Picks three hues based on style (mathematical, optical, adaptive, warm/cool).
   - Applies adaptive lightness/chroma variations so the three families balance even for very dark/light base colors.
+  - Produces 6 colors from the 3 triadic hues (2 base variations + 4 from the other triadic families).
 
 - `generateTetradic(baseColor, options)`
-  - 4-hue schemes (square, rectangle, adaptive, double-complement), expanded to 5 colors via light/dark variations.
+  - 4-hue schemes (square, rectangle, adaptive, double-complement), expanded to 6 colors via light/dark variations.
 
 - `generateSplitComplementary(baseColor, options)`
-  - Base + two "split" complements around the opposite hue, plus extra dark/muted variants.
+  - Base + two "split" complements around the opposite hue, plus extra dark/light/muted variants for a total of 6 colors.
 
 You can also import them via the `generators` export:
 
@@ -239,7 +240,9 @@ Controls:
 - **Base color**: free text color input (hex, CSS color, etc.).
 - **Palette type**: selects one of analogous / complementary / triadic / tetradic / split-complementary.
 - **Style**: square / triangle / circle / diamond.
-- **Count**: range 5–24; values > 5 use OKLAB interpolation between the 5 base colors.
+- **Count**: range 3–24; the library generates 6 base colors, then:
+  - Values < 6: evenly samples from the base palette
+  - Values > 6: uses OKLAB interpolation (via culori) between the 6 base colors for smooth color transitions
 - **Sine / Wave / Zap / Block**: the four 0–100 modulation sliders described above.
 - **Random base**: chooses a random hex color.
 
@@ -247,5 +250,8 @@ The palette is displayed as a single flat bar of swatches with the base color ou
 
 ## Notes
 
-- Generation logic operates mostly in OKLCH; interpolation for extended palettes is done in OKLAB for smoother transitions.
+- All palette generators produce exactly **6 base colors** internally.
+- Generation logic operates in OKLCH for perceptually uniform color harmony.
+- For extended palettes (> 6 colors), use OKLAB interpolation for smoother transitions between colors (as demonstrated in the demo app).
+- For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
 - The port is designed to be close to the original `color-palette-generator-main` behavior while exposing culori `Color` objects directly for integration into other tools.

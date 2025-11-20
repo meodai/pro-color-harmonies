@@ -105,7 +105,7 @@ export const generateComplementary = createPaletteGenerator(
       complementHue = cleaned.h;
     }
 
-    // Generate 5 colors total
+    // Generate 6 colors total
     return [
       // 1. Base color (preserved)
       { l: baseLightness, c: baseChroma, h: baseHue },
@@ -116,10 +116,13 @@ export const generateComplementary = createPaletteGenerator(
       // 3. Dark base
       { l: baseLightness - 0.2, c: baseChroma * 1.1, h: baseHue },
       
-      // 4. Light complement
+      // 4. Light base
+      { l: baseLightness + 0.2, c: baseChroma * 0.8, h: baseHue },
+      
+      // 5. Light complement
       { l: baseLightness + 0.25, c: baseChroma * 0.7, h: complementHue },
       
-      // 5. Muted complement
+      // 6. Muted complement
       { l: baseLightness - 0.15, c: baseChroma * 0.5, h: complementHue },
     ];
   }
@@ -141,7 +144,8 @@ export const generateAnalogous = createPaletteGenerator(
         analogousHues = [
           baseHue,
           normalizeHue(baseHue - 30),
-          normalizeHue(baseHue - 15),
+          normalizeHue(baseHue - 20),
+          normalizeHue(baseHue - 10),
           normalizeHue(baseHue + 15),
           normalizeHue(baseHue + 30),
         ];
@@ -156,15 +160,17 @@ export const generateAnalogous = createPaletteGenerator(
             normalizeHue(baseHue - 8),
             normalizeHue(baseHue + 8),
             normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 35),
           ];
         } else if (baseHue >= 30 && baseHue < 90) {
           // Orange-yellow: avoid muddy zones
           analogousHues = [
             baseHue,
-            normalizeHue(baseHue - 20),
-            normalizeHue(baseHue - 10),
+            normalizeHue(baseHue - 25),
+            normalizeHue(baseHue - 12),
             normalizeHue(baseHue + 10),
             normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 30),
           ];
         } else {
           // Default spread
@@ -172,8 +178,9 @@ export const generateAnalogous = createPaletteGenerator(
             baseHue,
             normalizeHue(baseHue - 25),
             normalizeHue(baseHue - 12),
-            normalizeHue(baseHue + 12),
-            normalizeHue(baseHue + 25),
+            normalizeHue(baseHue + 10),
+            normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 35),
           ];
         }
         break;
@@ -185,17 +192,19 @@ export const generateAnalogous = createPaletteGenerator(
             baseHue,
             normalizeHue(baseHue - 20),
             normalizeHue(baseHue - 10),
-            normalizeHue(baseHue + 10),
-            normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 8),
+            normalizeHue(baseHue + 18),
+            normalizeHue(baseHue + 30),
           ];
         } else if (baseHue >= 150 && baseHue < 210) {
           // Tranquil: water to sky
           analogousHues = [
             baseHue,
-            normalizeHue(baseHue - 18),
-            normalizeHue(baseHue - 8),
+            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 10),
             normalizeHue(baseHue + 8),
             normalizeHue(baseHue + 18),
+            normalizeHue(baseHue + 30),
           ];
         } else {
           // Default emotional spread
@@ -204,7 +213,8 @@ export const generateAnalogous = createPaletteGenerator(
             normalizeHue(baseHue - 22),
             normalizeHue(baseHue - 10),
             normalizeHue(baseHue + 10),
-            normalizeHue(baseHue + 22),
+            normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 35),
           ];
         }
         break;
@@ -214,19 +224,21 @@ export const generateAnalogous = createPaletteGenerator(
           // Golden hour
           analogousHues = [
             baseHue,
-            normalizeHue(baseHue - 18),
-            normalizeHue(baseHue - 8),
+            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 10),
             normalizeHue(baseHue + 8),
             normalizeHue(baseHue + 18),
+            normalizeHue(baseHue + 30),
           ];
         } else {
           // Natural daylight
           analogousHues = [
             baseHue,
-            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 22),
             normalizeHue(baseHue - 10),
-            normalizeHue(baseHue + 10),
-            normalizeHue(baseHue + 20),
+            normalizeHue(baseHue + 8),
+            normalizeHue(baseHue + 18),
+            normalizeHue(baseHue + 30),
           ];
         }
         break;
@@ -234,7 +246,8 @@ export const generateAnalogous = createPaletteGenerator(
         analogousHues = [
           baseHue,
           normalizeHue(baseHue - 30),
-          normalizeHue(baseHue - 15),
+          normalizeHue(baseHue - 20),
+          normalizeHue(baseHue - 10),
           normalizeHue(baseHue + 15),
           normalizeHue(baseHue + 30),
         ];
@@ -243,10 +256,11 @@ export const generateAnalogous = createPaletteGenerator(
     // Create lightness and chroma variations
     const variations = [
       { l: 0, c: 1.0 },        // Base
-      { l: -0.15, c: 0.85 },   // Darker, less saturated
-      { l: -0.08, c: 0.95 },   // Slightly darker
-      { l: 0.12, c: 0.9 },     // Lighter
-      { l: 0.25, c: 0.75 },    // Much lighter, less saturated
+      { l: -0.2, c: 0.8 },     // Darker, less saturated
+      { l: -0.1, c: 0.9 },     // Slightly darker
+      { l: 0.15, c: 0.85 },    // Lighter
+      { l: 0.25, c: 0.7 },     // Much lighter, less saturated
+      { l: 0.35, c: 0.6 },     // Very light, muted
     ];
 
     // Generate colors
@@ -507,7 +521,7 @@ export const generateTriadic = createPaletteGenerator(
       }
     }
 
-    // Create 5 colors from 3 hues
+    // Create 6 colors from 3 hues
     const colors: OKLCH[] = [];
 
     triadicHues.forEach((hue, triadIndex) => {
@@ -621,7 +635,7 @@ export const generateTetradic = createPaletteGenerator(
         ];
     }
 
-    // Generate 5 colors from 4 hues
+    // Generate 6 colors from 4 hues
     const colors: OKLCH[] = [];
 
     // Base color
@@ -660,6 +674,9 @@ export const generateTetradic = createPaletteGenerator(
 
     // Add a darker base variation
     colors.push({ l: baseLightness - 0.25, c: baseChroma * 1.1, h: baseHue });
+    
+    // Add a lighter base variation
+    colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.8, h: baseHue });
 
     return colors;
   }
@@ -748,7 +765,7 @@ export const generateSplitComplementary = createPaletteGenerator(
         ];
     }
 
-    // Generate 5 colors
+    // Generate 6 colors
     const colors: OKLCH[] = [];
 
     // Base color
@@ -756,6 +773,9 @@ export const generateSplitComplementary = createPaletteGenerator(
     
     // Dark base variation
     colors.push({ l: baseLightness - 0.18, c: baseChroma * 1.05, h: baseHue });
+    
+    // Light base variation
+    colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.85, h: baseHue });
     
     // Split complement colors
     splitHues.slice(1).forEach((hue, index) => {
@@ -794,7 +814,7 @@ export const generateSplitComplementary = createPaletteGenerator(
 export class ColorPaletteGenerator {
   /**
    * Generate a color palette based on the specified type and options
-   * Returns exactly 5 colors as designed by each palette type
+   * Returns exactly 6 colors as designed by each palette type
    */
   static generate(
     baseColor: string,

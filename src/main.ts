@@ -1,5 +1,5 @@
 import './style.css';
-import { formatHex, formatCss, oklch } from 'culori';
+import { formatHex, formatCss, oklch, oklab, interpolate } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
@@ -394,35 +394,35 @@ function renderPalette() {
         return basePalette[index];
       });
     } else {
-      // Spread colors: interpolate between existing colors
+      // Spread colors: interpolate between existing colors using OKLAB
       palette = [];
-      const segmentSize = (basePalette.length - 1) / (count - 1);
+      
+      // Convert base palette OKLCH to culori OKLCH colors, then to OKLAB for interpolation
+      const baseColors = basePalette.map(p => {
+        const oklchColor = oklch({ mode: 'oklch', l: p.color.l, c: p.color.c, h: p.color.h });
+        return oklab(oklchColor);
+      });
+      
+      // Create interpolator in OKLAB space
+      const interpolator = interpolate(baseColors, 'oklab');
       
       for (let i = 0; i < count; i++) {
-        const position = i * segmentSize;
-        const lowerIndex = Math.floor(position);
-        const upperIndex = Math.min(Math.ceil(position), basePalette.length - 1);
-        const t = position - lowerIndex;
+        // Map index to 0-1 range across the palette
+        const t = i / (count - 1);
+        const interpolatedColor = interpolator(t);
         
-        if (t === 0 || lowerIndex === upperIndex) {
-          palette.push(basePalette[lowerIndex]);
-        } else {
-          // Interpolate between two colors
-          const lower = basePalette[lowerIndex].color;
-          const upper = basePalette[upperIndex].color;
-          
-          const interpolated = {
-            l: lower.l + (upper.l - lower.l) * t,
-            c: lower.c + (upper.c - lower.c) * t,
-            h: lower.h + (upper.h - lower.h) * t,
-          };
-          
-          palette.push({
-            code: `${paletteType}-${i + 1}`,
-            isBase: i === 0,
-            color: interpolated,
-          });
-        }
+        // Convert back to OKLCH for consistency
+        const oklchColor = oklch(interpolatedColor);
+        
+        palette.push({
+          code: `${paletteType}-${i + 1}`,
+          isBase: i === 0 || i === count - 1,
+          color: {
+            l: oklchColor.l,
+            c: oklchColor.c,
+            h: oklchColor.h || 0,
+          },
+        });
       }
     }
     
