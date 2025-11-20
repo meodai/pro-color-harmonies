@@ -3,7 +3,7 @@
  */
 
 import type { PaletteColor } from '../color-palette-generator';
-import { extractOKLCH, createOklch } from './color';
+import { clampOKLCH } from './color';
 
 export function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const hueIntensity = modifier * 45;
@@ -18,11 +18,11 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
     const hueShift = sineValue * hueIntensity;
     const lightnessShift = Math.sin(wavePosition * 1.5 + modifier * 0.8) * lightnessIntensity;
 
-    const { l, c, h } = extractOKLCH(entry.color);
+    const { l, c, h } = entry.color;
 
     return {
       ...entry,
-      color: createOklch(l + lightnessShift, c, h + hueShift),
+      color: clampOKLCH(l + lightnessShift, c, h + hueShift),
     };
   });
 }
@@ -45,11 +45,11 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
     const lightnessShift = (smoothedX - 0.5) * lightnessRange;
     const chromaMultiplier = 0.4 + smoothedX * 1.2;
 
-    const { l, c, h } = extractOKLCH(entry.color);
+    const { l, c, h } = entry.color;
 
     return {
       ...entry,
-      color: createOklch(l + lightnessShift, c * chromaMultiplier, h + hueShift),
+      color: clampOKLCH(l + lightnessShift, c * chromaMultiplier, h + hueShift),
     };
   });
 }
@@ -70,11 +70,11 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
     const lightnessShift = spiralY * 0.12;
     const chromaShift = Math.sin(angle * 1.5) * 0.08;
 
-    const { l, c, h } = extractOKLCH(entry.color);
+    const { l, c, h } = entry.color;
 
     return {
       ...entry,
-      color: createOklch(l + lightnessShift, c + chromaShift, h + hueShift),
+      color: clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift),
     };
   });
 }
@@ -95,11 +95,11 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
     const hueShift = Math.sin(wavePosition + Math.PI * 0.25) * rawTriangle * hueAmplitude;
     const chromaShift = Math.cos(wavePosition + Math.PI * 0.5) * rawTriangle * chromaAmplitude;
 
-    const { l, c, h } = extractOKLCH(entry.color);
+    const { l, c, h } = entry.color;
 
     return {
       ...entry,
-      color: createOklch(l + lightnessShift, c + chromaShift, h + hueShift),
+      color: clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift),
     };
   });
 }

@@ -4,17 +4,8 @@
  * Based on the color theory and perceptual color science
  */
 
-import type { Color as CuloriColor } from 'culori';
-import {
-  formatRgb,
-  formatCss,
-  oklch,
-  rgb,
-  parse,
-} from 'culori';
-
 // Utils
-import { normalizeHue, createOklch, avoidMuddyZones } from './utils/color';
+import { normalizeHue, avoidMuddyZones } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
 import { createPaletteGenerator } from './utils/palette';
 
@@ -33,7 +24,7 @@ export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic'
 export interface PaletteColor {
   code: string;
   isBase: boolean;
-  color: CuloriColor;
+  color: OKLCH;
 }
 
 export interface GeneratorOptions {
@@ -118,19 +109,19 @@ export const generateComplementary = createPaletteGenerator(
     // Generate 5 colors total
     return [
       // 1. Base color (preserved)
-      base.color,
+      { l: baseLightness, c: baseChroma, h: baseHue },
       
       // 2. Main complement
-      createOklch(baseLightness + 0.05, baseChroma * chromaAdjust, complementHue),
+      { l: baseLightness + 0.05, c: baseChroma * chromaAdjust, h: complementHue },
       
       // 3. Dark base
-      createOklch(baseLightness - 0.2, baseChroma * 1.1, baseHue),
+      { l: baseLightness - 0.2, c: baseChroma * 1.1, h: baseHue },
       
       // 4. Light complement
-      createOklch(baseLightness + 0.25, baseChroma * 0.7, complementHue),
+      { l: baseLightness + 0.25, c: baseChroma * 0.7, h: complementHue },
       
       // 5. Muted complement
-      createOklch(baseLightness - 0.15, baseChroma * 0.5, complementHue),
+      { l: baseLightness - 0.15, c: baseChroma * 0.5, h: complementHue },
     ];
   }
 );
@@ -262,7 +253,7 @@ export const generateAnalogous = createPaletteGenerator(
     // Generate colors
     return analogousHues.map((hue, index) => {
       if (index === 0) {
-        return base.color;
+        return { l: baseLightness, c: baseChroma, h: baseHue };
       }
 
       const variation = variations[index];
@@ -277,7 +268,7 @@ export const generateAnalogous = createPaletteGenerator(
         finalChroma = cleaned.c;
       }
 
-      return createOklch(finalLightness, finalChroma, finalHue);
+      return { l: finalLightness, c: finalChroma, h: finalHue };
     });
   }
 );
@@ -518,20 +509,20 @@ export const generateTriadic = createPaletteGenerator(
     }
 
     // Create 5 colors from 3 hues
-    const colors: CuloriColor[] = [];
+    const colors: OKLCH[] = [];
 
     triadicHues.forEach((hue, triadIndex) => {
       if (triadIndex === 0) {
         // Base color (preserved)
-        colors.push(base.color);
+        colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
 
         // Dark base variation
         const dark = baseVariations.dark;
-        colors.push(createOklch(
-          baseLightness + dark.l,
-          baseChroma * dark.c,
-          hue,
-        ));
+        colors.push({
+          l: baseLightness + dark.l,
+          c: baseChroma * dark.c,
+          h: hue,
+        });
       } else {
         // Other triadic families: pure + muted
         const isFirstTriad = triadIndex === 1;
@@ -547,17 +538,17 @@ export const generateTriadic = createPaletteGenerator(
           finalHue = cleaned.h;
         }
 
-        colors.push(createOklch(
-          baseLightness + v.pure.l,
-          baseChroma * v.pure.c,
-          finalHue,
-        ));
+        colors.push({
+          l: baseLightness + v.pure.l,
+          c: baseChroma * v.pure.c,
+          h: finalHue,
+        });
 
-        colors.push(createOklch(
-          baseLightness + v.muted.l,
-          baseChroma * v.muted.c,
-          finalHue,
-        ));
+        colors.push({
+          l: baseLightness + v.muted.l,
+          c: baseChroma * v.muted.c,
+          h: finalHue,
+        });
       }
     });
 
@@ -632,10 +623,10 @@ export const generateTetradic = createPaletteGenerator(
     }
 
     // Generate 5 colors from 4 hues
-    const colors: CuloriColor[] = [];
+    const colors: OKLCH[] = [];
 
     // Base color
-    colors.push(base.color);
+    colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
     
     // Create variations for other hues
     tetradicHues.slice(1, 3).forEach((hue, index) => {
@@ -652,11 +643,11 @@ export const generateTetradic = createPaletteGenerator(
       ];
       
       const variation = variations[index];
-      colors.push(createOklch(
-        baseLightness + variation.l,
-        baseChroma * variation.c,
-        finalHue
-      ));
+      colors.push({
+        l: baseLightness + variation.l,
+        c: baseChroma * variation.c,
+        h: finalHue
+      });
     });
 
     // Add fourth tetradic color
@@ -666,10 +657,10 @@ export const generateTetradic = createPaletteGenerator(
       const cleaned = avoidMuddyZones(fourthHue, baseLightness + 0.2, baseChroma * 0.7);
       finalFourthHue = cleaned.h;
     }
-    colors.push(createOklch(baseLightness + 0.2, baseChroma * 0.7, finalFourthHue));
+    colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.7, h: finalFourthHue });
 
     // Add a darker base variation
-    colors.push(createOklch(baseLightness - 0.25, baseChroma * 1.1, baseHue));
+    colors.push({ l: baseLightness - 0.25, c: baseChroma * 1.1, h: baseHue });
 
     return colors;
   }
@@ -759,13 +750,13 @@ export const generateSplitComplementary = createPaletteGenerator(
     }
 
     // Generate 5 colors
-    const colors: CuloriColor[] = [];
+    const colors: OKLCH[] = [];
 
     // Base color
-    colors.push(base.color);
+    colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
     
     // Dark base variation
-    colors.push(createOklch(baseLightness - 0.18, baseChroma * 1.05, baseHue));
+    colors.push({ l: baseLightness - 0.18, c: baseChroma * 1.05, h: baseHue });
     
     // Split complement colors
     splitHues.slice(1).forEach((hue, index) => {
@@ -782,18 +773,18 @@ export const generateSplitComplementary = createPaletteGenerator(
       ];
       
       const variation = variations[index];
-      colors.push(createOklch(
-        baseLightness + variation.l,
-        baseChroma * variation.c,
-        finalHue
-      ));
+      colors.push({
+        l: baseLightness + variation.l,
+        c: baseChroma * variation.c,
+        h: finalHue
+      });
     });
 
     // Add a muted variation of first split
     const mutedHue = enhanced ? 
       avoidMuddyZones(splitHues[1], baseLightness + 0.2, baseChroma * 0.6).h : 
       splitHues[1];
-    colors.push(createOklch(baseLightness + 0.2, baseChroma * 0.6, mutedHue));
+    colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.6, h: mutedHue });
 
     return colors;
   }
@@ -854,27 +845,6 @@ export class ColorPaletteGenerator {
       'split-complementary': applyModifiers(generateSplitComplementary(baseColor, options), options.modifiers),
     };
   }
-
-  /**
-   * Convert a palette to CSS custom properties
-   */
-  static toCSS(palette: PaletteColor[], prefix: string = 'color'): string {
-    return palette
-      .map((color, index) => {
-        const varName = `--${prefix}-${index + 1}`;
-        const contrastVar = `--${prefix}-${index + 1}-contrast`;
-        const cssValue = formatCss(oklch(color.color));
-        return `${varName}: ${cssValue};\n${contrastVar}: #000;`;
-      })
-      .join('\n');
-  }
-
-  /**
-   * Get palette as an array of hex values
-   */
-  static toHexArray(palette: PaletteColor[]): string[] {
-    return palette.map(color => formatRgb(rgb(color.color)));
-  }
 }
 
 // ============= Export convenience functions =============
@@ -888,11 +858,4 @@ export const generators = {
   splitComplementary: generateSplitComplementary,
 };
 
-// Export utility for validating colors
-export function isValidColor(color: string): boolean {
-  try {
-    return !!parse(color);
-  } catch {
-    return false;
-  }
-}
+

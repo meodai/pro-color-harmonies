@@ -30,6 +30,29 @@ export const lerpColor = (amt: number, from: CuloriColor, to: CuloriColor): Culo
 };
 
 /**
+ * Interpolates between two OKLCH objects
+ */
+export const lerpOKLCH = (amt: number, from: { l: number; c: number; h: number } | null, to: { l: number; c: number; h: number } | null): { l: number; c: number; h: number } => {
+  // Handle null cases
+  if (!from && !to) return { l: 0.5, c: 0, h: 0 };
+  if (!from) return to!;
+  if (!to) return from;
+  
+  // Handle hue interpolation (shortest path around the color wheel)
+  let hDiff = to.h - from.h;
+  if (hDiff > 180) hDiff -= 360;
+  if (hDiff < -180) hDiff += 360;
+  
+  const h = from.h + amt * hDiff;
+  
+  return {
+    l: lerp(amt, from.l, to.l),
+    c: lerp(amt, from.c, to.c),
+    h: ((h % 360) + 360) % 360,
+  };
+};
+
+/**
  * Scales and spreads an array to the target size using interpolation
  */
 export const scaleSpreadArray = <T>(

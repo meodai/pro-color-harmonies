@@ -2,10 +2,9 @@
  * Palette generation helper utilities
  */
 
-import type { Color as CuloriColor } from 'culori';
 import { parse, oklch } from 'culori';
-import type { PaletteColor, PaletteType, GeneratorOptions } from '../color-palette-generator';
-import { scaleSpreadArray, lerpColor, type FillFunction } from './interpolation';
+import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../color-palette-generator';
+import { scaleSpreadArray, lerpOKLCH } from './interpolation';
 
 /**
  * Extends a palette to the desired count using interpolation
@@ -21,11 +20,11 @@ export function extendPalette(
   }
 
   // Use interpolation to extend the palette
-  const extendedColors = scaleSpreadArray<CuloriColor>(
-    basePalette.map(p => p.color as CuloriColor),
+  const extendedColors = scaleSpreadArray<OKLCH>(
+    basePalette.map(p => p.color),
     targetCount,
     0,
-    lerpColor as unknown as FillFunction<CuloriColor>
+    lerpOKLCH
   );
 
   return extendedColors.map((color, index) => ({
@@ -39,17 +38,15 @@ export function extendPalette(
  * Factory function to create a palette color entry
  */
 export function colorFactory(
-  base: string | CuloriColor,
+  base: OKLCH,
   paletteType: string,
   idx: number = 0,
   isBase: boolean = false
 ): PaletteColor {
-  const color: CuloriColor = typeof base === 'string' ? (parse(base) as CuloriColor) : base;
-
   return {
     code: `${paletteType}-${idx + 1}`,
     isBase,
-    color,
+    color: base,
   };
 }
 
@@ -59,10 +56,10 @@ export function colorFactory(
 export function createPaletteGenerator(
   paletteType: PaletteType,
   generatorFn: (
-    base: { l: number; c: number; h: number; color: CuloriColor },
+    base: { l: number; c: number; h: number },
     options: GeneratorOptions,
     enhanced: boolean
-  ) => CuloriColor[]
+  ) => OKLCH[]
 ) {
   return (baseColor: string, options: GeneratorOptions): PaletteColor[] => {
     const { style, count = 5 } = options;
@@ -78,7 +75,6 @@ export function createPaletteGenerator(
         l: baseColorObj.l,
         c: baseColorObj.c,
         h: baseColorObj.h || 0,
-        color: baseColorObj as CuloriColor
       };
 
       const colors = generatorFn(base, options, enhanced);

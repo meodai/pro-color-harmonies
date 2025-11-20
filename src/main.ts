@@ -384,7 +384,12 @@ function renderPalette() {
 
   try {
     const palette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
-    const colors = palette.map(c => formatCss(oklch(c.color)));
+    // Convert OKLCH to CSS format
+    const colors = palette.map(c => {
+      const { l, c: chroma, h } = c.color;
+      // Convert to Culori OKLCH format for CSS output
+      return formatCss(oklch({ mode: 'oklch', l, c: chroma, h }));
+    });
 
     // Console log colors as hex
     console.log('Colors (hex):', colorsToHex(colors));
