@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   root: '.',
-  base: '/',
+  base: '/pro-color-harmonies/',
   build: {
     outDir: 'dist-demo',
   },

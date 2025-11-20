@@ -1,7 +1,0 @@
-[build]
-  base = "."
-  command = "npm run build:demo"
-  publish = "dist-demo"
-
-[context.production]
-  environment = { NODE_VERSION = "20" }
