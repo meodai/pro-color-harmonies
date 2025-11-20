@@ -64,20 +64,6 @@ describe('ColorPaletteGenerator', () => {
       ).toThrow('Unknown palette type');
     });
 
-    it('should apply chromaAdjust option', () => {
-      const options1: GeneratorOptions = { style: 'square', chromaAdjust: 0.5 };
-      const options2: GeneratorOptions = { style: 'square', chromaAdjust: 1.0 };
-      
-      const result1 = ColorPaletteGenerator.generate(baseColor, 'complementary', options1);
-      const result2 = ColorPaletteGenerator.generate(baseColor, 'complementary', options2);
-      
-      // Second result should generally have higher chroma
-      const avgChroma1 = result1.reduce((sum, c) => sum + c.c, 0) / result1.length;
-      const avgChroma2 = result2.reduce((sum, c) => sum + c.c, 0) / result2.length;
-      
-      expect(avgChroma2).toBeGreaterThan(avgChroma1);
-    });
-
     it('should apply modifiers when provided', () => {
       const optionsWithModifiers: GeneratorOptions = {
         style: 'square',

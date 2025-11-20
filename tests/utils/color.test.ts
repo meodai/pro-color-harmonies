@@ -24,12 +24,12 @@ describe('color utilities', () => {
       expect(result2.c).toBe(OKLCH_LIMITS.c.min);
     });
 
-    it('should normalize hue values', () => {
+    it('should preserve hue values without normalization', () => {
       const result = clampOKLCH(0.5, 0.2, 400);
-      expect(result.h).toBe(40);
+      expect(result.h).toBe(400);
       
       const result2 = clampOKLCH(0.5, 0.2, -30);
-      expect(result2.h).toBe(330);
+      expect(result2.h).toBe(-30);
     });
 
     it('should preserve valid values', () => {

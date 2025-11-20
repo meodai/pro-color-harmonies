@@ -7,7 +7,6 @@
 // Utils
 import { normalizeHue, avoidMuddyZones } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
-import { createPaletteGenerator } from './utils/palette';
 
 // ============= Type Definitions =============
 
@@ -24,17 +23,16 @@ export type PaletteColor = OKLCH;
 
 export interface GeneratorOptions {
   style: PaletteStyle;
-  chromaAdjust?: number;
   modifiers?: [number, number, number, number]; // Optional palette modulation knobs (0-1)
 }
 
 // ============= Complementary Generator =============
 
-export const generateComplementary = createPaletteGenerator(
-  'complementary',
-  (base, options, enhanced) => {
-    const { style, chromaAdjust = 0.9 } = options;
-    const { l: baseLightness, c: baseChroma, h: baseHue } = base;
+export const generateComplementary = (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
+  const { style } = options;
+  const enhanced = style !== 'square';
+  const chromaAdjust = 0.9;
+  const { l: baseLightness, c: baseChroma, h: baseHue } = baseColor;
 
     // Calculate complement hue based on style
     let complementHue: number;
@@ -117,16 +115,15 @@ export const generateComplementary = createPaletteGenerator(
       // 6. Muted complement
       { l: baseLightness - 0.15, c: baseChroma * 0.5, h: complementHue },
     ];
-  }
-);
+};
 
 // ============= Analogous Generator =============
 
-export const generateAnalogous = createPaletteGenerator(
-  'analogous',
-  (base, options, enhanced) => {
-    const { style, chromaAdjust = 0.9 } = options;
-    const { l: baseLightness, c: baseChroma, h: baseHue } = base;
+export const generateAnalogous = (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
+  const { style } = options;
+  const enhanced = style !== 'square';
+  const chromaAdjust = 0.9;
+  const { l: baseLightness, c: baseChroma, h: baseHue } = baseColor;
 
     let analogousHues: number[];
     
@@ -275,16 +272,14 @@ export const generateAnalogous = createPaletteGenerator(
 
       return { l: finalLightness, c: finalChroma, h: finalHue };
     });
-  }
-);
+};
 
 // ============= Triadic Generator =============
 
-export const generateTriadic = createPaletteGenerator(
-  'triadic',
-  (base, options, enhanced) => {
-    const { style } = options;
-    const { l: baseLightness, c: baseChroma, h: baseHue } = base;
+export const generateTriadic = (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
+  const { style } = options;
+  const enhanced = style !== 'square';
+  const { l: baseLightness, c: baseChroma, h: baseHue } = baseColor;
 
     // --- Hue selection per style (ported from OG) ---
     let triadicHues: number[];
@@ -558,16 +553,14 @@ export const generateTriadic = createPaletteGenerator(
     });
 
     return colors;
-  }
-);
+};
 
 // ============= Tetradic Generator =============
 
-export const generateTetradic = createPaletteGenerator(
-  'tetradic',
-  (base, options, enhanced) => {
-    const { style } = options;
-    const { l: baseLightness, c: baseChroma, h: baseHue } = base;
+export const generateTetradic = (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
+  const { style } = options;
+  const enhanced = style !== 'square';
+  const { l: baseLightness, c: baseChroma, h: baseHue } = baseColor;
 
     let tetradicHues: number[];
 
@@ -671,16 +664,14 @@ export const generateTetradic = createPaletteGenerator(
     colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.8, h: baseHue });
 
     return colors;
-  }
-);
+};
 
 // ============= Split Complementary Generator =============
 
-export const generateSplitComplementary = createPaletteGenerator(
-  'split-complementary',
-  (base, options, enhanced) => {
-    const { style } = options;
-    const { l: baseLightness, c: baseChroma, h: baseHue } = base;
+export const generateSplitComplementary = (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
+  const { style } = options;
+  const enhanced = style !== 'square';
+  const { l: baseLightness, c: baseChroma, h: baseHue } = baseColor;
 
     let splitHues: number[];
 
@@ -798,8 +789,7 @@ export const generateSplitComplementary = createPaletteGenerator(
     colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.6, h: mutedHue });
 
     return colors;
-  }
-);
+};
 
 // ============= Main Palette Generator =============
 

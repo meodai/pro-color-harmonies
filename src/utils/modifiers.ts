@@ -2,8 +2,8 @@
  * Palette modifiers that apply transformations to color palettes
  */
 
-import type { PaletteColor } from '../color-palette-generator';
-import { clampOKLCH } from './color';
+import type { PaletteColor } from '../index';
+import { clampOKLCH, normalizeHue } from './color';
 
 export function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const hueIntensity = modifier * 45;
@@ -20,7 +20,7 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
 
     const { l, c, h } = color;
 
-    return clampOKLCH(l + lightnessShift, c, h + hueShift);
+    return clampOKLCH(l + lightnessShift, c, normalizeHue(h + hueShift));
   });
 }
 
@@ -44,7 +44,7 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
 
     const { l, c, h } = color;
 
-    return clampOKLCH(l + lightnessShift, c * chromaMultiplier, h + hueShift);
+    return clampOKLCH(l + lightnessShift, c * chromaMultiplier, normalizeHue(h + hueShift));
   });
 }
 
@@ -66,7 +66,7 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
 
     const { l, c, h } = color;
 
-    return clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift);
+    return clampOKLCH(l + lightnessShift, c + chromaShift, normalizeHue(h + hueShift));
   });
 }
 
@@ -88,7 +88,7 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
 
     const { l, c, h } = color;
 
-    return clampOKLCH(l + lightnessShift, c + chromaShift, h + hueShift);
+    return clampOKLCH(l + lightnessShift, c + chromaShift, normalizeHue(h + hueShift));
   });
 }
 

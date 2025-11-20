@@ -25,7 +25,7 @@ export function clampOKLCH(l: number, c: number, h: number): OKLCH {
   return {
     l: Math.max(OKLCH_LIMITS.l.min, Math.min(OKLCH_LIMITS.l.max, l)),
     c: Math.max(OKLCH_LIMITS.c.min, Math.min(OKLCH_LIMITS.c.max, c)),
-    h: normalizeHue(h),
+    h,
   };
 }
 
