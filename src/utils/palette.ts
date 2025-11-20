@@ -2,7 +2,7 @@
  * Palette generation helper utilities
  */
 
-import { parse, oklch, oklab, interpolate } from 'culori';
+import { oklch, oklab, interpolate } from 'culori';
 import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../color-palette-generator';
 
 /**
@@ -57,19 +57,15 @@ export function createPaletteGenerator(
     enhanced: boolean
   ) => OKLCH[]
 ) {
-  return (baseColor: string, options: GeneratorOptions): PaletteColor[] => {
+  return (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
     const { style } = options;
     const enhanced = style !== 'square';
 
     try {
-      const parsed = parse(baseColor);
-      if (!parsed) throw new Error('Invalid base color');
-      
-      const baseColorObj = oklch(parsed);
       const base = {
-        l: baseColorObj.l,
-        c: baseColorObj.c,
-        h: baseColorObj.h || 0,
+        l: baseColor.l,
+        c: baseColor.c,
+        h: baseColor.h || 0,
       };
 
       return generatorFn(base, options, enhanced);

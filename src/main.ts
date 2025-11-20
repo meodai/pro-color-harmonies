@@ -1,5 +1,5 @@
 import './style.css';
-import { formatHex, formatCss, oklch } from 'culori';
+import { formatHex, formatCss, parse, oklch } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
@@ -381,7 +381,19 @@ function renderPalette() {
   };
 
   try {
-    const basePalette = ColorPaletteGenerator.generate(baseColor, paletteType, options);
+    const parsed = parse(baseColor);
+    if (!parsed) {
+      throw new Error('Invalid base color');
+    }
+
+    const baseOklch = oklch(parsed);
+    const baseColorOKLCH = {
+      l: baseOklch.l,
+      c: baseOklch.c,
+      h: baseOklch.h || 0,
+    };
+
+    const basePalette = ColorPaletteGenerator.generate(baseColorOKLCH, paletteType, options);
     const palette = extendPalette(basePalette, count);
     
     // Convert OKLCH to CSS format

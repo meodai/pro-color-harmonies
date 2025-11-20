@@ -809,7 +809,7 @@ export class ColorPaletteGenerator {
    * Returns exactly 6 colors as designed by each palette type
    */
   static generate(
-    baseColor: string,
+    baseColor: OKLCH,
     paletteType: PaletteType,
     options: GeneratorOptions
   ): PaletteColor[] {
@@ -845,7 +845,7 @@ export class ColorPaletteGenerator {
    * Generate all palette types for a given color
    */
   static generateAll(
-    baseColor: string,
+    baseColor: OKLCH,
     options: GeneratorOptions
   ): Record<PaletteType, PaletteColor[]> {
     return {
