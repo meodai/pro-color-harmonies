@@ -605,9 +605,61 @@ body {
   }
 }
 
+.about__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.about__header h1 {
+  margin: 0;
+  line-height: 1;
+}
+
+.about a[href^="http"]::after {
+  content: " ↗";
+  font-size: 0.75em;
+  vertical-align: top;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+
+  &:hover {
+    text-decoration-thickness: 2px;
+  }
+}
+
 @media (orientation: portrait) {
   .about {
     max-width: min(22rem,80vw);
   }
 }
 
+.code {
+  background: var(--text);
+  border: 1px solid var(--line);
+  color: var(--bg);
+  padding: 1rem;
+  display: block;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-top: 1rem;
+
+  ::selection {
+    background: var(--bg);
+    color: var(--text);
+  }
+}
+
+pre {
+  font: inherit;
+  font-size: 0.8em;
+}

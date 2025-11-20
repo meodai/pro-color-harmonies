@@ -276,7 +276,7 @@ import * as utils from './src/utils';
 
 ### Demo App
 
-The demo lives in `src/main.ts` + `src/style.css` and is built with Vite. It wires the core OKLCH-based generator to real-world usage via `culori`.
+The demo lives in `src/demo.ts` + `src/style.css` and is built with Vite. It wires the core OKLCH-based generator to real-world usage via `culori`.
 
 **[View Live Demo](https://meodai.github.io/procolorharmonies/)**
 

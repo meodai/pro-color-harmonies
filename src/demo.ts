@@ -455,6 +455,28 @@ function renderPalette() {
         `;
       })
       .join('');
+
+    const codeExample = document.querySelector<HTMLElement>('#codeexample');
+    if (codeExample) {
+      const modifiersString = Object.entries(modifiers)
+        .filter(([_, value]) => value !== 0)
+        .map(([key, value]) => `      ${key}: ${value?.toFixed(2)}`)
+        .join(',\n');
+
+      const modifiersSection = modifiersString 
+        ? `,\n    modifiers: {\n${modifiersString}\n    }` 
+        : '';
+
+      codeExample.textContent = `import { ColorPaletteGenerator } from 'pro-color-harmonies';
+
+const palette = ColorPaletteGenerator.generate(
+  { l: ${Number(baseColorOKLCH.l).toFixed(3)}, c: ${Number(baseColorOKLCH.c).toFixed(3)}, h: ${Number(baseColorOKLCH.h).toFixed(3)} },
+  '${paletteType}',
+  {
+    style: '${style}'${modifiersSection}
+  }
+);`;
+    }
   } catch (error) {
     paletteContainer.innerHTML = `<div class="error">${String(error)}</div>`;
   }

@@ -10,7 +10,7 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'src/main.ts',
+        'src/demo.ts',
         'src/utils/demo-palette.ts',
         '**/*.config.ts',
         'dist/',

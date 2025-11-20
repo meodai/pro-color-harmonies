@@ -9,5 +9,5 @@
     "moduleResolution": "node"
   },
   "include": ["src"],
-  "exclude": ["src/vite-env.d.ts", "src/**/*.test.ts", "tests", "src/main.ts"]
+  "exclude": ["src/vite-env.d.ts", "src/**/*.test.ts", "tests", "src/demo.ts"]
 }
