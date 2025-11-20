@@ -117,21 +117,6 @@ Convert a palette to CSS custom properties.
 
 Returns an array of sRGB hex values derived via `culori` (`rgb` + `formatRgb`).
 
-#### `ColorPaletteGenerator.getPaletteInfo(palette)`
-
-Returns:
-
-```ts
-{
-  colors: string[];       // CSS color strings in OKLCH
-  format: 'oklch';
-  baseIndex: number;      // index of the base color in the palette
-  contrastColors: string[];// currently '#000' placeholders
-}
-```
-
-Useful for UI components that just need strings + a base-color index.
-
 ### Individual generators
 
 All of these operate primarily in OKLCH, then wrap results into `PaletteColor[]`. They all respect `options.count` (>= 5) and use OKLAB interpolation for extra colors.
