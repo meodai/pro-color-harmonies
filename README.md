@@ -1,18 +1,19 @@
 # Pro Palette
 
-A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data (no `culori` dependency) and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs. The **demo app** uses [`culori`](https://github.com/Evercoder/culori) for parsing, interpolation, and CSS/hex formatting.
+[![Tests](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml)
+[![Deploy Demo](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml)
+
+A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs. The **demo app** uses [`culori`](https://github.com/Evercoder/culori) for parsing, interpolation, and CSS/hex formatting.
+
+**[View Live Demo](https://meodai.github.io/procolorharmonies/)**
 
 ## Installation
 
 ```bash
-npm install pro-palette
+npm install pro-palette culori
 ```
 
-If you want to run the included demo or reuse its helpers, you will also need:
-
-```bash
-npm install culori
-```
+The library has `culori` as a peer dependency for OKLCH color space operations.
 
 This project is set up as a Vite+TS library; build output lives under `dist/` when you run `npm run build`.
 
@@ -232,19 +233,57 @@ All utilities are also available via a single import:
 import * as utils from './src/utils';
 ```
 
-## Demo app
+## Development
+
+### Demo App
 
 The demo lives in `src/main.ts` + `src/style.css` and is built with Vite. It wires the core OKLCH-based generator to real-world usage via `culori`.
 
-- Start dev server:
+**[View Live Demo](https://meodai.github.io/procolorharmonies/)**
+
+To run locally:
 
 ```bash
-cd /path/to/pro-palette
 npm install
 npm run dev
 ```
 
-- Then open the printed `http://localhost:517x/` URL.
+Then open the printed `http://localhost:517x/` URL.
+
+### Testing
+
+The project includes comprehensive test coverage (88%+) using Vitest:
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run tests once
+npm run test:run
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run tests with UI
+npm run test:ui
+```
+
+Tests are located in the `tests/` directory and cover:
+- All 5 palette types (analogous, complementary, triadic, tetradic, split-complementary)
+- All 4 styles (square, triangle, circle, diamond)
+- Color utilities and interpolation functions
+- All palette modifiers
+- Edge cases and boundary conditions
+
+### Building
+
+```bash
+# Build the library
+npm run build:lib
+
+# Build the demo
+npm run build:demo
+```
 
 Controls:
 
@@ -258,6 +297,13 @@ Controls:
 - **Random base**: chooses a random hex color.
 
 The palette is displayed as a single flat bar of swatches.
+
+## CI/CD
+
+The project includes GitHub Actions workflows:
+
+- **Tests**: Runs on every push and pull request, executes the test suite and generates coverage reports
+- **Deploy Demo**: Automatically deploys the demo to GitHub Pages on every push to main
 
 ## Notes
 
