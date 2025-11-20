@@ -3,19 +3,29 @@
 [![Tests](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml)
 [![Deploy Demo](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml)
 
-A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs. The **demo app** uses [`culori`](https://github.com/Evercoder/culori) for parsing, interpolation, and CSS/hex formatting.
+A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs.
 
 **[View Live Demo](https://meodai.github.io/procolorharmonies/)**
+
+## Difference from Mathematical Color Harmonies
+
+Standard color harmony libraries often rely on simple mathematical hue rotations in HSL or HSV space (e.g., Complementary = H + 180°, Triadic = H + 120°/240°). While mathematically correct, these often produce results that feel unbalanced or "muddy" to the human eye, especially in the yellow/orange/green regions.
+
+Pro Palette takes a different approach, heavily leaning on the research and "magic numbers" developed by **@royalfig** (Ryan Feigenbaum) for [color-palette-generator](https://github.com/royalfig/color-palette-generator).
+
+Key differences:
+
+- **Perceptual Space**: All calculations happen in **OKLCH**, ensuring that changes in lightness and chroma are perceptually uniform.
+- **Muddy Zone Avoidance**: The library actively steers hues away from known "muddy" or unappealing zones (like certain dark yellows/browns) to ensure cleaner results.
+- **Style-Based Logic**: Instead of just one "Triadic" formula, you get four distinct interpretations (`square`, `triangle`, `circle`, `diamond`), each with its own logic for balancing visual weight and emotional feel.
+- **Narrative & Hierarchy**: It applies concepts like "Chroma Narratives" and "Color Hierarchy" to assign roles (protagonist, supporting, etc.) to colors, rather than treating them as equal data points.
+- **Modifiers**: It includes four unique post-processing algorithms (Sine, Wave, Zap, Block) that add organic variation and texture to the palette, simulating natural lighting or artistic shifts.
 
 ## Installation
 
 ```bash
-npm install pro-palette culori
+npm install pro-palette
 ```
-
-The library has `culori` as a peer dependency for OKLCH color space operations.
-
-This project is set up as a Vite+TS library; build output lives under `dist/` when you run `npm run build`.
 
 ## Library entry
 
