@@ -190,8 +190,6 @@ import {
   OKLCH_LIMITS,        // Constants for valid OKLCH ranges
   clampOKLCH,          // Clamp OKLCH values to valid ranges
   normalizeHue,        // Normalize hue to 0-360 range
-  extractOKLCH,        // Extract OKLCH from culori color
-  createOklch,         // Create culori OKLCH color with clamping
   avoidMuddyZones      // Adjust hues to avoid muddy color zones
 } from './src/utils/color';
 ```

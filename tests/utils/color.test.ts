@@ -3,8 +3,6 @@ import {
   OKLCH_LIMITS,
   clampOKLCH,
   normalizeHue,
-  extractOKLCH,
-  createOklch,
   avoidMuddyZones,
 } from '../../src/utils/color';
 
@@ -52,48 +50,6 @@ describe('color utilities', () => {
       expect(normalizeHue(0)).toBe(0);
       expect(normalizeHue(360)).toBe(0);
       expect(normalizeHue(-360)).toBe(0);
-    });
-  });
-
-  describe('extractOKLCH', () => {
-    it('should extract OKLCH values from color object', () => {
-      const color = { mode: 'oklch' as const, l: 0.6, c: 0.15, h: 120 };
-      const result = extractOKLCH(color);
-      expect(result).toEqual({ l: 0.6, c: 0.15, h: 120 });
-    });
-
-    it('should provide safe defaults for missing values', () => {
-      const color = { mode: 'oklch' as const, l: 0, c: 0 };
-      const result = extractOKLCH(color);
-      expect(result.l).toBe(0.5);
-      expect(result.c).toBe(0);
-      expect(result.h).toBe(0);
-    });
-
-    it('should handle undefined hue', () => {
-      const color = { mode: 'oklch' as const, l: 0.5, c: 0 };
-      const result = extractOKLCH(color);
-      expect(result.h).toBe(0);
-    });
-  });
-
-  describe('createOklch', () => {
-    it('should create OKLCH color object', () => {
-      const result = createOklch(0.5, 0.2, 180);
-      expect(result).toEqual({
-        mode: 'oklch',
-        l: 0.5,
-        c: 0.2,
-        h: 180,
-      });
-    });
-
-    it('should clamp values when creating', () => {
-      const result = createOklch(1.5, 0.5, 400);
-      const oklchResult = result as { l: number; c: number; h: number };
-      expect(oklchResult.l).toBe(OKLCH_LIMITS.l.max);
-      expect(oklchResult.c).toBe(OKLCH_LIMITS.c.max);
-      expect(oklchResult.h).toBe(40);
     });
   });
 

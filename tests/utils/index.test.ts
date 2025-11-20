@@ -5,8 +5,6 @@ describe('utils index', () => {
   it('should export color utilities', () => {
     expect(utils.clampOKLCH).toBeDefined();
     expect(utils.normalizeHue).toBeDefined();
-    expect(utils.extractOKLCH).toBeDefined();
-    expect(utils.createOklch).toBeDefined();
     expect(utils.avoidMuddyZones).toBeDefined();
     expect(utils.OKLCH_LIMITS).toBeDefined();
   });

@@ -16,8 +16,6 @@ The test suite covers:
 Tests for OKLCH color space utilities:
 - `clampOKLCH()` - Clamping lightness, chroma, and hue values
 - `normalizeHue()` - Hue normalization to 0-360 range
-- `extractOKLCH()` - Safe extraction with defaults
-- `createOklch()` - OKLCH color object creation
 - `avoidMuddyZones()` - Muddy color zone avoidance
 
 ### `src/utils/interpolation.test.ts`
