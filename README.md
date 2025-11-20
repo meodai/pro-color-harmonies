@@ -1,4 +1,4 @@
-# Pro Palette
+# Pro Color Harmonies
 
 [![Tests](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml)
 [![Deploy Demo](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml)
@@ -24,7 +24,7 @@ Key differences:
 ## Installation
 
 ```bash
-npm install pro-palette
+npm install pro-color-harmonies
 ```
 
 ## Library entry

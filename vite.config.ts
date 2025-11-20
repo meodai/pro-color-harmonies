@@ -5,7 +5,7 @@ export default defineConfig({
     lib: {
       entry: 'src/index.ts',
       name: 'ColorPaletteGenerator',
-      fileName: (format) => `color-palette-generator.${format}.js`,
+      fileName: (format) => `pro-color-harmonies.${format}.js`,
       formats: ['es', 'umd'],
     },
     rollupOptions: {
