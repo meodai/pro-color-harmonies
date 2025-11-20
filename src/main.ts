@@ -176,6 +176,8 @@ app.innerHTML = `
     <section class="demo__palettes">
       <div id="palette" class="palette"></div>
     </section>
+
+    <div class="bg"></div>
   </div>
 `;
 
@@ -434,6 +436,7 @@ function renderPalette() {
     if (appElement) {
       appElement.style.setProperty('--grad', paletteToGradientStops(colors));
       appElement.style.setProperty('--grad-stops', paletteToHardStops(colors));
+      appElement.style.setProperty('--length', String(colors.length));
     }
 
     paletteContainer.innerHTML = palette
