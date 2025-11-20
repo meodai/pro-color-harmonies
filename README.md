@@ -19,14 +19,16 @@ This project is set up as a Vite+TS library; build output lives under `dist/` wh
 
 ## Library entry
 
-Main entry point: `src/color-palette-generator.ts`.
+Main entry point: `src/index.ts`.
 
 The library is organized into modular utilities for better maintainability:
 
 - `src/utils/color.ts` - OKLCH color space utilities (clamping, normalization, muddy zone avoidance)
+- `src/utils/hue-strategies.ts` - Hue calculation strategies for different palette styles
 - `src/utils/interpolation.ts` - Interpolation functions and array manipulation
 - `src/utils/modifiers.ts` - Palette modifiers (sine, wave, zap, block)
 - `src/utils/palette.ts` - Palette generation helpers and factory functions (no `culori`)
+- `src/utils/variations.ts` - Adaptive variation logic for Triadic palettes
 - `src/utils/demo-palette.ts` - Demo-only helpers that use `culori` for interpolation (`extendPalette`)
 - `src/utils/index.ts` - Central export point for all **core** utilities
 
@@ -103,7 +105,7 @@ Each palette is run through the modifiers (if provided), just like `generate`.
 All of these operate in OKLCH and return `OKLCH[]`. Each generator produces exactly **6 base colors**.
 
 ```ts
-import { generateAnalogous } from './src/color-palette-generator';
+import { generateAnalogous } from './src/index';
 
 const palette = generateAnalogous({
   l: 0.7,
@@ -138,7 +140,7 @@ const palette = generateAnalogous({
 You can also import them via the `generators` export:
 
 ```ts
-import { generators } from './src/color-palette-generator';
+import { generators } from './src/index';
 
 const tri = generators.triadic({
   l: 0.7,
@@ -194,6 +196,18 @@ import {
 } from './src/utils/color';
 ```
 
+#### Hue strategy utilities (`src/utils/hue-strategies.ts`)
+
+```ts
+import { 
+  getComplementaryHue,
+  getAnalogousHues,
+  getTriadicHues,
+  getTetradicHues,
+  getSplitComplementaryHues
+} from './src/utils/hue-strategies';
+```
+
 #### Interpolation utilities (`src/utils/interpolation.ts`)
 
 ```ts
@@ -223,6 +237,14 @@ import {
 import { 
   createPaletteGenerator   // Factory for creating palette generators (OKLCH in/out only)
 } from './src/utils/palette';
+```
+
+#### Variation utilities (`src/utils/variations.ts`)
+
+```ts
+import { 
+  getTriadicVariations     // Adaptive variation logic for Triadic palettes
+} from './src/utils/variations';
 ```
 
 All utilities are also available via a single import:

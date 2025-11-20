@@ -7,3 +7,5 @@ export * from './color';
 export * from './interpolation';
 export * from './modifiers';
 export * from './palette';
+export * from './hue-strategies';
+export * from './variations';

@@ -1,5 +1,5 @@
 import { oklch, oklab, interpolate } from 'culori';
-import type { OKLCH, PaletteColor } from '../color-palette-generator';
+import type { OKLCH, PaletteColor } from '../index';
 
 /**
  * Extends a palette to the desired count using interpolation.

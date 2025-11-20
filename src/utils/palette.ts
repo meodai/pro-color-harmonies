@@ -1,4 +1,4 @@
-import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../color-palette-generator';
+import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../index';
 
 /**
  * Creates a palette generator function with common boilerplate.
