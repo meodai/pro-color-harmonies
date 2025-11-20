@@ -5,8 +5,8 @@ import {
   zapModifier,
   blockModifier,
   applyModifiers,
-} from './modifiers';
-import type { PaletteColor } from '../color-palette-generator';
+} from '../../src/utils/modifiers';
+import type { PaletteColor } from '../../src/color-palette-generator';
 
 describe('palette modifiers', () => {
   const createTestPalette = (): PaletteColor[] => [

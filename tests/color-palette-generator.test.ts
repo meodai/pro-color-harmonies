@@ -11,7 +11,7 @@ import {
   type PaletteStyle,
   type PaletteType,
   type GeneratorOptions,
-} from './color-palette-generator';
+} from '../src/color-palette-generator';
 
 describe('ColorPaletteGenerator', () => {
   const baseColor: OKLCH = { l: 0.6, c: 0.2, h: 30 };

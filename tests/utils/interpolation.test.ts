@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { lerp, lerpOKLCH, scaleSpreadArray } from './interpolation';
+import { lerp, lerpOKLCH, scaleSpreadArray } from '../../src/utils/interpolation';
 
 describe('interpolation utilities', () => {
   describe('lerp', () => {

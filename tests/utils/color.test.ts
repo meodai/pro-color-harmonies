@@ -6,7 +6,7 @@ import {
   extractOKLCH,
   createOklch,
   avoidMuddyZones,
-} from './color';
+} from '../../src/utils/color';
 
 describe('color utilities', () => {
   describe('clampOKLCH', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import * as utils from './index';
+import * as utils from '../../src/utils/index';
 
 describe('utils index', () => {
   it('should export color utilities', () => {
