@@ -1,7 +1,26 @@
 {
   "name": "pro-color-harmonies",
-  "private": true,
   "version": "0.0.0",
+  "description": "A TypeScript color-harmony library working purely in OKLCH data to generate perceptually-tuned palettes.",
+  "keywords": [
+    "color",
+    "palette",
+    "oklch",
+    "harmony",
+    "generator",
+    "design",
+    "ui"
+  ],
+  "author": "meodai",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/meodai/pro-color-harmonies.git"
+  },
+  "bugs": {
+    "url": "https://github.com/meodai/pro-color-harmonies/issues"
+  },
+  "homepage": "https://github.com/meodai/pro-color-harmonies#readme",
   "type": "module",
   "main": "./dist/pro-color-harmonies.umd.js",
   "module": "./dist/pro-color-harmonies.es.js",
@@ -24,7 +43,8 @@
     "preview": "vite preview --config vite.demo.config.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "prepublishOnly": "npm run build:lib"
   },
   "devDependencies": {
     "@types/culori": "^4.0.1",

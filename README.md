@@ -1,11 +1,11 @@
 # Pro Color Harmonies
 
-[![Tests](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/test.yml)
-[![Deploy Demo](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml/badge.svg)](https://github.com/meodai/procolorharmonies/actions/workflows/deploy.yml)
+[![Tests](https://github.com/meodai/pro-color-harmonies/actions/workflows/test.yml/badge.svg)](https://github.com/meodai/pro-color-harmonies/actions/workflows/test.yml)
+[![Deploy Demo](https://github.com/meodai/pro-color-harmonies/actions/workflows/deploy.yml/badge.svg)](https://github.com/meodai/pro-color-harmonies/actions/workflows/deploy.yml)
 
 A TypeScript color-harmony library and tiny demo. The **core library** works purely in OKLCH data and generates perceptually-tuned palettes from a single base color, with support for different harmony types, styles, and four post-processing "modulator" knobs.
 
-**[View Live Demo](https://meodai.github.io/procolorharmonies/)**
+**[View Live Demo](https://meodai.github.io/pro-color-harmonies/)**
 
 ## Difference from Mathematical Color Harmonies
 
