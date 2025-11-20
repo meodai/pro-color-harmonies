@@ -78,6 +78,8 @@ body {
 @media (orientation: portrait) {
   #app {
     max-width: 100%;
+    margin-top: 5vh;
+    margin-bottom: 15vh;
   }
 
   .demo {
