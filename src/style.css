@@ -53,7 +53,7 @@ body {
 
 .demo {
   position: relative;
-  width: 70rem;
+  width: min(70rem, 90vw);
   padding-top: 5rem;
   
   &::before {
