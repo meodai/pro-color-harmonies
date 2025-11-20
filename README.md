@@ -14,6 +14,14 @@ This project is set up as a Vite+TS library; build output lives under `dist/` wh
 
 Main entry point: `src/color-palette-generator.ts`.
 
+The library is organized into modular utilities for better maintainability:
+
+- `src/utils/color.ts` - OKLCH color space utilities (clamping, normalization, muddy zone avoidance)
+- `src/utils/interpolation.ts` - Interpolation functions and array manipulation
+- `src/utils/modifiers.ts` - Palette modifiers (sine, wave, zap, block)
+- `src/utils/palette.ts` - Palette generation helpers and factory functions
+- `src/utils/index.ts` - Central export point for all utilities
+
 ### Types
 
 ```ts
@@ -192,7 +200,41 @@ Ordering: modifiers are applied in sequence (`sine` → `wave` → `zap` → `bl
 
 - `isValidColor(color: string): boolean`
   - Thin wrapper around `culori.parse` to check parsability.
-xw
+
+#### Internal utilities (src/utils/)
+
+If you need direct access to the underlying utilities:
+
+```ts
+import { 
+  normalizeHue, 
+  createOklch, 
+  avoidMuddyZones 
+} from './src/utils/color';
+
+import { 
+  lerp, 
+  lerpColor, 
+  scaleSpreadArray 
+} from './src/utils/interpolation';
+
+import { 
+  sineModifier, 
+  waveModifier, 
+  zapModifier, 
+  blockModifier,
+  applyModifiers 
+} from './src/utils/modifiers';
+
+import { 
+  extendPalette, 
+  colorFactory, 
+  createPaletteGenerator 
+} from './src/utils/palette';
+```
+
+These utilities are used internally by the generators but can be useful for custom palette generation or processing.
+
 ## Demo app
 
 The demo lives in `src/main.ts` + `src/style.css` and is built with Vite.

@@ -9,10 +9,14 @@ import {
   formatRgb,
   formatCss,
   oklch,
-  oklab,
   rgb,
   parse,
 } from 'culori';
+
+// Utils
+import { normalizeHue, createOklch, avoidMuddyZones } from './utils/color';
+import { applyModifiers } from './utils/modifiers';
+import { createPaletteGenerator } from './utils/palette';
 
 // ============= Type Definitions =============
 
@@ -42,430 +46,6 @@ export interface GeneratorOptions {
   modifiers?: [number, number, number, number]; // Optional palette modulation knobs (0-1)
 }
 
-// ============= Utility Functions =============
-
-const OKLCH_LIMITS = {
-  l: { min: 0.01, max: 0.99 },
-  c: { min: 0, max: 0.37 },
-  h: { min: 0, max: 360 },
-};
-
-function clampOKLCH(l: number, c: number, h: number): OKLCH {
-  return {
-    l: Math.max(OKLCH_LIMITS.l.min, Math.min(OKLCH_LIMITS.l.max, l)),
-    c: Math.max(OKLCH_LIMITS.c.min, Math.min(OKLCH_LIMITS.c.max, c)),
-    h: ((h % 360) + 360) % 360,
-  };
-}
-
-// Note: original implementation had a detectFormat helper which
-// is currently unused; it has been removed to satisfy TypeScript.
-
-// ============= Interpolation Functions =============
-
-type FillFunction<T> = T extends number
-  ? (amt: number, from: T, to: T) => T
-  : (amt: number, from: T | null, to: T | null) => T;
-
-/**
- * Linearly interpolates between two values.
- */
-const lerp: FillFunction<number> = (amt, from, to) =>
-  from + amt * (to - from);
-
-/**
- * Interpolates between two Color objects
- */
-const lerpColor = (amt: number, from: CuloriColor, to: CuloriColor): CuloriColor => {
-  const f = oklab(from);
-  const t = oklab(to);
-  return {
-    mode: 'oklab',
-    l: lerp(amt, f.l, t.l),
-    a: lerp(amt, f.a, t.a),
-    b: lerp(amt, f.b, t.b),
-  } as CuloriColor;
-};
-
-/**
- * Scales and spreads an array to the target size using interpolation
- */
-const scaleSpreadArray = <T>(
-  valuesToFill: T[],
-  targetSize: number,
-  padding = 0,
-  fillFunction: FillFunction<T> = lerp as unknown as FillFunction<T>
-): T[] => {
-  // Validation checks
-  if (!valuesToFill || valuesToFill.length < 2) {
-    throw new Error("valuesToFill array must have at least two values.");
-  }
-  if (targetSize < 1 && padding > 0) {
-    throw new Error("Target size must be at least 1");
-  }
-  if (targetSize < valuesToFill.length && padding === 0) {
-    throw new Error(
-      "Target size must be greater than or equal to the valuesToFill array length."
-    );
-  }
-
-  // For case without padding, use the original algorithm
-  if (padding <= 0) {
-    // Create a copy of the valuesToFill array and add null values to it if necessary
-    const valuesToAdd = targetSize - valuesToFill.length;
-    const chunkArray: T[][] = valuesToFill.map((value): T[] => [value]);
-
-    for (let i = 0; i < valuesToAdd; i++) {
-      const idx = i % (valuesToFill.length - 1);
-      if (idx >= 0 && idx < chunkArray.length) {
-        const chunk = chunkArray[idx];
-        if (chunk) {
-          chunk.push(null as unknown as T);
-        }
-      }
-    }
-
-    // Fill each chunk with interpolated values using the specified interpolation function
-    for (let i = 0; i < chunkArray.length - 1; i++) {
-      const currentChunk = chunkArray[i];
-      const nextChunk = chunkArray[i + 1];
-
-      if (!currentChunk || !nextChunk) {
-        continue;
-      }
-
-      const currentValue = currentChunk[0];
-      const nextValue = nextChunk[0];
-
-      if (currentValue === undefined || nextValue === undefined) {
-        continue;
-      }
-
-      for (let j = 1; j < currentChunk.length; j++) {
-        const percent = j / currentChunk.length;
-        currentChunk[j] = fillFunction(percent, currentValue, nextValue);
-      }
-    }
-
-    return chunkArray.flat() as T[];
-  }
-
-  // Implement chroma.js style padding
-  const result: T[] = [];
-
-  // The padding essentially shifts the start and end of the normalized range
-  const domainStart = padding;
-  const domainEnd = 1 - padding;
-
-  // Generate evenly spaced positions in the target array
-  for (let i = 0; i < targetSize; i++) {
-    // Generate normalized position (0-1)
-    const t = targetSize === 1 ? 0.5 : i / (targetSize - 1);
-
-    // Apply padding by adjusting t
-    const adjustedT = domainStart + t * (domainEnd - domainStart);
-
-    // Find the right segment for this position
-    let segmentIndex = 0;
-    const normalizedPositions: number[] = valuesToFill.map(
-      (_, i) => i / (valuesToFill.length - 1)
-    );
-
-    for (let j = 1; j < normalizedPositions.length; j++) {
-      const position = normalizedPositions[j];
-      if (position !== undefined && adjustedT <= position) {
-        segmentIndex = j - 1;
-        break;
-      }
-      if (j === normalizedPositions.length - 1) {
-        segmentIndex = j - 1;
-      }
-    }
-
-    // Ensure segment index is valid
-    segmentIndex = Math.min(Math.max(0, segmentIndex), valuesToFill.length - 2);
-
-    // Get the segment boundaries in normalized space
-    const segmentStart = normalizedPositions[segmentIndex] || 0;
-    const segmentEnd = normalizedPositions[segmentIndex + 1] || 1;
-
-    // Calculate relative position within segment (0-1)
-    let segmentT = 0;
-    if (segmentEnd > segmentStart) {
-      segmentT = (adjustedT - segmentStart) / (segmentEnd - segmentStart);
-    }
-
-    // Get the values from the segments, with null checks
-    const fromValue = valuesToFill[segmentIndex];
-    const toValue = valuesToFill[segmentIndex + 1];
-
-    if (fromValue === undefined || toValue === undefined) {
-      throw new Error(`Invalid segment values at index ${segmentIndex}`);
-    }
-
-    // Get the interpolated value from the correct segment
-    const value = fillFunction(segmentT, fromValue, toValue);
-
-    result.push(value);
-  }
-
-  return result;
-};
-
-/**
- * Extends a palette to the desired count using interpolation
- */
-function extendPalette(
-  basePalette: PaletteColor[],
-  targetCount: number,
-  paletteType: string
-): PaletteColor[] {
-  if (targetCount <= basePalette.length) {
-    // If target count is less than or equal to base palette, just return the base
-    return basePalette.slice(0, targetCount);
-  }
-
-  // Use interpolation to extend the palette
-  const extendedColors = scaleSpreadArray<CuloriColor>(
-    basePalette.map(p => p.color as CuloriColor),
-    targetCount,
-    0,
-    lerpColor as unknown as FillFunction<CuloriColor>
-  );
-
-  return extendedColors.map((color, index) => ({
-    code: `${paletteType}-${index + 1}`,
-    isBase: index === 0,
-    color,
-  }));
-}
-
-// ============= Generator Helpers =============
-
-function createOklch(l: number, c: number, h: number): CuloriColor {
-  return { mode: 'oklch', ...clampOKLCH(l, c, h) } as CuloriColor;
-}
-
-function createPaletteGenerator(
-  paletteType: PaletteType,
-  generatorFn: (
-    base: { l: number; c: number; h: number; color: CuloriColor },
-    options: GeneratorOptions,
-    enhanced: boolean
-  ) => CuloriColor[]
-) {
-  return (baseColor: string, options: GeneratorOptions): PaletteColor[] => {
-    const { style, count = 5 } = options;
-    const enhanced = style !== 'square';
-    const targetCount = Math.max(1, count);
-
-    try {
-      const parsed = parse(baseColor);
-      if (!parsed) throw new Error('Invalid base color');
-      
-      const baseColorObj = oklch(parsed);
-      const base = {
-        l: baseColorObj.l,
-        c: baseColorObj.c,
-        h: baseColorObj.h || 0,
-        color: baseColorObj as CuloriColor
-      };
-
-      const colors = generatorFn(base, options, enhanced);
-
-      const basePalette = colors.map((color, index) =>
-        colorFactory(color, paletteType, index, index === 0)
-      );
-
-      return extendPalette(basePalette, targetCount, paletteType);
-    } catch (error) {
-      throw new Error(`Failed to generate ${paletteType} colors: ${error}`);
-    }
-  };
-}
-
-// ============= Color Factory =============
-
-function colorFactory(
-  base: string | CuloriColor,
-  paletteType: string,
-  idx: number = 0,
-  isBase: boolean = false
-): PaletteColor {
-  const color: CuloriColor = typeof base === 'string' ? (parse(base) as CuloriColor) : base;
-
-  return {
-    code: `${paletteType}-${idx + 1}`,
-    isBase,
-    color,
-  };
-}
-
-// ============= Palette Modifiers (Knobs) =============
-
-function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
-  const hueIntensity = modifier * 45;
-  const lightnessIntensity = modifier * 0.15;
-
-  return palette.map((entry, idx) => {
-    const wavePosition = (idx / Math.max(1, palette.length - 1)) * Math.PI * 2;
-    const fundamental = Math.sin(wavePosition + modifier * 1);
-    const harmonic = Math.sin(wavePosition * 2 + modifier * 0.5) * 0.3;
-    const sineValue = fundamental + harmonic;
-
-    const hueShift = sineValue * hueIntensity;
-    const lightnessShift = Math.sin(wavePosition * 1.5 + modifier * 0.8) * lightnessIntensity;
-
-    const base = oklch(entry.color as CuloriColor);
-    const currentHue = base.h || 0;
-    const currentLightness = base.l || 0.5;
-
-    return {
-      ...entry,
-      color: createOklch(
-        currentLightness + lightnessShift,
-        base.c,
-        currentHue + hueShift,
-      ),
-    };
-  });
-}
-
-function waveModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
-  const chaosLevel = 2.0 + modifier * 1.2;
-  const hueRange = modifier * 120;
-  const lightnessRange = modifier * 0.35;
-
-  return palette.map((entry, idx) => {
-    let x = 0.2 + (idx / Math.max(1, palette.length)) * 0.6 + Math.sin(idx * 0.7) * 0.15;
-
-    for (let i = 0; i < 8; i++) {
-      x = chaosLevel * x * (1 - x);
-    }
-
-    const smoothedX = x * 0.85 + 0.5 * 0.15;
-
-    const hueShift = (smoothedX - 0.5) * hueRange;
-    const lightnessShift = (smoothedX - 0.5) * lightnessRange;
-    const chromaMultiplier = 0.4 + smoothedX * 1.2;
-
-    const base = oklch(entry.color as CuloriColor);
-    const currentHue = base.h || 0;
-    const currentLightness = base.l || 0.5;
-    const currentChroma = base.c || 0;
-
-    return {
-      ...entry,
-      color: createOklch(
-        currentLightness + lightnessShift,
-        currentChroma * chromaMultiplier,
-        currentHue + hueShift,
-      ),
-    };
-  });
-}
-
-function zapModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
-  const spiralTightness = 0.2 + modifier * 1.0;
-  const maxHueShift = modifier * 90;
-
-  return palette.map((entry, idx) => {
-    const normalizedPos = idx / Math.max(1, palette.length - 1);
-    const angle = normalizedPos * spiralTightness * Math.PI * 2;
-    const radius = Math.sqrt(normalizedPos) * 2;
-
-    const spiralX = Math.cos(angle) * radius;
-    const spiralY = Math.sin(angle) * radius;
-
-    const hueShift = spiralX * maxHueShift;
-    const lightnessShift = spiralY * 0.12;
-    const chromaShift = Math.sin(angle * 1.5) * 0.08;
-
-    const base = oklch(entry.color as CuloriColor);
-    const currentHue = base.h || 0;
-    const currentLightness = base.l || 0.5;
-    const currentChroma = base.c || 0;
-
-    return {
-      ...entry,
-      color: createOklch(
-        currentLightness + lightnessShift,
-        currentChroma + chromaShift,
-        currentHue + hueShift,
-      ),
-    };
-  });
-}
-
-function blockModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
-  const lightnessAmplitude = modifier * 0.25;
-  const hueAmplitude = modifier * 30;
-  const chromaAmplitude = modifier * 0.1;
-
-  return palette.map((entry, idx) => {
-    const frequency = Math.max(1, Math.floor(palette.length / 8));
-    const wavePosition = (idx / Math.max(1, palette.length - 1)) * Math.PI * frequency;
-
-    const rawTriangle = (2 / Math.PI) * Math.asin(Math.sin(wavePosition));
-    const softTriangle = rawTriangle * (1 - Math.abs(rawTriangle) * 0.3);
-
-    const lightnessShift = softTriangle * lightnessAmplitude;
-    const hueShift = Math.sin(wavePosition + Math.PI * 0.25) * rawTriangle * hueAmplitude;
-    const chromaShift = Math.cos(wavePosition + Math.PI * 0.5) * rawTriangle * chromaAmplitude;
-
-    const base = oklch(entry.color as CuloriColor);
-    const currentHue = base.h || 0;
-    const currentLightness = base.l || 0.5;
-    const currentChroma = base.c || 0;
-
-    return {
-      ...entry,
-      color: createOklch(
-        currentLightness + lightnessShift,
-        currentChroma + chromaShift,
-        currentHue + hueShift,
-      ),
-    };
-  });
-}
-
-export function applyModifiers(
-  palette: PaletteColor[],
-  modifiers: [number, number, number, number] | undefined,
-): PaletteColor[] {
-  if (!modifiers) return palette;
-
-  const [m1, m2, m3, m4] = modifiers;
-  let result = [...palette];
-
-  if (m1) result = sineModifier(result, m1);
-  if (m2) result = waveModifier(result, m2);
-  if (m3) result = zapModifier(result, m3);
-  if (m4) result = blockModifier(result, m4);
-
-  return result;
-}
-
-// ============= Enhancement Functions =============
-
-function avoidMuddyZones(hue: number, lightness: number, chroma: number): OKLCH {
-  // Avoid muddy zones in the color space
-  const muddyZones = [
-    { start: 60, end: 90, shift: -10 },   // Yellow-green (tends toward brown)
-    { start: 30, end: 50, shift: 15 },    // Orange (can become muddy)
-  ];
-
-  let adjustedHue = hue;
-  for (const zone of muddyZones) {
-    if (hue >= zone.start && hue <= zone.end && chroma < 0.15) {
-      adjustedHue = (hue + zone.shift + 360) % 360;
-      break;
-    }
-  }
-
-  return clampOKLCH(lightness, chroma, adjustedHue);
-}
-
 // ============= Complementary Generator =============
 
 export const generateComplementary = createPaletteGenerator(
@@ -479,7 +59,7 @@ export const generateComplementary = createPaletteGenerator(
     switch (style) {
       case 'square':
         // Pure mathematical - rigid 180° opposite
-        complementHue = (baseHue + 180) % 360;
+        complementHue = normalizeHue(baseHue + 180);
         break;
       case 'triangle':
         // Perceptual harmony - adjusted for human vision
@@ -517,16 +97,16 @@ export const generateComplementary = createPaletteGenerator(
       case 'diamond':
         // Luminosity-based complements
         if (baseLightness > 0.8 && baseChroma < 0.3) {
-          complementHue = (baseHue + 200) % 360;
+          complementHue = normalizeHue(baseHue + 200);
         } else if (baseHue >= 30 && baseHue < 90 && baseLightness > 0.6) {
           complementHue = 240 + (baseHue - 30) * 0.3;
         } else {
           const lightInfluence = baseLightness * 20 - 10;
-          complementHue = (baseHue + 180 + lightInfluence) % 360;
+          complementHue = normalizeHue(baseHue + 180 + lightInfluence);
         }
         break;
       default:
-        complementHue = (baseHue + 180) % 360;
+        complementHue = normalizeHue(baseHue + 180);
     }
 
     // Apply muddy zone avoidance if enhanced
@@ -570,10 +150,10 @@ export const generateAnalogous = createPaletteGenerator(
         // Pure mathematical - traditional 60° total spread
         analogousHues = [
           baseHue,
-          (baseHue - 30 + 360) % 360,
-          (baseHue - 15 + 360) % 360,
-          (baseHue + 15) % 360,
-          (baseHue + 30) % 360,
+          normalizeHue(baseHue - 30),
+          normalizeHue(baseHue - 15),
+          normalizeHue(baseHue + 15),
+          normalizeHue(baseHue + 30),
         ];
         break;
       case 'triangle':
@@ -582,28 +162,28 @@ export const generateAnalogous = createPaletteGenerator(
           // Deep reds: avoid muddy browns
           analogousHues = [
             baseHue,
-            (baseHue - 15 + 360) % 360,
-            (baseHue - 8 + 360) % 360,
-            (baseHue + 8) % 360,
-            (baseHue + 20) % 360,
+            normalizeHue(baseHue - 15),
+            normalizeHue(baseHue - 8),
+            normalizeHue(baseHue + 8),
+            normalizeHue(baseHue + 20),
           ];
         } else if (baseHue >= 30 && baseHue < 90) {
           // Orange-yellow: avoid muddy zones
           analogousHues = [
             baseHue,
-            (baseHue - 20 + 360) % 360,
-            (baseHue - 10 + 360) % 360,
-            (baseHue + 10) % 360,
-            (baseHue + 20) % 360,
+            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 10),
+            normalizeHue(baseHue + 10),
+            normalizeHue(baseHue + 20),
           ];
         } else {
           // Default spread
           analogousHues = [
             baseHue,
-            (baseHue - 25 + 360) % 360,
-            (baseHue - 12 + 360) % 360,
-            (baseHue + 12) % 360,
-            (baseHue + 25) % 360,
+            normalizeHue(baseHue - 25),
+            normalizeHue(baseHue - 12),
+            normalizeHue(baseHue + 12),
+            normalizeHue(baseHue + 25),
           ];
         }
         break;
@@ -613,28 +193,28 @@ export const generateAnalogous = createPaletteGenerator(
           // Passionate: ember to flame
           analogousHues = [
             baseHue,
-            (baseHue - 20 + 360) % 360,
-            (baseHue - 10 + 360) % 360,
-            (baseHue + 10) % 360,
-            (baseHue + 20) % 360,
+            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 10),
+            normalizeHue(baseHue + 10),
+            normalizeHue(baseHue + 20),
           ];
         } else if (baseHue >= 150 && baseHue < 210) {
           // Tranquil: water to sky
           analogousHues = [
             baseHue,
-            (baseHue - 18 + 360) % 360,
-            (baseHue - 8 + 360) % 360,
-            (baseHue + 8) % 360,
-            (baseHue + 18) % 360,
+            normalizeHue(baseHue - 18),
+            normalizeHue(baseHue - 8),
+            normalizeHue(baseHue + 8),
+            normalizeHue(baseHue + 18),
           ];
         } else {
           // Default emotional spread
           analogousHues = [
             baseHue,
-            (baseHue - 22 + 360) % 360,
-            (baseHue - 10 + 360) % 360,
-            (baseHue + 10) % 360,
-            (baseHue + 22) % 360,
+            normalizeHue(baseHue - 22),
+            normalizeHue(baseHue - 10),
+            normalizeHue(baseHue + 10),
+            normalizeHue(baseHue + 22),
           ];
         }
         break;
@@ -644,29 +224,29 @@ export const generateAnalogous = createPaletteGenerator(
           // Golden hour
           analogousHues = [
             baseHue,
-            (baseHue - 18 + 360) % 360,
-            (baseHue - 8 + 360) % 360,
-            (baseHue + 8) % 360,
-            (baseHue + 18) % 360,
+            normalizeHue(baseHue - 18),
+            normalizeHue(baseHue - 8),
+            normalizeHue(baseHue + 8),
+            normalizeHue(baseHue + 18),
           ];
         } else {
           // Natural daylight
           analogousHues = [
             baseHue,
-            (baseHue - 20 + 360) % 360,
-            (baseHue - 10 + 360) % 360,
-            (baseHue + 10) % 360,
-            (baseHue + 20) % 360,
+            normalizeHue(baseHue - 20),
+            normalizeHue(baseHue - 10),
+            normalizeHue(baseHue + 10),
+            normalizeHue(baseHue + 20),
           ];
         }
         break;
       default:
         analogousHues = [
           baseHue,
-          (baseHue - 30 + 360) % 360,
-          (baseHue - 15 + 360) % 360,
-          (baseHue + 15) % 360,
-          (baseHue + 30) % 360,
+          normalizeHue(baseHue - 30),
+          normalizeHue(baseHue - 15),
+          normalizeHue(baseHue + 15),
+          normalizeHue(baseHue + 30),
         ];
     }
 
@@ -715,28 +295,28 @@ export const generateTriadic = createPaletteGenerator(
 
     const getMathematicalTriadic = (hue: number): number[] => [
       hue,
-      (hue + 120) % 360,
-      (hue + 240) % 360,
+      normalizeHue(hue + 120),
+      normalizeHue(hue + 240),
     ];
 
     const getOpticalTriadic = (): number[] => {
       const hue = baseHue;
       if (hue >= 0 && hue < 60) {
-        return [hue, (hue + 125) % 360, (hue + 235) % 360];
+        return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
       }
       if (hue >= 60 && hue < 120) {
-        return [hue, (hue + 135) % 360, (hue + 225) % 360];
+        return [hue, normalizeHue(hue + 135), normalizeHue(hue + 225)];
       }
       if (hue >= 120 && hue < 180) {
-        return [hue, (hue + 115) % 360, (hue + 245) % 360];
+        return [hue, normalizeHue(hue + 115), normalizeHue(hue + 245)];
       }
       if (hue >= 180 && hue < 240) {
-        return [hue, (hue + 120) % 360, (hue + 240) % 360];
+        return [hue, normalizeHue(hue + 120), normalizeHue(hue + 240)];
       }
       if (hue >= 240 && hue < 300) {
-        return [hue, (hue + 115) % 360, (hue + 245) % 360];
+        return [hue, normalizeHue(hue + 115), normalizeHue(hue + 245)];
       }
-      return [hue, (hue + 125) % 360, (hue + 235) % 360];
+      return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
     };
 
     const getAdaptiveTriadic = (): number[] => {
@@ -744,26 +324,26 @@ export const generateTriadic = createPaletteGenerator(
       const chroma = baseChroma;
       const lightness = baseLightness;
       if (hue >= 345 || hue < 30) {
-        return [hue, (hue + 130) % 360, (hue + 230) % 360];
+        return [hue, normalizeHue(hue + 130), normalizeHue(hue + 230)];
       }
       if (hue >= 30 && hue < 90) {
         const intensity = chroma * lightness;
         return [
           hue,
-          (hue + 120 + intensity * 15) % 360,
-          (hue + 240 - intensity * 10) % 360,
+          normalizeHue(hue + 120 + intensity * 15),
+          normalizeHue(hue + 240 - intensity * 10),
         ];
       }
       if (hue >= 90 && hue < 150) {
-        return [hue, (hue + 125) % 360, (hue + 235) % 360];
+        return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
       }
       if (hue >= 150 && hue < 210) {
-        return [hue, (hue + 115) % 360, (hue + 245) % 360];
+        return [hue, normalizeHue(hue + 115), normalizeHue(hue + 245)];
       }
       if (hue >= 210 && hue < 270) {
-        return [hue, (hue + 130) % 360, (hue + 230) % 360];
+        return [hue, normalizeHue(hue + 130), normalizeHue(hue + 230)];
       }
-      return [hue, (hue + 120) % 360, (hue + 240) % 360];
+      return [hue, normalizeHue(hue + 120), normalizeHue(hue + 240)];
     };
 
     const getWarmCoolTriadic = (): number[] => {
@@ -772,29 +352,29 @@ export const generateTriadic = createPaletteGenerator(
       const lightness = baseLightness;
 
       if (lightness > 0.8 && chroma < 0.3) {
-        return [hue, (hue + 125) % 360, (hue + 235) % 360];
+        return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
       }
       if (hue >= 30 && hue < 90 && lightness > 0.6) {
-        return [hue, (hue + 110) % 360, (hue + 250) % 360];
+        return [hue, normalizeHue(hue + 110), normalizeHue(hue + 250)];
       }
       if (hue >= 180 && hue < 240 && lightness < 0.5) {
-        return [hue, (hue + 130) % 360, (hue + 230) % 360];
+        return [hue, normalizeHue(hue + 130), normalizeHue(hue + 230)];
       }
       if (chroma > 0.8 && lightness < 0.4) {
         const isWarm = hue < 180;
         if (isWarm) {
-          return [hue, (hue + 115) % 360, (hue + 245) % 360];
+          return [hue, normalizeHue(hue + 115), normalizeHue(hue + 245)];
         }
-        return [hue, (hue + 125) % 360, (hue + 235) % 360];
+        return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
       }
       if (hue >= 270 && hue < 330) {
-        return [hue, (hue + 135) % 360, (hue + 225) % 360];
+        return [hue, normalizeHue(hue + 135), normalizeHue(hue + 225)];
       }
       const lightInfluence = (lightness - 0.5) * 15;
       return [
         hue,
-        (hue + 120 + lightInfluence) % 360,
-        (hue + 240 - lightInfluence) % 360,
+        normalizeHue(hue + 120 + lightInfluence),
+        normalizeHue(hue + 240 - lightInfluence),
       ];
     };
 
@@ -1000,18 +580,18 @@ export const generateTetradic = createPaletteGenerator(
         // Pure square - 90° intervals
         tetradicHues = [
           baseHue,
-          (baseHue + 90) % 360,
-          (baseHue + 180) % 360,
-          (baseHue + 270) % 360,
+          normalizeHue(baseHue + 90),
+          normalizeHue(baseHue + 180),
+          normalizeHue(baseHue + 270),
         ];
         break;
       case 'triangle':
         // Rectangle - two complementary pairs
         tetradicHues = [
           baseHue,
-          (baseHue + 60) % 360,
-          (baseHue + 180) % 360,
-          (baseHue + 240) % 360,
+          normalizeHue(baseHue + 60),
+          normalizeHue(baseHue + 180),
+          normalizeHue(baseHue + 240),
         ];
         break;
       case 'circle':
@@ -1019,16 +599,16 @@ export const generateTetradic = createPaletteGenerator(
         if (baseHue >= 0 && baseHue < 90) {
           tetradicHues = [
             baseHue,
-            (baseHue + 85) % 360,
-            (baseHue + 180) % 360,
-            (baseHue + 265) % 360,
+            normalizeHue(baseHue + 85),
+            normalizeHue(baseHue + 180),
+            normalizeHue(baseHue + 265),
           ];
         } else {
           tetradicHues = [
             baseHue,
-            (baseHue + 95) % 360,
-            (baseHue + 180) % 360,
-            (baseHue + 275) % 360,
+            normalizeHue(baseHue + 95),
+            normalizeHue(baseHue + 180),
+            normalizeHue(baseHue + 275),
           ];
         }
         break;
@@ -1037,17 +617,17 @@ export const generateTetradic = createPaletteGenerator(
         const spread = 30;
         tetradicHues = [
           baseHue,
-          (baseHue + spread) % 360,
-          (baseHue + 180) % 360,
-          (baseHue + 180 + spread) % 360,
+          normalizeHue(baseHue + spread),
+          normalizeHue(baseHue + 180),
+          normalizeHue(baseHue + 180 + spread),
         ];
         break;
       default:
         tetradicHues = [
           baseHue,
-          (baseHue + 90) % 360,
-          (baseHue + 180) % 360,
-          (baseHue + 270) % 360,
+          normalizeHue(baseHue + 90),
+          normalizeHue(baseHue + 180),
+          normalizeHue(baseHue + 270),
         ];
     }
 
@@ -1108,11 +688,11 @@ export const generateSplitComplementary = createPaletteGenerator(
     switch (style) {
       case 'square':
         // Pure mathematical - complement ±30°
-        const complement = (baseHue + 180) % 360;
+        const complement = normalizeHue(baseHue + 180);
         splitHues = [
           baseHue,
-          (complement - 30 + 360) % 360,
-          (complement + 30) % 360,
+          normalizeHue(complement - 30),
+          normalizeHue(complement + 30),
         ];
         break;
       case 'triangle':
@@ -1120,20 +700,20 @@ export const generateSplitComplementary = createPaletteGenerator(
         if (baseHue >= 0 && baseHue < 45) {
           splitHues = [
             baseHue,
-            (baseHue + 155) % 360,
-            (baseHue + 185) % 360,
+            normalizeHue(baseHue + 155),
+            normalizeHue(baseHue + 185),
           ];
         } else if (baseHue >= 45 && baseHue < 90) {
           splitHues = [
             baseHue,
-            (baseHue + 165) % 360,
-            (baseHue + 205) % 360,
+            normalizeHue(baseHue + 165),
+            normalizeHue(baseHue + 205),
           ];
         } else {
           splitHues = [
             baseHue,
-            (baseHue + 150) % 360,
-            (baseHue + 210) % 360,
+            normalizeHue(baseHue + 150),
+            normalizeHue(baseHue + 210),
           ];
         }
         break;
@@ -1142,21 +722,21 @@ export const generateSplitComplementary = createPaletteGenerator(
         if (baseHue >= 345 || baseHue < 30) {
           splitHues = [
             baseHue,
-            (baseHue + 165) % 360,
-            (baseHue + 195) % 360,
+            normalizeHue(baseHue + 165),
+            normalizeHue(baseHue + 195),
           ];
         } else if (baseHue >= 30 && baseHue < 90) {
           const intensity = baseChroma * baseLightness;
           splitHues = [
             baseHue,
-            (baseHue + 160 + intensity * 15) % 360,
-            (baseHue + 200 + intensity * 10) % 360,
+            normalizeHue(baseHue + 160 + intensity * 15),
+            normalizeHue(baseHue + 200 + intensity * 10),
           ];
         } else {
           splitHues = [
             baseHue,
-            (baseHue + 170) % 360,
-            (baseHue + 210) % 360,
+            normalizeHue(baseHue + 170),
+            normalizeHue(baseHue + 210),
           ];
         }
         break;
@@ -1165,16 +745,16 @@ export const generateSplitComplementary = createPaletteGenerator(
         const lightInfluence = baseLightness * 15 - 7.5;
         splitHues = [
           baseHue,
-          (baseHue + 165 + lightInfluence) % 360,
-          (baseHue + 195 - lightInfluence) % 360,
+          normalizeHue(baseHue + 165 + lightInfluence),
+          normalizeHue(baseHue + 195 - lightInfluence),
         ];
         break;
       default:
-        const comp = (baseHue + 180) % 360;
+        const comp = normalizeHue(baseHue + 180);
         splitHues = [
           baseHue,
-          (comp - 30 + 360) % 360,
-          (comp + 30) % 360,
+          normalizeHue(comp - 30),
+          normalizeHue(comp + 30),
         ];
     }
 
