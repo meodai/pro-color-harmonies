@@ -163,7 +163,7 @@ app.innerHTML = `
           <span class="control__label-text">
             Wave <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 15c3-6 6-8 10-4s6 4 10-4" /></svg>
             /
-            Block <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M3 17h4V7h10v10h4" /></svg>
+            Block <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 12 V5 H12 V19 H22 V12" /></svg>
           </span>
           <span class="control__label-value"><span id="mod2Value">0</span> / <span id="mod4Value">0</span></span>
         </span>
