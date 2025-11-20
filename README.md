@@ -27,6 +27,7 @@ The library is organized into modular utilities for better maintainability:
 - `src/utils/hue-strategies.ts` - Hue calculation strategies for different palette styles
 - `src/utils/interpolation.ts` - Interpolation functions and array manipulation
 - `src/utils/modifiers.ts` - Palette modifiers (sine, wave, zap, block)
+- `src/utils/enhancer.ts` - Post-processing logic for chroma narratives and color hierarchy
 - `src/utils/palette.ts` - Palette generation helpers and factory functions (no `culori`)
 - `src/utils/variations.ts` - Adaptive variation logic for Triadic palettes
 - `src/utils/demo-palette.ts` - Demo-only helpers that use `culori` for interpolation (`extendPalette`)
@@ -70,8 +71,8 @@ Generate a single palette.
 - **`options`**:
   - `style`: how the relationships are shaped perceptually:
     - `square` (mathematical): strict geometric relationships (e.g. exact +180° complements, +120°/+240° triads) with simple, symmetric lightness/chroma tweaks.
-    - `triangle` (perceptual): bends angles and variations so the palette looks balanced, especially in tricky red/orange/yellow regions.
-    - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.).
+    - `triangle` (perceptual): bends angles and variations so the palette looks balanced, especially in tricky red/orange/yellow regions. Applies **Chroma Narratives** to create visual weight distribution.
+    - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.). Applies **Color Hierarchy** to assign roles like "protagonist" or "supporting".
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
   - `chromaAdjust` (optional): fine-tune saturation response for some generators (default varies by generator).
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
@@ -219,7 +220,7 @@ import {
 } from './src/utils/interpolation';
 ```
 
-#### Modifier utilities (`src/utils/modifiers.ts`)
+#### `src/utils/modifiers.ts`
 
 ```ts
 import { 
@@ -229,6 +230,14 @@ import {
   blockModifier,       // Triangle wave modulation
   applyModifiers       // Apply all modifiers in sequence
 } from './src/utils/modifiers';
+```
+
+#### Enhancer utilities (`src/utils/enhancer.ts`)
+
+```ts
+import { 
+  enhancePalette,      // Apply chroma narratives and color hierarchy
+} from './src/utils/enhancer';
 ```
 
 #### Palette utilities (`src/utils/palette.ts`)
