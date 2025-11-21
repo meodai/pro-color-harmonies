@@ -1,4 +1,4 @@
-import { oklch, oklab, interpolate } from 'culori';
+import { oklch, interpolate } from 'culori';
 import type { OKLCH, PaletteColor } from '../index';
 
 /**
