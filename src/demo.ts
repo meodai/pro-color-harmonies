@@ -7,7 +7,7 @@ import {
   type GeneratorOptions,
   type PaletteModifiers,
 } from './index';
-import { extendPalette } from './utils/demo-palette';
+import { extendPalette, createPieChartSvg } from './utils/demo-palette';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 
@@ -175,6 +175,7 @@ app.innerHTML = `
 
     <section class="demo__palettes">
       <div id="palette" class="palette"></div>
+      <div id="pieChart" class="pie-chart" style="width: 200px; height: 200px; margin: 2rem auto;"></div>
     </section>
 
     <div class="bg"></div>
@@ -220,11 +221,32 @@ let mod2 = 0;
 let mod3 = 0;
 let mod4 = 0;
 const paletteContainer = document.querySelector<HTMLDivElement>('#palette')!;
+const pieChartContainer = document.querySelector<HTMLDivElement>('#pieChart')!;
 const randomizeButton = document.querySelector<HTMLButtonElement>('#randomize')!;
 const randomizeSettingsButton = document.querySelector<HTMLButtonElement>('#randomizeSettings')!;
 
 let colorNameAbortController: AbortController | null = null;
 let colorNameTimeout: number | null = null;
+
+let faviconTimeout: number | null = null;
+let nextFaviconSvg: string | null = null;
+
+function updateFavicon(svg: string) {
+  nextFaviconSvg = svg;
+  if (faviconTimeout) return;
+  
+  faviconTimeout = window.setTimeout(() => {
+    if (nextFaviconSvg) {
+      const favicon = document.querySelector<HTMLLinkElement>('#favicon');
+      if (favicon) {
+        const encoded = encodeURIComponent(nextFaviconSvg);
+        favicon.href = `data:image/svg+xml;charset=utf-8,${encoded}`;
+      }
+      nextFaviconSvg = null;
+    }
+    faviconTimeout = null;
+  }, 500);
+}
 
 const getColorNames = async (colors: string[]) => {
   // Cancel any pending request
@@ -456,6 +478,12 @@ function renderPalette() {
         `;
       })
       .join('');
+
+    if (pieChartContainer) {
+      const svg = createPieChartSvg(colors);
+      pieChartContainer.innerHTML = svg;
+      updateFavicon(svg);
+    }
 
     const codeExample = document.querySelector<HTMLElement>('#codeexample');
     if (codeExample) {

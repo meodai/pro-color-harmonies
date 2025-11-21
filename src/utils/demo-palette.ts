@@ -40,3 +40,38 @@ export function extendPalette(
 
   return result;
 }
+
+export function createPieChartSvg(colors: string[]): string {
+  const radius = 50;
+  const center = 50;
+  const total = colors.length;
+  const sliceAngle = (2 * Math.PI) / total;
+
+  const paths = colors.map((color, index) => {
+    // For a single color, return a full circle
+    if (total === 1) {
+      return `<circle cx="${center}" cy="${center}" r="${radius}" fill="${color}" />`;
+    }
+
+    const startAngle = index * sliceAngle - Math.PI / 2;
+    const endAngle = (index + 1) * sliceAngle - Math.PI / 2;
+
+    const x1 = center + radius * Math.cos(startAngle);
+    const y1 = center + radius * Math.sin(startAngle);
+    const x2 = center + radius * Math.cos(endAngle);
+    const y2 = center + radius * Math.sin(endAngle);
+
+    const largeArcFlag = sliceAngle > Math.PI ? 1 : 0;
+
+    const d = [
+      `M ${center} ${center}`,
+      `L ${x1} ${y1}`,
+      `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+      'Z'
+    ].join(' ');
+
+    return `<path d="${d}" fill="${color}" stroke="none" />`;
+  });
+
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${paths.join('')}</svg>`;
+}
