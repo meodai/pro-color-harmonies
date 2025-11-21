@@ -10,24 +10,37 @@
   <body>
     <div id="app" class="app"></div>
     <article class="about">
-        <header class="about__header">
+        <div class="about__header">
           <h1>Pro Color Harmonies Demo</h1>
           <a href="https://github.com/meodai/pro-color-harmonies ">GitHub</a>
-        </header>
+        </div>
         <p>
           Pro Palette is a TypeScript library for generating color palettes based on various color theory principles.
           This demo allows you to experiment with different palette types, styles, and modifiers to create custom color schemes.
         </p>
-        <p>
-          Here is how to reproduce the palette above:
-        </p>
-        <pre class="code"><code id="codeexample"></code></pre>
-        
-        <p> 
-          This page serves as a demo for the the library. If you are looking for a more feature complete version, visit Ryan's original project:
-          <a href="https://colorpalette.pro/" target="_blank" rel="noopener noreferrer">ColorPalette.PRO</a>.
-        </p>
-
+        <aside>
+          <h2>Code Example</h2>
+          <figure>
+            <figcaption>Code to reproduce the palette from the editor above.</figcaption>
+            <pre class="code"><code id="codeexample"></code></pre>
+          </figure>
+        </aside>
+        <aside>
+          <h2>Acknowledgments</h2>
+          <p>
+            This page is a lightweight showcase of the library. For a fuller, feature‑rich experience, explore Ryan's original project:
+            <a href="https://colorpalette.pro/" target="_blank" rel="noopener noreferrer">ColorPalette.PRO</a>.
+          </p>
+          <p>
+            The library itself is dependency‑free; the demo uses <a href="https://culorijs.org/" target="_blank" rel="noopener noreferrer">Culori</a> to convert the input color to <abbr title="Lightness, Chroma, Hue">LCH</abbr> and to expand the six base colors into additional shades and tints.
+          </p>
+          <p>
+            The typeface is the open‑source <a href="https://be5invis.github.io/Iosevka/" target="_blank" rel="noopener noreferrer">Iosevka</a>.
+          </p>
+          <p>
+            Created by <a href="https://elastiq.ch" target="_blank" rel="noopener noreferrer">David Aerne</a>.
+          </p>
+        </aside>
     </article>
     <script type="module" src="/src/demo.ts"></script>
   </body>

@@ -135,6 +135,15 @@ body {
   position: relative;
   padding: 1.5rem 2rem 2rem 2rem;
   z-index: 5;
+  /*
+  box-shadow: 0 0 0 1px var(--bg);
+  -webkit-text-stroke: 5px var(--bg);
+  paint-order: stroke fill;
+  background: radial-gradient(circle at 50% 50%,
+      color-mix(in sRGB, transparent 40%, var(--bg)) 0% 35%,
+      var(--bg) 35% 100%);
+  background-size: 4px 4px;
+  */
   &>div {
     flex: 1;
   }
@@ -202,6 +211,7 @@ body {
 .palette-type-tabs {
   display: flex;
   border: 2px solid currentColor;
+  background: var(--bg);
 }
 
 .palette-type-tabs input[type="radio"] {
@@ -286,6 +296,7 @@ body {
 .style-tabs {
   display: flex;
   border: 2px solid currentColor;
+  background: var(--bg);
 }
 
 .style-tabs input[type="radio"] {
@@ -370,6 +381,7 @@ body {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
+  background-color: var(--bg);
   background-image:
     repeating-linear-gradient(0deg,
       var(--line) 0,
@@ -404,7 +416,7 @@ body {
 .control__input {
   font: inherit;
   border: 2px solid currentColor;
-  background: inherit;
+  background: var(--bg);
   color: inherit;
   outline: none;
   font-size: 0.9rem;
@@ -500,7 +512,7 @@ body {
 .button {
   font: inherit;
   padding: 0.46rem 0.9rem;
-  background: inherit;
+  background: var(--bg);
   color: inherit;
   display: inline-flex;
   align-items: center;
@@ -508,9 +520,11 @@ body {
   font-size: 0.85rem;
   border: 2px solid currentColor;
   box-shadow: 0 0 0 0 currentColor;
+
   transition:
     transform 0.15s ease,
     box-shadow 0.15s linear;
+
 }
 
 .button:hover {
@@ -600,8 +614,20 @@ body {
   line-height: 1.6;
   margin: 5vmin auto;
 
-  h1 {
+  h1, h2 {
     font-weight: 200;
+  }
+  h2 {
+    margin-bottom: 0;
+    margin-top: 2em;
+  }
+  h2 + p,
+  h2 + figure {
+    margin-top: 0.75em;
+  }
+
+  figure {
+    margin: 0;
   }
 }
 
@@ -651,7 +677,7 @@ a {
   overflow-x: auto;
   font-size: 0.8rem;
   line-height: 1.4;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 
   ::selection {
     background: var(--bg);
