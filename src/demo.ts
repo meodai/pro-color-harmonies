@@ -48,7 +48,7 @@ app.innerHTML = `
 
         <div class="control control--palette-type">
           <span class="control__label">
-            <span class="control__label-text">Palette type</span>
+            <span class="control__label-text">Color Harmony</span>
             <span class="control__label-value" id="paletteTypeLabel">Triadic</span>
           </span>
           <div class="palette-type-tabs">
