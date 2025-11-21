@@ -20,7 +20,7 @@ export function extendPalette(
   // For larger palettes, interpolate in OKLAB via culori (demo concern).
   const baseColors = basePalette.map((p: OKLCH) => {
     const oklchColor = oklch({ mode: 'oklch', l: p.l, c: p.c, h: p.h });
-    return oklab(oklchColor);
+    return oklch(oklchColor);
   });
 
   const interpolator = interpolate(baseColors, 'oklab');
