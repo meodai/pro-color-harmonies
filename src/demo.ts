@@ -162,7 +162,7 @@ app.innerHTML = `
           <span class="control__label-text">
             Sine <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 12c5-9 10-9 10 0s5 9 10 0" /></svg>
             /
-            Zap <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M4 12 l4 -6 l4 12 l4 -12 l4 6" /></svg>
+            Zap <svg class="control__icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path vector-effect="non-scaling-stroke" d="M2 12 L7 5.5 L12 12 L17 18.5 L22 12" /></svg>
           </span>
           <span class="control__label-value"><span id="mod1Value">0</span> / <span id="mod3Value">0</span></span>
         </span>
