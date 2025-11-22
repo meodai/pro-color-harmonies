@@ -466,7 +466,7 @@ body {
 
 .range-marker {
   position: absolute;
-  left: calc(var(--progress, 0) * 100%);
+  left: calc(1px + var(--progress, 0) * (100% - 2px));
   top: 14px;
   width: calc(var(--dotSize) * .35);
   height: calc(var(--dotSize) * .35);
@@ -475,6 +475,19 @@ body {
   transform: translate(-50%, -50%);
   pointer-events: none;
   box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: 1px;
+    height: 10px;
+    background: currentColor;
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+
 }
 
 .control--flip {
