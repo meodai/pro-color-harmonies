@@ -391,6 +391,10 @@ body {
   opacity: 0.4;
 }
 
+.style-icon--square {
+  transform: translateY(var(--offsetIcons)) rotate(90deg);
+}
+
 .style-name {
   font-size: 0.7rem;
   text-align: center;
