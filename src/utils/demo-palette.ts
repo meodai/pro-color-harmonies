@@ -70,7 +70,7 @@ export function createPieChartSvg(colors: string[]): string {
       'Z'
     ].join(' ');
 
-    return `<path d="${d}" fill="${color}" stroke="none" />`;
+    return `<path d="${d}" fill="${color}" stroke="none" /><circle cx="${center}" cy="${center}" r="${radius * 0.5}" fill="#fff" stroke-width="3" stroke="#000"/>`;
   });
 
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${paths.join('')}</svg>`;
