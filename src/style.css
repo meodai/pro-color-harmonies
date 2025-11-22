@@ -45,7 +45,7 @@ body {
 }
 
 .app {
-  min-height: 100vh;
+  height: max(100vh, 50rem);
   display: grid;
   place-items: center;
   position: relative;
@@ -665,6 +665,7 @@ body {
   z-index: 2;
   top: -6rem;
   left: 1.7rem;
+  letter-spacing: -0.03em;
 }
 
 .about {
@@ -676,6 +677,7 @@ body {
 
   h1, h2 {
     font-weight: 200;
+letter-spacing: -0.03em;
   }
   h2 {
     margin-bottom: 0;
