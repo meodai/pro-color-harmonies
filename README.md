@@ -27,6 +27,23 @@ Key differences:
 npm install pro-color-harmonies
 ```
 
+## Quick Start
+
+Works in both Node.js and browsers (core has no DOM dependencies).
+
+```ts
+import { ColorPaletteGenerator } from 'pro-color-harmonies';
+
+const palette = ColorPaletteGenerator.generate(
+  { l: 0.7, c: 0.12, h: 200 }, // Base color (OKLCH)
+  'triadic',
+  { style: 'triangle' }
+);
+
+console.log(palette); 
+// Returns array of 6 OKLCH colors: [{ l: ..., c: ..., h: ... }, ...]
+```
+
 ## Library entry
 
 Main entry point: `src/index.ts`.
@@ -63,10 +80,17 @@ export interface OKLCH {
 
 export type PaletteColor = OKLCH;
 
+export interface PaletteModifiers {
+  sine?: number;
+  wave?: number;
+  zap?: number;
+  block?: number;
+}
+
 export interface GeneratorOptions {
   style: PaletteStyle;
   chromaAdjust?: number;                  // fine-tune saturation response for some generators
-  modifiers?: [number, number, number, number]; // 4 modulation knobs, each 0–1
+  modifiers?: PaletteModifiers;           // 4 modulation knobs, each 0–1
 }
 ```
 
@@ -88,7 +112,7 @@ Generate a single palette.
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
     - For fewer colors (< 6): sample evenly from the base palette.
     - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
-  - `modifiers` (optional): `[sine, wave, zap, block]` (each `0–1`); see **Modifiers** below.
+  - `modifiers` (optional): `{ sine, wave, zap, block }` (each `0–1`); see **Modifiers** below.
 
 Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 
@@ -103,7 +127,7 @@ const all = ColorPaletteGenerator.generateAll({
   h: 260,
 }, {
   style: 'triangle',
-  modifiers: [0.1, 0, 0, 0],
+  modifiers: { sine: 0.1 },
 });
 
 // all.analogous, all.complementary, all.triadic, all.tetradic, all.splitComplementary
@@ -124,7 +148,7 @@ const palette = generateAnalogous({
   h: 260,
 }, {
   style: 'triangle',
-  modifiers: [0.1, 0, 0, 0],
+  modifiers: { sine: 0.1 },
 });
 // Returns: OKLCH[] with 6 colors
 ```
@@ -164,10 +188,10 @@ const tri = generators.triadic({
 
 ### Modifiers (the four knobs)
 
-These are post-processors that sculpt an existing palette. They work on `OKLCH[]` and are controlled via the `modifiers` tuple in `GeneratorOptions`:
+These are post-processors that sculpt an existing palette. They work on `OKLCH[]` and are controlled via the `modifiers` object in `GeneratorOptions`:
 
 ```ts
-modifiers: [sine, wave, zap, block]; // each 0–1
+modifiers: { sine: 0.5, wave: 0.2 }; // each 0–1
 ```
 
 Behind the scenes:
