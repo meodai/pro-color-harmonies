@@ -718,7 +718,7 @@ letter-spacing: -0.03em;
   line-height: 1;
 }
 
-.about a[href^="http"]::after {
+.about a[href^="http"]:not(:has(img))::after {
   content: " ↗";
   font-size: 0.75em;
   vertical-align: top;
@@ -761,4 +761,34 @@ a {
 pre, code {
   font: inherit;
   font-size: 0.75rem;
+}
+
+.kofi {
+  display: block;
+  width: 2.5em;
+  height: 2.5em;
+  margin-right: 1em;
+  margin-left: -0.4em;
+  margin-top: -0.2em;
+}
+
+.kofi:hover img {
+  animation: shakeup 0.5s ease;
+}
+
+.kofi img {
+  width: 100%;
+  transform-origin: 50% 50%;
+}
+
+@keyframes shakeup {
+  0%, 100% {
+    transform: translateY(0) rotate(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateY(-10px) rotate(-6deg);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateY(-8px) rotate(10deg);
+  }
 }
