@@ -720,8 +720,15 @@ letter-spacing: -0.03em;
 
 .about a[href^="http"]:not(:has(img))::after {
   content: " ↗";
+  display: inline-block;
   font-size: 0.75em;
   vertical-align: top;
+  transition: transform 0.2s cubic-bezier(0.3, 0.7, 0, 1);
+  transform: translate(var(--translateAmount, 2px), calc(var(--translateAmount, 2px) * -1));
+}
+
+.about a:hover{
+  --translateAmount: 5px;
 }
 
 a {
