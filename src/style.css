@@ -304,7 +304,7 @@ body {
   display: flex;
   border: 2px solid transparent;
   background: var(--bg);
-  margin-bottom: calc(-2.65rem - 2px);
+  margin-bottom: calc(-2.68rem - 2px);
 }
 
 .style-tabs input[type="radio"] {
@@ -323,6 +323,13 @@ body {
   padding-bottom: 1.5rem;
   cursor: pointer;
   position: relative;
+  
+  &:first-child {
+    padding-left: 0rem;
+  }
+  &:last-child {
+    padding-right: 0rem;
+  }
 }
 
 .style-tab + .style-tab {
@@ -364,11 +371,10 @@ body {
   left: 50%;
   transform: translate(-50%, -50%) rotate(0deg);
   transition: transform 0.1s ease;
-  margin-left: 1px;
 }
 
 .style-tab:has(input[type="radio"]:checked) .style-icon--triangle svg {
-  transform: translate(-50%, -50%) rotate(180deg) translateY(-10%) translateX(.5px);
+  transform: translate(-50%, -50%) rotate(180deg) translateY(-10%) scale(1.2);
 }
 
 .style-icon--circle {
@@ -468,8 +474,8 @@ body {
 }
 .control:has(> .range-wrapper--style) {
   margin-top: calc(-.2rem - 2px);
-  margin-left: 12.5%;
-  margin-right: 12.5%;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
 .control__input[type="range"] {
