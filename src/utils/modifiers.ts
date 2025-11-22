@@ -49,7 +49,7 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
 }
 
 export function zapModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
-  const spiralTightness = 0.2 + modifier * 1.0;
+  const spiralTightness = 0.2 + Math.abs(modifier) * 1.0;
   const maxHueShift = modifier * 90;
 
   return palette.map((color, idx) => {
@@ -61,8 +61,8 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
     const spiralY = Math.sin(angle) * radius;
 
     const hueShift = spiralX * maxHueShift;
-    const lightnessShift = spiralY * 0.12;
-    const chromaShift = Math.sin(angle * 1.5) * 0.08;
+    const lightnessShift = spiralY * 0.12 * modifier;
+    const chromaShift = Math.sin(angle * 1.5) * 0.08 * modifier;
 
     const { l, c, h } = color;
 
