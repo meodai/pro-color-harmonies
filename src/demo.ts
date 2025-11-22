@@ -147,7 +147,7 @@ app.innerHTML = `
               <i class="range-marker"></i>
             </div>
           </div>
-          <span class="control__label">
+          <span class="control__label control__label--style">
             <span class="control__label-text">Style</span>
             <span class="control__label-value" id="styleLabel">Square</span>
           </span>

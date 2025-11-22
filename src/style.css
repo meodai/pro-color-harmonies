@@ -323,6 +323,8 @@ body {
   padding-bottom: 1.5rem;
   cursor: pointer;
   position: relative;
+
+  --offsetIcons: 0.5rem;
   
   &:first-child {
     padding-left: 0rem;
@@ -334,6 +336,7 @@ body {
 
 .style-tab + .style-tab {
   border-left: 1px solid var(--line);
+  border-left: 1px solid transparent
 }
 
 .style-icon {
@@ -344,8 +347,8 @@ body {
   align-items: center;
   justify-content: center;
   opacity: 0.4;
-  transform: scale(0.9);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(var(--offsetIcons)) scale(0.9);
+  transition: opacity 0.2s ease, transform 0.3s cubic-bezier(.3, .7, 0,1);
 }
 
 .style-tab:has(input[type="radio"]:checked) .style-icon {
@@ -384,8 +387,8 @@ body {
 
 .style-icon--diamond {
   border: 1px solid currentColor;
-  transform: rotate(45deg) scale(0.85);
-  opacity: 0.9;
+  transform: translateY(var(--offsetIcons)) rotate(45deg) scale(0.85);
+  opacity: 0.4;
 }
 
 .style-name {
@@ -458,12 +461,15 @@ body {
 
 .range-wrapper--style {
   height: 1.4rem;
-  margin-bottom: .25rem;
 }
 
 .range-wrapper--style .range-marker {
   box-shadow: 0 0 0 1px currentColor, 0 0 0 1.5px var(--bg);
   top: 14.5px;
+}
+
+.control__label--style {
+  margin-top: 0.5rem;
 }
 
 
