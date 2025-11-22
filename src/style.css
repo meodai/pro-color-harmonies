@@ -377,7 +377,7 @@ body {
 }
 
 .style-tab:has(input[type="radio"]:checked) .style-icon--triangle svg {
-  transform: translate(-50%, -50%) rotate(180deg) translateY(-10%) scale(1.2);
+  transform: translate(-50%, -50%) rotate(180deg) translateY(-13%) scale(1.2);
 }
 
 .style-icon--circle {
