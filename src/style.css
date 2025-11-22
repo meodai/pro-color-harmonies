@@ -191,6 +191,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  pointer-events: none;
 }
 
 .control__label-text {
@@ -301,8 +302,9 @@ body {
 
 .style-tabs {
   display: flex;
-  border: 2px solid currentColor;
+  border: 2px solid transparent;
   background: var(--bg);
+  margin-bottom: calc(-2.65rem - 2px);
 }
 
 .style-tabs input[type="radio"] {
@@ -317,12 +319,13 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.3rem 0.7rem;
+  padding: 0.4rem 0.7rem;
+  padding-bottom: 1.5rem;
   cursor: pointer;
   position: relative;
 }
 
-.style-tab+.style-tab {
+.style-tab + .style-tab {
   border-left: 1px solid var(--line);
 }
 
@@ -359,7 +362,13 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) rotate(0deg);
+  transition: transform 0.1s ease;
+  margin-left: 1px;
+}
+
+.style-tab:has(input[type="radio"]:checked) .style-icon--triangle svg {
+  transform: translate(-50%, -50%) rotate(180deg) translateY(-10%) translateX(.5px);
 }
 
 .style-icon--circle {
@@ -441,6 +450,15 @@ body {
   height: 1.25rem;
 }
 
+.range-wrapper--style {
+  height: 1.4rem;
+  margin-bottom: .25rem;
+}
+
+.range-wrapper--style .range-marker {
+  box-shadow: 0 0 0 1px currentColor, 0 0 0 1.5px var(--bg);
+  top: 14.5px;
+}
 
 
 .control:has(> .range-wrapper--harmony) {
@@ -450,8 +468,8 @@ body {
 }
 .control:has(> .range-wrapper--style) {
   margin-top: calc(-.2rem - 2px);
-  margin-left: 13%;
-  margin-right: 13%;
+  margin-left: 12.5%;
+  margin-right: 12.5%;
 }
 
 .control__input[type="range"] {
@@ -570,7 +588,11 @@ body {
 
 .button--last,
 .control--palette-type {
-  margin-top: 1.4rem;
+  margin-top: 1.5rem;
+}
+
+.button--last {
+  margin-top: 2.4rem;
 }
 
 .demo__actions {
