@@ -120,16 +120,6 @@ app.innerHTML = `
             </label>
 
             <label class="style-tab">
-              <input type="radio" name="paletteStyle" value="triangle" />
-              <div class="style-icon style-icon--triangle">
-                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                  <polygon points="50,20 85,80 15,80" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
-                </svg>
-              </div>
-              <span class="style-name">Triangle</span>
-            </label>
-
-            <label class="style-tab">
               <input type="radio" name="paletteStyle" value="circle" />
               <div class="style-icon style-icon--circle"></div>
               <span class="style-name">Circle</span>
@@ -139,6 +129,16 @@ app.innerHTML = `
               <input type="radio" name="paletteStyle" value="diamond" />
               <div class="style-icon style-icon--diamond"></div>
               <span class="style-name">Diamond</span>
+            </label>
+
+            <label class="style-tab">
+              <input type="radio" name="paletteStyle" value="triangle" />
+              <div class="style-icon style-icon--triangle">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <polygon points="50,20 85,80 15,80" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
+                </svg>
+              </div>
+              <span class="style-name">Triangle</span>
             </label>
           </div>
           <div class="control control--small" style="--graduations: 4">
@@ -231,9 +231,9 @@ const PALETTE_STYLE_LABELS: Record<PaletteStyle, string> = {
 
 const STYLE_ORDER: PaletteStyle[] = [
   'square',
-  'triangle',
   'circle',
-  'diamond'
+  'diamond',
+  'triangle'
 ];
 const countInput = document.querySelector<HTMLInputElement>('#colorCount')!;
 const countValue = document.querySelector<HTMLSpanElement>('#countValue')!;
