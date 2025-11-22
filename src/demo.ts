@@ -1,11 +1,12 @@
 import './style.css';
-import { formatHex, formatCss, parse, oklch } from 'culori';
+import { formatHex, formatCss, parse, oklch, interpolate } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
   type PaletteStyle,
   type GeneratorOptions,
   type PaletteModifiers,
+  type PaletteColor,
 } from './index';
 import { extendPalette, createPieChartSvg } from './utils/demo-palette';
 
@@ -35,13 +36,13 @@ app.innerHTML = `
           <button id="randomize" class="button" type="button">Random</button>
         </div>
 
-        <label class="control control--small">
+        <label class="control control--small" style="--graduations: 8">
           <div class="range-wrapper">
             <input id="colorCount" class="control__input" type="range" min="3" max="24" value="6" />
             <i class="range-marker"></i>
           </div>
           <span class="control__label">
-            <span class="control__label-text">Count</span>
+            <span class="control__label-text control__label-text--below">Color Count</span>
             <span class="control__label-value" id="countValue">6</span>
           </span>
         </label>
@@ -51,6 +52,12 @@ app.innerHTML = `
             <span class="control__label-text">Color Harmony</span>
             <span class="control__label-value" id="paletteTypeLabel">Triadic</span>
           </span>
+          <div class="control control--small control--flip" style="--graduations: 5">
+            <div class="range-wrapper range-wrapper--harmony" id="harmonyInterpolatorWrapper">
+              <input id="harmonyInterpolator" class="control__input" type="range" min="0" max="100" value="50" step="0.1" />
+              <i class="range-marker"></i>
+            </div>
+          </div>
           <div class="palette-type-tabs">
             <label class="palette-type-tab">
               <input type="radio" name="paletteType" value="analogous" />
@@ -60,25 +67,6 @@ app.innerHTML = `
                 <i style="--angle: 330deg"></i>
               </div>
               <span class="palette-type-name">Analogous</span>
-            </label>
-
-            <label class="palette-type-tab">
-              <input type="radio" name="paletteType" value="complementary" />
-              <div class="palette-type-icon">
-                <i style="--angle: 0deg"></i>
-                <i style="--angle: 180deg"></i>
-              </div>
-              <span class="palette-type-name">Complementary</span>
-            </label>
-
-            <label class="palette-type-tab">
-              <input type="radio" name="paletteType" value="triadic" checked />
-              <div class="palette-type-icon">
-                <i style="--angle: 0deg"></i>
-                <i style="--angle: 120deg"></i>
-                <i style="--angle: 240deg"></i>
-              </div>
-              <span class="palette-type-name">Triadic</span>
             </label>
 
             <label class="palette-type-tab">
@@ -93,6 +81,16 @@ app.innerHTML = `
             </label>
 
             <label class="palette-type-tab">
+              <input type="radio" name="paletteType" value="triadic" checked />
+              <div class="palette-type-icon">
+                <i style="--angle: 0deg"></i>
+                <i style="--angle: 120deg"></i>
+                <i style="--angle: 240deg"></i>
+              </div>
+              <span class="palette-type-name">Triadic</span>
+            </label>
+
+            <label class="palette-type-tab">
               <input type="radio" name="paletteType" value="splitComplementary" />
               <div class="palette-type-icon">
                 <i style="--angle: 0deg"></i>
@@ -100,6 +98,15 @@ app.innerHTML = `
                 <i style="--angle: 210deg"></i>
               </div>
               <span class="palette-type-name">Split Comp.</span>
+            </label>
+
+            <label class="palette-type-tab">
+              <input type="radio" name="paletteType" value="complementary" />
+              <div class="palette-type-icon">
+                <i style="--angle: 0deg"></i>
+                <i style="--angle: 180deg"></i>
+              </div>
+              <span class="palette-type-name">Complementary</span>
             </label>
           </div>
         </div>
@@ -186,6 +193,7 @@ const baseInput = document.querySelector<HTMLInputElement>('#baseColor')!;
 const baseColorValue = document.querySelector<HTMLSpanElement>('#baseColorValue')!;
 const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteType"]')!;
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
+const harmonyInterpolator = document.querySelector<HTMLInputElement>('#harmonyInterpolator')!;
 
 const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
   analogous: 'Analogous',
@@ -194,6 +202,14 @@ const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
   tetradic: 'Tetradic',
   splitComplementary: 'Split Complementary',
 };
+
+const HARMONY_ORDER: PaletteType[] = [
+  'analogous',
+  'tetradic',
+  'triadic',
+  'splitComplementary',
+  'complementary'
+];
 
 // Set random initial color
 baseInput.value = randomHexColor();
@@ -381,6 +397,18 @@ function updateCountProgress() {
   }
 }
 
+function updateHarmonyProgress() {
+  const min = Number.parseFloat(harmonyInterpolator.min);
+  const max = Number.parseFloat(harmonyInterpolator.max);
+  const value = Number.parseFloat(harmonyInterpolator.value);
+  const progress = (value - min) / (max - min);
+  const wrapper = document.querySelector('#harmonyInterpolatorWrapper');
+  const marker = wrapper?.querySelector('.range-marker') as HTMLElement;
+  if (marker) {
+    marker.style.setProperty('--progress', String(progress));
+  }
+}
+
 function updateBaseColorValue() {
   if (baseColorValue) {
     baseColorValue.textContent = baseInput.value.toUpperCase();
@@ -390,11 +418,27 @@ function updateBaseColorValue() {
 function renderPalette() {
   const baseColor = baseInput.value.trim();
   updateBaseColorValue();
-  const paletteType = (document.querySelector<HTMLInputElement>('input[name="paletteType"]:checked')?.value || 'triadic') as PaletteType;
+  
+  // Get interpolation value (0-1)
+  const t = Number.parseFloat(harmonyInterpolator.value) / 100;
+  
+  // Determine active harmony for label and radio
+  const segment = t * (HARMONY_ORDER.length - 1);
+  const index = Math.round(segment);
+  const activeHarmony = HARMONY_ORDER[index];
+  
+  // Update UI to reflect active harmony (without triggering events)
+  const radioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteType"][value="${activeHarmony}"]`);
+  if (radioToCheck && !radioToCheck.checked) {
+    radioToCheck.checked = true;
+    paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[activeHarmony] || activeHarmony;
+  }
+
   const style = (document.querySelector<HTMLInputElement>('input[name="paletteStyle"]:checked')?.value || 'triangle') as PaletteStyle;
   const count = Number.parseInt(countInput.value, 10) || 5;
   if (countValue) countValue.textContent = String(count);
   updateCountProgress();
+  updateHarmonyProgress();
   const modifiers: PaletteModifiers = {
     sine: mod1 / 100,
     wave: mod2 / 100,
@@ -427,8 +471,27 @@ function renderPalette() {
       h: baseOklch.h || 0,
     };
 
-    const basePalette = ColorPaletteGenerator.generate(baseColorOKLCH, paletteType, options);
-    const palette = extendPalette(basePalette, count);
+    // Generate all palettes
+    const allPalettes = ColorPaletteGenerator.generateAll(baseColorOKLCH, options);
+    
+    // Interpolate between palettes
+    const lowerIndex = Math.floor(segment);
+    const upperIndex = Math.min(lowerIndex + 1, HARMONY_ORDER.length - 1);
+    const remainder = segment - lowerIndex;
+    
+    const palette1 = allPalettes[HARMONY_ORDER[lowerIndex]];
+    const palette2 = allPalettes[HARMONY_ORDER[upperIndex]];
+    
+    const interpolatedPalette: PaletteColor[] = palette1.map((c1, i) => {
+      const c2 = palette2[i];
+      const color1 = { mode: 'oklch' as const, ...c1 };
+      const color2 = { mode: 'oklch' as const, ...c2 };
+      const interpolator = interpolate([color1, color2], 'oklch');
+      const result = interpolator(remainder);
+      return { l: result.l, c: result.c, h: result.h || 0 };
+    });
+
+    const palette = extendPalette(interpolatedPalette, count);
     
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
@@ -498,9 +561,10 @@ function renderPalette() {
 
       codeExample.textContent = `import { ColorPaletteGenerator } from 'pro-color-harmonies';
 
+// Interpolated palette (approximate)
 const palette = ColorPaletteGenerator.generate(
   { l: ${Number(baseColorOKLCH.l).toFixed(3)}, c: ${Number(baseColorOKLCH.c).toFixed(3)}, h: ${Number(baseColorOKLCH.h).toFixed(3)} },
-  '${paletteType}',
+  '${activeHarmony}',
   {
     style: '${style}'${modifiersSection}
   }
@@ -514,11 +578,25 @@ const palette = ColorPaletteGenerator.generate(
 baseInput.addEventListener('change', renderPalette);
 baseInput.addEventListener('blur', renderPalette);
 baseInput.addEventListener('input', renderPalette);
+harmonyInterpolator.addEventListener('input', renderPalette);
+
 paletteTypeRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[radio.value as PaletteType] || radio.value;
-    renderPalette();
-  });
+  const updateHarmony = () => {
+    const type = radio.value as PaletteType;
+    const index = HARMONY_ORDER.indexOf(type);
+    if (index !== -1) {
+      const value = (index / (HARMONY_ORDER.length - 1)) * 100;
+      // Only update if the value is different (allows snapping back if slightly off)
+      if (Math.abs(Number(harmonyInterpolator.value) - value) > 0.01) {
+        harmonyInterpolator.value = String(value);
+        paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[type] || type;
+        renderPalette();
+      }
+    }
+  };
+
+  radio.addEventListener('change', updateHarmony);
+  radio.addEventListener('click', updateHarmony);
 });
 styleRadios.forEach(radio => {
   radio.addEventListener('change', () => {
@@ -536,14 +614,9 @@ randomizeButton.addEventListener('click', () => {
 });
 
 randomizeSettingsButton.addEventListener('click', () => {
-  // Randomize palette type
-  const types = ['analogous', 'complementary', 'triadic', 'tetradic', 'splitComplementary'];
-  const randomType = types[Math.floor(Math.random() * types.length)] as PaletteType;
-  const radioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteType"][value="${randomType}"]`);
-  if (radioToCheck) {
-    radioToCheck.checked = true;
-    paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[randomType] || randomType;
-  }
+  // Randomize palette type (via slider)
+  const randomValue = Math.floor(Math.random() * 101);
+  harmonyInterpolator.value = String(randomValue);
   
   // Randomize style
   const styles = ['square', 'triangle', 'circle', 'diamond'];

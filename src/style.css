@@ -164,7 +164,7 @@ body {
 .control--combined {
   display: flex;
   flex-direction: column;
-  gap: .5rem;
+  gap: .2rem;
   min-height: 100%;
 }
 
@@ -172,7 +172,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: end;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .control--base-color .control {
@@ -196,6 +196,10 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.control__label-text--below {
+  margin-top: -.05rem;
 }
 
 .control__label-value {
@@ -435,6 +439,14 @@ body {
   height: 1.25rem;
 }
 
+
+
+.control:has(> .range-wrapper--harmony) {
+  margin-bottom: calc(-.2rem - 2px);
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
 .control__input[type="range"] {
   position: absolute;
   width: 100%;
@@ -458,6 +470,10 @@ body {
   box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
 }
 
+.control--flip {
+  transform: scaleY(-1);
+}
+
 .control--small {
   position: relative;
 }
@@ -473,7 +489,7 @@ body {
   pointer-events: none;
 }
 
-/* Main graduations at 3, 10, 17, 24 */
+/* Main graduations */
 .control--small::after {
   content: '';
   position: absolute;
@@ -481,14 +497,10 @@ body {
   left: 0;
   width: 100%;
   height: 10px;
-  background-image:
-    linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to right, currentColor 1px, transparent 1px),
-    linear-gradient(to right, currentColor 1px, transparent 1px);
-  background-size: 1px 8px;
-  background-position: 0% 0, calc(100% / 21 * 7) 0, calc(100% / 21 * 14) 0, 100% 0;
-  background-repeat: no-repeat;
+  --count: var(--graduations, 4);
+  background-image: linear-gradient(to right, currentColor 1px, transparent 1px);
+  background-size: calc((100% - 1px) / (var(--count) - 1)) 8px;
+  background-repeat: repeat-x;
   pointer-events: none;
 }
 
