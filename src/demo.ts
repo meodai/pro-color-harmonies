@@ -114,13 +114,13 @@ app.innerHTML = `
         <div class="control control--style">
           <div class="style-tabs">
             <label class="style-tab">
-              <input type="radio" name="paletteStyle" value="square" />
+              <input type="radio" name="paletteStyle" value="square" checked />
               <div class="style-icon style-icon--square"></div>
               <span class="style-name">Square</span>
             </label>
 
             <label class="style-tab">
-              <input type="radio" name="paletteStyle" value="triangle" checked />
+              <input type="radio" name="paletteStyle" value="triangle" />
               <div class="style-icon style-icon--triangle">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                   <polygon points="50,20 85,80 15,80" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" />
@@ -143,13 +143,13 @@ app.innerHTML = `
           </div>
           <div class="control control--small" style="--graduations: 4">
             <div class="range-wrapper range-wrapper--style" id="styleInterpolatorWrapper">
-              <input id="styleInterpolator" class="control__input" type="range" min="0" max="100" value="33.33" step="0.1" />
+              <input id="styleInterpolator" class="control__input" type="range" min="0" max="100" value="0" step="0.1" />
               <i class="range-marker"></i>
             </div>
           </div>
           <span class="control__label">
             <span class="control__label-text">Style</span>
-            <span class="control__label-value" id="styleLabel">Triangle</span>
+            <span class="control__label-value" id="styleLabel">Square</span>
           </span>
         </div>
 
