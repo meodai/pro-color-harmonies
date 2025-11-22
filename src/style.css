@@ -562,11 +562,12 @@ body {
   left: 0;
   width: 100%;
   height: 4px;
+  --count: var(--graduations, 4);
   background-image: linear-gradient(to right,
       transparent,
       transparent calc(100% - 0.5px),
       var(--line) calc(100% - 0.5px));
-  background-size: calc(100% / 20) 100%;
+  background-size: calc((100% - 0.5px) / ((var(--count) - 1) * 6)) 100%;
   pointer-events: none;
 }
 
