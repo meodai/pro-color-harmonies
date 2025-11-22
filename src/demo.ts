@@ -28,7 +28,7 @@ app.innerHTML = `
         <div class="control control--base-color">
           <label class="control">
             <span class="control__label">
-              <span class="control__label-text">Base color</span>
+              <span class="control__label-text">Base Color</span>
               <span class="control__label-value" id="baseColorValue">#4c6fff</span>
             </span>
             <input id="baseColor" class="control__input control__input--color" type="color" value="#4c6fff" />
