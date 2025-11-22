@@ -480,7 +480,7 @@ body {
     content: '';
     position: absolute;
     left: 50%;
-    bottom: 100%;
+    bottom: calc(100% + 2px);
     width: 1px;
     height: 10px;
     background: currentColor;
