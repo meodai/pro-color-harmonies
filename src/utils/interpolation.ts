@@ -20,8 +20,8 @@ export const lerp: FillFunction<number> = (amt, from, to) =>
  * Interpolates between two Color objects
  */
 export const lerpColor = (amt: number, from: CuloriColor, to: CuloriColor): CuloriColor => {
-  const f = oklab(from);
-  const t = oklab(to);
+  const f = from.mode === 'oklab' ? from : oklab(from);
+  const t = to.mode === 'oklab' ? to : oklab(to);
   return {
     mode: 'oklab',
     l: lerp(amt, f.l, t.l),
@@ -123,6 +123,12 @@ export const scaleSpreadArray = <T>(
   const domainStart = padding;
   const domainEnd = 1 - padding;
 
+  const normalizedPositions: number[] = valuesToFill.map(
+    (_, i) => i / (valuesToFill.length - 1)
+  );
+
+  let lastSegmentIndex = 0;
+
   // Generate evenly spaced positions in the target array
   for (let i = 0; i < targetSize; i++) {
     // Generate normalized position (0-1)
@@ -132,12 +138,9 @@ export const scaleSpreadArray = <T>(
     const adjustedT = domainStart + t * (domainEnd - domainStart);
 
     // Find the right segment for this position
-    let segmentIndex = 0;
-    const normalizedPositions: number[] = valuesToFill.map(
-      (_, i) => i / (valuesToFill.length - 1)
-    );
+    let segmentIndex = lastSegmentIndex;
 
-    for (let j = 1; j < normalizedPositions.length; j++) {
+    for (let j = lastSegmentIndex + 1; j < normalizedPositions.length; j++) {
       const position = normalizedPositions[j];
       if (position !== undefined && adjustedT <= position) {
         segmentIndex = j - 1;
@@ -147,6 +150,8 @@ export const scaleSpreadArray = <T>(
         segmentIndex = j - 1;
       }
     }
+    
+    lastSegmentIndex = segmentIndex;
 
     // Ensure segment index is valid
     segmentIndex = Math.min(Math.max(0, segmentIndex), valuesToFill.length - 2);
