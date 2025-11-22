@@ -62,8 +62,9 @@ body {
     inset:0;
     background: linear-gradient(90deg, var(--grad));
     filter: blur(80px);
-    transform: translateY(15%);
+    transform: translateY(15%) translateZ(0);
     will-change: transform;
+
   }
   &::after {
     content: '';
@@ -467,8 +468,8 @@ body {
   position: absolute;
   left: calc(var(--progress, 0) * 100%);
   top: 14px;
-  width: var(--dotSize);
-  height: var(--dotSize);
+  width: calc(var(--dotSize) * .35);
+  height: calc(var(--dotSize) * .35);
   background: var(--bg);
   border-radius: 50%;
   transform: translate(-50%, -50%);
