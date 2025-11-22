@@ -317,7 +317,7 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.7rem;
+  padding: 0.3rem 0.7rem;
   cursor: pointer;
   position: relative;
 }
@@ -557,7 +557,7 @@ body {
 
 .button--last,
 .control--palette-type {
-  margin-top: 1rem;
+  margin-top: 1.4rem;
 }
 
 .demo__actions {
