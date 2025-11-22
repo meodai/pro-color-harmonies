@@ -141,6 +141,12 @@ app.innerHTML = `
               <span class="style-name">Diamond</span>
             </label>
           </div>
+          <div class="control control--small" style="--graduations: 4">
+            <div class="range-wrapper range-wrapper--style" id="styleInterpolatorWrapper">
+              <input id="styleInterpolator" class="control__input" type="range" min="0" max="100" value="33.33" step="0.1" />
+              <i class="range-marker"></i>
+            </div>
+          </div>
           <span class="control__label">
             <span class="control__label-text">Style</span>
             <span class="control__label-value" id="styleLabel">Triangle</span>
@@ -194,6 +200,7 @@ const baseColorValue = document.querySelector<HTMLSpanElement>('#baseColorValue'
 const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteType"]')!;
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
 const harmonyInterpolator = document.querySelector<HTMLInputElement>('#harmonyInterpolator')!;
+const styleInterpolator = document.querySelector<HTMLInputElement>('#styleInterpolator')!;
 
 const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
   analogous: 'Analogous',
@@ -221,6 +228,13 @@ const PALETTE_STYLE_LABELS: Record<PaletteStyle, string> = {
   circle: 'Circle',
   diamond: 'Diamond',
 };
+
+const STYLE_ORDER: PaletteStyle[] = [
+  'square',
+  'triangle',
+  'circle',
+  'diamond'
+];
 const countInput = document.querySelector<HTMLInputElement>('#colorCount')!;
 const countValue = document.querySelector<HTMLSpanElement>('#countValue')!;
 const mod1Value = document.querySelector<HTMLSpanElement>('#mod1Value')!;
@@ -409,6 +423,18 @@ function updateHarmonyProgress() {
   }
 }
 
+function updateStyleProgress() {
+  const min = Number.parseFloat(styleInterpolator.min);
+  const max = Number.parseFloat(styleInterpolator.max);
+  const value = Number.parseFloat(styleInterpolator.value);
+  const progress = (value - min) / (max - min);
+  const wrapper = document.querySelector('#styleInterpolatorWrapper');
+  const marker = wrapper?.querySelector('.range-marker') as HTMLElement;
+  if (marker) {
+    marker.style.setProperty('--progress', String(progress));
+  }
+}
+
 function updateBaseColorValue() {
   if (baseColorValue) {
     baseColorValue.textContent = baseInput.value.toUpperCase();
@@ -419,13 +445,13 @@ function renderPalette() {
   const baseColor = baseInput.value.trim();
   updateBaseColorValue();
   
-  // Get interpolation value (0-1)
-  const t = Number.parseFloat(harmonyInterpolator.value) / 100;
+  // Get interpolation value (0-1) for harmony
+  const tHarmony = Number.parseFloat(harmonyInterpolator.value) / 100;
   
   // Determine active harmony for label and radio
-  const segment = t * (HARMONY_ORDER.length - 1);
-  const index = Math.round(segment);
-  const activeHarmony = HARMONY_ORDER[index];
+  const segmentHarmony = tHarmony * (HARMONY_ORDER.length - 1);
+  const indexHarmony = Math.round(segmentHarmony);
+  const activeHarmony = HARMONY_ORDER[indexHarmony];
   
   // Update UI to reflect active harmony (without triggering events)
   const radioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteType"][value="${activeHarmony}"]`);
@@ -434,11 +460,26 @@ function renderPalette() {
     paletteTypeLabel.textContent = PALETTE_TYPE_LABELS[activeHarmony] || activeHarmony;
   }
 
-  const style = (document.querySelector<HTMLInputElement>('input[name="paletteStyle"]:checked')?.value || 'triangle') as PaletteStyle;
+  // Get interpolation value (0-1) for style
+  const tStyle = Number.parseFloat(styleInterpolator.value) / 100;
+  
+  // Determine active style for label and radio
+  const segmentStyle = tStyle * (STYLE_ORDER.length - 1);
+  const indexStyle = Math.round(segmentStyle);
+  const activeStyle = STYLE_ORDER[indexStyle];
+
+  // Update UI to reflect active style (without triggering events)
+  const styleRadioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteStyle"][value="${activeStyle}"]`);
+  if (styleRadioToCheck && !styleRadioToCheck.checked) {
+    styleRadioToCheck.checked = true;
+    styleLabel.textContent = PALETTE_STYLE_LABELS[activeStyle] || activeStyle;
+  }
+
   const count = Number.parseInt(countInput.value, 10) || 5;
   if (countValue) countValue.textContent = String(count);
   updateCountProgress();
   updateHarmonyProgress();
+  updateStyleProgress();
   const modifiers: PaletteModifiers = {
     sine: mod1 / 100,
     wave: mod2 / 100,
@@ -453,11 +494,6 @@ function renderPalette() {
   
   updateGridDotPosition();
 
-  const options: GeneratorOptions = {
-    style,
-    modifiers,
-  };
-
   try {
     const parsed = parse(baseColor);
     if (!parsed) {
@@ -471,27 +507,46 @@ function renderPalette() {
       h: baseOklch.h || 0,
     };
 
-    // Generate all palettes
-    const allPalettes = ColorPaletteGenerator.generateAll(baseColorOKLCH, options);
-    
-    // Interpolate between palettes
-    const lowerIndex = Math.floor(segment);
-    const upperIndex = Math.min(lowerIndex + 1, HARMONY_ORDER.length - 1);
-    const remainder = segment - lowerIndex;
-    
-    const palette1 = allPalettes[HARMONY_ORDER[lowerIndex]];
-    const palette2 = allPalettes[HARMONY_ORDER[upperIndex]];
-    
-    const interpolatedPalette: PaletteColor[] = palette1.map((c1, i) => {
-      const c2 = palette2[i];
+    // Helper to get interpolated palette for a specific style
+    const getInterpolatedPaletteForStyle = (style: PaletteStyle) => {
+      const options: GeneratorOptions = { style, modifiers };
+      const allPalettes = ColorPaletteGenerator.generateAll(baseColorOKLCH, options);
+      
+      const lowerIndex = Math.floor(segmentHarmony);
+      const upperIndex = Math.min(lowerIndex + 1, HARMONY_ORDER.length - 1);
+      const remainder = segmentHarmony - lowerIndex;
+      
+      const palette1 = allPalettes[HARMONY_ORDER[lowerIndex]];
+      const palette2 = allPalettes[HARMONY_ORDER[upperIndex]];
+      
+      return palette1.map((c1, i) => {
+        const c2 = palette2[i];
+        const color1 = { mode: 'oklch' as const, ...c1 };
+        const color2 = { mode: 'oklch' as const, ...c2 };
+        const interpolator = interpolate([color1, color2], 'oklch');
+        const result = interpolator(remainder);
+        return { l: result.l, c: result.c, h: result.h || 0 };
+      });
+    };
+
+    // Interpolate between styles
+    const lowerStyleIndex = Math.floor(segmentStyle);
+    const upperStyleIndex = Math.min(lowerStyleIndex + 1, STYLE_ORDER.length - 1);
+    const styleRemainder = segmentStyle - lowerStyleIndex;
+
+    const paletteStyle1 = getInterpolatedPaletteForStyle(STYLE_ORDER[lowerStyleIndex]);
+    const paletteStyle2 = getInterpolatedPaletteForStyle(STYLE_ORDER[upperStyleIndex]);
+
+    const finalInterpolatedPalette: PaletteColor[] = paletteStyle1.map((c1, i) => {
+      const c2 = paletteStyle2[i];
       const color1 = { mode: 'oklch' as const, ...c1 };
       const color2 = { mode: 'oklch' as const, ...c2 };
       const interpolator = interpolate([color1, color2], 'oklch');
-      const result = interpolator(remainder);
+      const result = interpolator(styleRemainder);
       return { l: result.l, c: result.c, h: result.h || 0 };
     });
 
-    const palette = extendPalette(interpolatedPalette, count);
+    const palette = extendPalette(finalInterpolatedPalette, count);
     
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
@@ -566,7 +621,7 @@ const palette = ColorPaletteGenerator.generate(
   { l: ${Number(baseColorOKLCH.l).toFixed(3)}, c: ${Number(baseColorOKLCH.c).toFixed(3)}, h: ${Number(baseColorOKLCH.h).toFixed(3)} },
   '${activeHarmony}',
   {
-    style: '${style}'${modifiersSection}
+    style: '${activeStyle}'${modifiersSection}
   }
 );`;
     }
@@ -579,6 +634,7 @@ baseInput.addEventListener('change', renderPalette);
 baseInput.addEventListener('blur', renderPalette);
 baseInput.addEventListener('input', renderPalette);
 harmonyInterpolator.addEventListener('input', renderPalette);
+styleInterpolator.addEventListener('input', renderPalette);
 
 paletteTypeRadios.forEach(radio => {
   const updateHarmony = () => {
@@ -599,10 +655,21 @@ paletteTypeRadios.forEach(radio => {
   radio.addEventListener('click', updateHarmony);
 });
 styleRadios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    styleLabel.textContent = PALETTE_STYLE_LABELS[radio.value as PaletteStyle] || radio.value;
-    renderPalette();
-  });
+  const updateStyle = () => {
+    const style = radio.value as PaletteStyle;
+    const index = STYLE_ORDER.indexOf(style);
+    if (index !== -1) {
+      const value = (index / (STYLE_ORDER.length - 1)) * 100;
+      if (Math.abs(Number(styleInterpolator.value) - value) > 0.01) {
+        styleInterpolator.value = String(value);
+        styleLabel.textContent = PALETTE_STYLE_LABELS[style] || style;
+        renderPalette();
+      }
+    }
+  };
+
+  radio.addEventListener('change', updateStyle);
+  radio.addEventListener('click', updateStyle);
 });
 countInput.addEventListener('change', renderPalette);
 countInput.addEventListener('input', renderPalette);
@@ -615,17 +682,12 @@ randomizeButton.addEventListener('click', () => {
 
 randomizeSettingsButton.addEventListener('click', () => {
   // Randomize palette type (via slider)
-  const randomValue = Math.floor(Math.random() * 101);
-  harmonyInterpolator.value = String(randomValue);
+  const randomHarmonyValue = Math.floor(Math.random() * 101);
+  harmonyInterpolator.value = String(randomHarmonyValue);
   
-  // Randomize style
-  const styles = ['square', 'triangle', 'circle', 'diamond'];
-  const randomStyle = styles[Math.floor(Math.random() * styles.length)] as PaletteStyle;
-  const styleRadioToCheck = document.querySelector<HTMLInputElement>(`input[name="paletteStyle"][value="${randomStyle}"]`);
-  if (styleRadioToCheck) {
-    styleRadioToCheck.checked = true;
-    styleLabel.textContent = PALETTE_STYLE_LABELS[randomStyle] || randomStyle;
-  }
+  // Randomize style (via slider)
+  const randomStyleValue = Math.floor(Math.random() * 101);
+  styleInterpolator.value = String(randomStyleValue);
   
   // Randomize modifiers (-100 to 100 for all grids)
   mod1 = Math.floor(Math.random() * 201) - 100;

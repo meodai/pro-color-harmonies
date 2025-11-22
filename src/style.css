@@ -63,6 +63,7 @@ body {
     background: linear-gradient(90deg, var(--grad));
     filter: blur(80px);
     transform: translateY(15%);
+    will-change: transform;
   }
   &::after {
     content: '';
@@ -445,6 +446,11 @@ body {
   margin-bottom: calc(-.2rem - 2px);
   margin-left: 10%;
   margin-right: 10%;
+}
+.control:has(> .range-wrapper--style) {
+  margin-top: calc(-.2rem - 2px);
+  margin-left: 13%;
+  margin-right: 13%;
 }
 
 .control__input[type="range"] {
