@@ -17,6 +17,8 @@ if (!app) {
 }
 
 app.innerHTML = `
+  <div class="swatches" data-swatches>
+  </div>
   <div class="demo">
     <h1 class="palette-title" id="paletteTitle"></h1>
     <section class="demo__controls">
@@ -201,6 +203,7 @@ const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[nam
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
 const harmonyInterpolator = document.querySelector<HTMLInputElement>('#harmonyInterpolator')!;
 const styleInterpolator = document.querySelector<HTMLInputElement>('#styleInterpolator')!;
+const $swatchesContainer = app.querySelector<HTMLElement>('[data-swatches]')!;
 
 const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
   analogous: 'Analogous',
@@ -330,6 +333,17 @@ function paletteToGradientStops(colors: string[]): string {
   return colors.join(', ');
 }
 
+function paletteToDivs(colors: string[]): NodeListOf<ChildNode> {
+  const $wrap = document.createElement('div');
+  colors.forEach((color, i) => {
+    const $div = document.createElement('div');
+    $div.classList.add('swatch');
+    $div.style.setProperty('--cc', color);
+    $div.style.setProperty('--i', String(i/colors.length));
+    $wrap.appendChild($div);
+  });
+  return $wrap.childNodes;
+}
 function paletteToHardStops(colors: string[]): string {
   const step = 100 / colors.length;
   return colors
@@ -577,25 +591,9 @@ function renderPalette() {
     if (appElement) {
       appElement.style.setProperty('--grad', paletteToGradientStops(colors));
       appElement.style.setProperty('--grad-stops', paletteToHardStops(colors));
+      //$swatchesContainer.replaceChildren(...paletteToDivs(colors));
       appElement.style.setProperty('--length', String(colors.length));
     }
-
-    paletteContainer.innerHTML = palette
-      .map((_, index) => {
-        const cssColor = colors[index];
-        return `
-          <div
-            class="swatch"
-            style="--color: ${cssColor}"
-          >
-            <div class="swatch__meta">
-              <span class="swatch__index">${index + 1}</span>
-              <span class="swatch__value">${cssColor}</span>
-            </div>
-          </div>
-        `;
-      })
-      .join('');
 
     if (pieChartContainer) {
       const svg = createPieChartSvg(colors);
