@@ -269,7 +269,8 @@ baseInput.value = randomHexColor();
 const styleRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteStyle"]')!;
 const styleLabel = document.querySelector<HTMLSpanElement>('#styleLabel')!;
 const PALETTE_STYLE_LABELS: Record<PaletteStyle, string> = {
-  square: 'Default',
+  default: 'Default',
+  square: 'Square',
   triangle: 'Triangle',
   circle: 'Circle',
   diamond: 'Diamond',
