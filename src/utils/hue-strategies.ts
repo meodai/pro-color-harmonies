@@ -13,8 +13,6 @@ export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number =>
   const { h: hue, l: lightness, c: chroma } = base;
   
   switch (style) {
-    case 'square':
-      return normalizeHue(hue + 180);
     case 'triangle':
       if (hue < 30) return 170 + hue * 0.3;
       if (hue < 90) return 240 + (hue - 30) * 0.5;
@@ -33,6 +31,7 @@ export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number =>
       if (lightness > 0.8 && chroma < 0.3) return normalizeHue(hue + 200);
       if (hue >= 30 && hue < 90 && lightness > 0.6) return 240 + (hue - 30) * 0.3;
       return normalizeHue(hue + 180 + (lightness * 20 - 10));
+    case 'square':
     default:
       return normalizeHue(hue + 180);
   }
@@ -50,8 +49,6 @@ export const getAnalogousHues = (base: OKLCH, style: PaletteStyle): number[] => 
   const { h: hue, l: lightness } = base;
   
   switch (style) {
-    case 'square':
-      return [0, -30, -20, -10, 15, 30].map(d => normalizeHue(hue + d));
     case 'triangle':
       if (hue < 30) return [0, -15, -8, 8, 20, 35].map(d => normalizeHue(hue + d));
       if (hue < 90) return [0, -25, -12, 10, 20, 30].map(d => normalizeHue(hue + d));
@@ -63,6 +60,7 @@ export const getAnalogousHues = (base: OKLCH, style: PaletteStyle): number[] => 
     case 'diamond':
       if (lightness > 0.6 && hue >= 30 && hue < 90) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
       return [0, -22, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+    case 'square':
     default:
       return [0, -30, -20, -10, 15, 30].map(d => normalizeHue(hue + d));
   }
@@ -80,8 +78,6 @@ export const getTriadicHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue, l: lightness, c: chroma } = base;
 
   switch (style) {
-    case 'square':
-      return [hue, normalizeHue(hue + 120), normalizeHue(hue + 240)];
     case 'triangle':
       if (hue < 60) return [hue, normalizeHue(hue + 125), normalizeHue(hue + 235)];
       if (hue < 120) return [hue, normalizeHue(hue + 135), normalizeHue(hue + 225)];
@@ -111,6 +107,7 @@ export const getTriadicHues = (base: OKLCH, style: PaletteStyle): number[] => {
       if (hue >= 270 && hue < 330) return [hue, normalizeHue(hue + 135), normalizeHue(hue + 225)];
       const inf = (lightness - 0.5) * 15;
       return [hue, normalizeHue(hue + 120 + inf), normalizeHue(hue + 240 - inf)];
+    case 'square':
     default:
       return [hue, normalizeHue(hue + 120), normalizeHue(hue + 240)];
   }
@@ -128,8 +125,6 @@ export const getTetradicHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue } = base;
   
   switch (style) {
-    case 'square':
-      return [0, 90, 180, 270].map(d => normalizeHue(hue + d));
     case 'triangle':
       return [0, 60, 180, 240].map(d => normalizeHue(hue + d));
     case 'circle':
@@ -137,6 +132,7 @@ export const getTetradicHues = (base: OKLCH, style: PaletteStyle): number[] => {
       return [0, 95, 180, 275].map(d => normalizeHue(hue + d));
     case 'diamond':
       return [0, 30, 180, 210].map(d => normalizeHue(hue + d));
+    case 'square':
     default:
       return [0, 90, 180, 270].map(d => normalizeHue(hue + d));
   }
@@ -154,10 +150,6 @@ export const getSplitComplementaryHues = (base: OKLCH, style: PaletteStyle): num
   const { h: hue, l: lightness, c: chroma } = base;
   
   switch (style) {
-    case 'square': {
-      const c = normalizeHue(hue + 180);
-      return [hue, normalizeHue(c - 30), normalizeHue(c + 30)];
-    }
     case 'triangle':
       if (hue < 45) return [hue, normalizeHue(hue + 155), normalizeHue(hue + 185)];
       if (hue < 90) return [hue, normalizeHue(hue + 165), normalizeHue(hue + 205)];
@@ -173,6 +165,7 @@ export const getSplitComplementaryHues = (base: OKLCH, style: PaletteStyle): num
       const inf = lightness * 15 - 7.5;
       return [hue, normalizeHue(hue + 165 + inf), normalizeHue(hue + 195 - inf)];
     }
+    case 'square':
     default: {
       const c = normalizeHue(hue + 180);
       return [hue, normalizeHue(c - 30), normalizeHue(c + 30)];

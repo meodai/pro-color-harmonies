@@ -15,13 +15,14 @@ import {
 
 describe('ColorPaletteGenerator', () => {
   const baseColor: OKLCH = { l: 0.6, c: 0.2, h: 30 };
-  const styles: PaletteStyle[] = ['square', 'triangle', 'circle', 'diamond'];
+  const styles: PaletteStyle[] = ['default', 'square', 'triangle', 'circle', 'diamond'];
   const paletteTypes: PaletteType[] = [
     'analogous',
     'complementary',
     'triadic',
     'tetradic',
     'splitComplementary',
+    'tintsShades',
   ];
 
   describe('generate', () => {
@@ -52,6 +53,9 @@ describe('ColorPaletteGenerator', () => {
       const options: GeneratorOptions = { style: 'square' };
       
       paletteTypes.forEach(type => {
+        // tintsShades generates a scale, so it doesn't necessarily start with the base color
+        if (type === 'tintsShades') return;
+
         const result = ColorPaletteGenerator.generate(baseColor, type, options);
         expect(result[0]).toEqual(baseColor);
       });
@@ -113,6 +117,7 @@ describe('ColorPaletteGenerator', () => {
       expect(result).toHaveProperty('triadic');
       expect(result).toHaveProperty('tetradic');
       expect(result).toHaveProperty('splitComplementary');
+      expect(result).toHaveProperty('tintsShades');
       
       Object.values(result).forEach(palette => {
         expect(palette).toHaveLength(6);

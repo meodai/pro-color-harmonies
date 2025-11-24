@@ -305,6 +305,8 @@ body {
   border: 2px solid transparent;
   background: var(--bg);
   margin-bottom: calc(-2.68rem - 2px);
+  margin-left: -.41rem;
+  margin-right: -.40rem;
 }
 
 .style-tabs input[type="radio"] {
@@ -327,10 +329,10 @@ body {
   --offsetIcons: 0.5rem;
   
   &:first-child {
-    padding-left: 0rem;
+    padding-left: 0;
   }
   &:last-child {
-    padding-right: 0rem;
+    padding-right: 0;
   }
 }
 
@@ -479,13 +481,13 @@ body {
 
 .control:has(> .range-wrapper--harmony) {
   margin-bottom: calc(-.2rem - 2px);
-  margin-left: 10%;
-  margin-right: 10%;
+  margin-left: 8.5%;
+  margin-right: 8.5%;
 }
 .control:has(> .range-wrapper--style) {
   margin-top: calc(-.2rem - 2px);
-  margin-left: 10%;
-  margin-right: 10%;
+  margin-left: 8.5%;
+  margin-right: 8.5%;
 }
 
 .control__input[type="range"] {

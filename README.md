@@ -11,7 +11,7 @@ A TypeScript color-harmony library and tiny demo. The **core library** works pur
 
 Standard color harmony libraries often rely on simple mathematical hue rotations in HSL or HSV space (e.g., Complementary = H + 180°, Triadic = H + 120°/240°). While mathematically correct, these often produce results that feel unbalanced or "muddy" to the human eye, especially in the yellow/orange/green regions.
 
-Pro Palette takes a different approach, heavily leaning on the research and "magic numbers" developed by **@royalfig** (Ryan Feigenbaum) for [color-palette-generator](https://github.com/royalfig/color-palette-generator).
+Pro Palette takes a different approach, heavily leaning on the research and "magic numbers" developed by **@royalfig** (Ryan Feigenbaum) for [color-palette-generator](https://github.com/royalfig/color-palette-generator)
 
 Key differences:
 
@@ -92,7 +92,8 @@ export type PaletteType =
   | 'complementary'
   | 'triadic'
   | 'tetradic'
-  | 'splitComplementary';
+  | 'splitComplementary'
+  | 'tintsShades';
 
 export interface OKLCH {
   l: number;  // Lightness (0-1)
@@ -193,6 +194,11 @@ const palette = generateAnalogous({
 
 - `generateSplitComplementary(baseColor, options)`
   - Base + two "split" complements around the opposite hue, plus extra dark/light/muted variants for a total of 6 colors.
+
+- `generateTintsAndShades(baseColor, style)`
+  - Generates a 6-step lightness scale (tints and shades) for a single color.
+  - Applies different perceptual strategies based on the selected style (e.g., Bezold-Brücke shift for 'triangle', chroma curve for 'circle').
+  - Returns 6 colors ranging from light to dark.
 
 You can also import them via the `generators` export:
 
@@ -312,6 +318,14 @@ import {
 } from 'pro-color-harmonies';
 ```
 
+#### Tints & Shades
+
+```ts
+import { 
+  generateTintsAndShades   // Generate 6-step lightness scales
+} from 'pro-color-harmonies';
+```
+
 ## Development
 
 ### Demo App
@@ -390,4 +404,4 @@ The project includes GitHub Actions workflows:
 - For extended palettes (> 6 colors), interpolate between OKLCH colors yourself, or reuse the demo's `extendPalette` (which uses `culori` and lives in `src/utils/demo-palette.ts`).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
 - The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools, with the core kept free of parsing/formatting concerns.
-- This project heavily leans on the logic of [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator) while taking a few shortcuts to make it easier to integrate. The codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
+- This project heavily leans on the logic of [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator) (the source for [colorpalette.pro](https://colorpalette.pro)) while taking a few shortcuts to make it easier to integrate. The codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.

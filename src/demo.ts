@@ -7,6 +7,7 @@ import {
   type GeneratorOptions,
   type PaletteModifiers,
   type PaletteColor,
+  generateTintsAndShades,
 } from './index';
 import { extendPalette, createPieChartSvg } from './utils/demo-palette';
 
@@ -54,13 +55,21 @@ app.innerHTML = `
             <span class="control__label-text">Color Harmony</span>
             <span class="control__label-value" id="paletteTypeLabel">Triadic</span>
           </span>
-          <div class="control control--small control--flip" style="--graduations: 5">
+          <div class="control control--small control--flip" style="--graduations: 6">
             <div class="range-wrapper range-wrapper--harmony" id="harmonyInterpolatorWrapper">
-              <input id="harmonyInterpolator" class="control__input" type="range" min="0" max="100" value="50" step="0.1" />
+              <input id="harmonyInterpolator" class="control__input" type="range" min="0" max="100" value="60" step="0.1" />
               <i class="range-marker"></i>
             </div>
           </div>
           <div class="palette-type-tabs">
+            <label class="palette-type-tab">
+              <input type="radio" name="paletteType" value="tintsShades" />
+              <div class="palette-type-icon">
+                <i style="--angle: 0deg"></i>
+              </div>
+              <span class="palette-type-name">Tints & Shades</span>
+            </label>
+
             <label class="palette-type-tab">
               <input type="radio" name="paletteType" value="analogous" />
               <div class="palette-type-icon">
@@ -118,7 +127,7 @@ app.innerHTML = `
             <label class="style-tab">
               <input type="radio" name="paletteStyle" value="square" checked />
               <div class="style-icon style-icon--square"></div>
-              <span class="style-name">Square</span>
+              <span class="style-name">Default</span>
             </label>
 
             <label class="style-tab">
@@ -151,7 +160,7 @@ app.innerHTML = `
           </div>
           <span class="control__label control__label--style">
             <span class="control__label-text">Style</span>
-            <span class="control__label-value" id="styleLabel">Square</span>
+            <span class="control__label-value" id="styleLabel">Default</span>
           </span>
         </div>
 
@@ -193,6 +202,38 @@ app.innerHTML = `
       <div id="pieChart" class="pie-chart" style="width: 200px; height: 200px; margin: 2rem auto;"></div>
     </section>
 
+    <!--section class="demo__extra-scales">
+      <h2>Tints & Shades</h2>
+      <div id="tintsShades" class="scale-container"></div>
+      
+      <h2>Tones (Chroma)</h2>
+      <div id="tones" class="scale-container"></div>
+
+      <h2>Named Scales</h2>
+      <div class="named-scales-grid">
+        <div class="named-scale">
+          <h3>Original</h3>
+          <div id="scaleOriginal" class="scale-container"></div>
+        </div>
+        <div class="named-scale">
+          <h3>Keel</h3>
+          <div id="scaleKeel" class="scale-container"></div>
+        </div>
+        <div class="named-scale">
+          <h3>Cinematic</h3>
+          <div id="scaleCinematic" class="scale-container"></div>
+        </div>
+        <div class="named-scale">
+          <h3>Cloud</h3>
+          <div id="scaleCloud" class="scale-container"></div>
+        </div>
+        <div class="named-scale">
+          <h3>Fire</h3>
+          <div id="scaleFire" class="scale-container"></div>
+        </div>
+      </div>
+    </section-->
+
     <div class="bg"></div>
   </div>
 `;
@@ -203,9 +244,10 @@ const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[nam
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
 const harmonyInterpolator = document.querySelector<HTMLInputElement>('#harmonyInterpolator')!;
 const styleInterpolator = document.querySelector<HTMLInputElement>('#styleInterpolator')!;
-const $swatchesContainer = app.querySelector<HTMLElement>('[data-swatches]')!;
+// const $swatchesContainer = app.querySelector<HTMLElement>('[data-swatches]')!;
 
 const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
+  tintsShades: 'Tints & Shades',
   analogous: 'Analogous',
   complementary: 'Complementary',
   triadic: 'Triadic',
@@ -214,6 +256,7 @@ const PALETTE_TYPE_LABELS: Record<PaletteType, string> = {
 };
 
 const HARMONY_ORDER: PaletteType[] = [
+  'tintsShades',
   'analogous',
   'tetradic',
   'triadic',
@@ -226,7 +269,7 @@ baseInput.value = randomHexColor();
 const styleRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteStyle"]')!;
 const styleLabel = document.querySelector<HTMLSpanElement>('#styleLabel')!;
 const PALETTE_STYLE_LABELS: Record<PaletteStyle, string> = {
-  square: 'Square',
+  square: 'Default',
   triangle: 'Triangle',
   circle: 'Circle',
   diamond: 'Diamond',
@@ -257,6 +300,14 @@ const paletteContainer = document.querySelector<HTMLDivElement>('#palette')!;
 const pieChartContainer = document.querySelector<HTMLDivElement>('#pieChart')!;
 const randomizeButton = document.querySelector<HTMLButtonElement>('#randomize')!;
 const randomizeSettingsButton = document.querySelector<HTMLButtonElement>('#randomizeSettings')!;
+
+// const tintsShadesContainer = document.querySelector<HTMLDivElement>('#tintsShades')!;
+// const tonesContainer = document.querySelector<HTMLDivElement>('#tones')!;
+// const scaleOriginalContainer = document.querySelector<HTMLDivElement>('#scaleOriginal')!;
+// const scaleKeelContainer = document.querySelector<HTMLDivElement>('#scaleKeel')!;
+// const scaleCinematicContainer = document.querySelector<HTMLDivElement>('#scaleCinematic')!;
+// const scaleCloudContainer = document.querySelector<HTMLDivElement>('#scaleCloud')!;
+// const scaleFireContainer = document.querySelector<HTMLDivElement>('#scaleFire')!;
 
 let colorNameAbortController: AbortController | null = null;
 let colorNameTimeout: number | null = null;
@@ -333,17 +384,18 @@ function paletteToGradientStops(colors: string[]): string {
   return colors.join(', ');
 }
 
-function paletteToDivs(colors: string[]): NodeListOf<ChildNode> {
-  const $wrap = document.createElement('div');
-  colors.forEach((color, i) => {
-    const $div = document.createElement('div');
-    $div.classList.add('swatch');
-    $div.style.setProperty('--cc', color);
-    $div.style.setProperty('--i', String(i/colors.length));
-    $wrap.appendChild($div);
-  });
-  return $wrap.childNodes;
-}
+// function paletteToDivs(colors: string[]): NodeListOf<ChildNode> {
+//   const $wrap = document.createElement('div');
+//   colors.forEach((color, i) => {
+//     const $div = document.createElement('div');
+//     $div.classList.add('swatch');
+//     $div.style.setProperty('--cc', color);
+//     $div.style.setProperty('--i', String(i/colors.length));
+//     $wrap.appendChild($div);
+//   });
+//   return $wrap.childNodes;
+// }
+
 function paletteToHardStops(colors: string[]): string {
   const step = 100 / colors.length;
   return colors
@@ -524,17 +576,45 @@ function renderPalette() {
     // Helper to get interpolated palette for a specific style
     const getInterpolatedPaletteForStyle = (style: PaletteStyle) => {
       const options: GeneratorOptions = { style, modifiers };
+      
+      // Handle tints-shades specially
+      if (activeHarmony === 'tintsShades') {
+        return generateTintsAndShades(baseColorOKLCH, style);
+      }
+
       const allPalettes = ColorPaletteGenerator.generateAll(baseColorOKLCH, options);
       
       const lowerIndex = Math.floor(segmentHarmony);
       const upperIndex = Math.min(lowerIndex + 1, HARMONY_ORDER.length - 1);
       const remainder = segmentHarmony - lowerIndex;
       
-      const palette1 = allPalettes[HARMONY_ORDER[lowerIndex]];
-      const palette2 = allPalettes[HARMONY_ORDER[upperIndex]];
+      // If we are interpolating between tints-shades and analogous (index 0 and 1)
+      // We need to handle the transition carefully since they are generated differently
+      const type1 = HARMONY_ORDER[lowerIndex];
+      const type2 = HARMONY_ORDER[upperIndex];
+
+      let palette1: PaletteColor[];
+      let palette2: PaletteColor[];
+
+      if (type1 === 'tintsShades') {
+        palette1 = generateTintsAndShades(baseColorOKLCH, style);
+      } else {
+        palette1 = allPalettes[type1];
+      }
+
+      if (type2 === 'tintsShades') {
+        palette2 = generateTintsAndShades(baseColorOKLCH, style);
+      } else {
+        palette2 = allPalettes[type2];
+      }
       
-      return palette1.map((c1, i) => {
-        const c2 = palette2[i];
+      // Ensure palettes are same length for interpolation
+      const maxLength = Math.max(palette1.length, palette2.length);
+      const p1Extended = extendPalette(palette1, maxLength);
+      const p2Extended = extendPalette(palette2, maxLength);
+
+      return p1Extended.map((c1, i) => {
+        const c2 = p2Extended[i];
         const color1 = { mode: 'oklch' as const, ...c1 };
         const color2 = { mode: 'oklch' as const, ...c2 };
         const interpolator = interpolate([color1, color2], 'oklch');
@@ -601,6 +681,22 @@ function renderPalette() {
       updateFavicon(svg);
     }
 
+    // Render Tints & Shades
+    // const tintsAndShades = generateTintsAndShades(baseColorOKLCH, activeStyle);
+    // renderScale(tintsShadesContainer, tintsAndShades);
+
+    // Render Tones
+    // const tones = generateTones(baseColorOKLCH, activeStyle);
+    // renderScale(tonesContainer, tones);
+
+    // Render Named Scales
+    // const scales = createScales(baseColorOKLCH);
+    // renderScale(scaleOriginalContainer, scales.original);
+    // renderScale(scaleKeelContainer, scales.keel);
+    // renderScale(scaleCinematicContainer, scales.cinematic);
+    // renderScale(scaleCloudContainer, scales.cloud);
+    // renderScale(scaleFireContainer, scales.fire);
+
     const codeExample = document.querySelector<HTMLElement>('#codeexample');
     if (codeExample) {
       const modifiersString = Object.entries(modifiers)
@@ -612,7 +708,7 @@ function renderPalette() {
         ? `,\n    modifiers: {\n${modifiersString}\n    }` 
         : '';
 
-      codeExample.textContent = `import { ColorPaletteGenerator } from 'pro-color-harmonies';
+      codeExample.textContent = `import { ColorPaletteGenerator } from 'pro-color-harmonies'
 
 // Interpolated palette (approximate)
 const palette = ColorPaletteGenerator.generate(

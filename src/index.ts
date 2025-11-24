@@ -12,6 +12,7 @@ export * from './utils/variations';
 export * from './utils/hue-strategies';
 export * from './utils/interpolation';
 export * from './utils/enhancer';
+export * from './utils/tintsShades';
 
 import { safeHue } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
@@ -30,6 +31,8 @@ import {
   getTetradicHues,
   getSplitComplementaryHues
 } from './utils/hue-strategies';
+
+import { generateTintsAndShades } from './utils/tintsShades';
 
 // ============= Type Definitions =============
 
@@ -52,12 +55,12 @@ export interface OKLCH {
  * - 'circle': Smooth, continuous variation
  * - 'diamond': Contrast-oriented variation
  */
-export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
+export type PaletteStyle = 'default' | 'square' | 'triangle' | 'circle' | 'diamond';
 
 /**
  * The type of color harmony to generate.
  */
-export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'splitComplementary';
+export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'splitComplementary' | 'tintsShades';
 
 /**
  * Alias for OKLCH, representing a color in a palette.
@@ -305,6 +308,7 @@ export class ColorPaletteGenerator {
       case 'triadic': palette = generateTriadic(baseColor, baseOptions); break;
       case 'tetradic': palette = generateTetradic(baseColor, baseOptions); break;
       case 'splitComplementary': palette = generateSplitComplementary(baseColor, baseOptions); break;
+      case 'tintsShades': palette = generateTintsAndShades(baseColor, baseOptions.style); break;
       default: throw new Error(`Unknown palette type: ${paletteType}`);
     }
 
@@ -319,6 +323,7 @@ export class ColorPaletteGenerator {
    */
   static generateAll(baseColor: OKLCH, options: GeneratorOptions): Record<PaletteType, PaletteColor[]> {
     return {
+      tintsShades: generateTintsAndShades(baseColor, options.style),
       analogous: applyModifiers(generateAnalogous(baseColor, options), options.modifiers),
       complementary: applyModifiers(generateComplementary(baseColor, options), options.modifiers),
       triadic: applyModifiers(generateTriadic(baseColor, options), options.modifiers),
