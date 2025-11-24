@@ -11,4 +11,4 @@ export * from './palette';
 export * from './hue-strategies';
 export * from './variations';
 export * from './enhancer';
-export * from './tints-and-shades';
+export * from './tintsShades';

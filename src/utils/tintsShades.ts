@@ -21,7 +21,7 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
   // Base progression (0.02 to 0.98) - Reduced to 6 steps
   const lightnessProgression = [
     0.02, // Abyss
-    0.16, // Shadow
+    0.25, // Shadow
     0.38, // Medium dark
     0.62, // Medium light
     0.84, // Bright
