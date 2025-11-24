@@ -323,7 +323,7 @@ export class ColorPaletteGenerator {
    */
   static generateAll(baseColor: OKLCH, options: GeneratorOptions): Record<PaletteType, PaletteColor[]> {
     return {
-      tintsShades: generateTintsAndShades(baseColor, options.style),
+      tintsShades: applyModifiers(generateTintsAndShades(baseColor, options.style), options.modifiers),
       analogous: applyModifiers(generateAnalogous(baseColor, options), options.modifiers),
       complementary: applyModifiers(generateComplementary(baseColor, options), options.modifiers),
       triadic: applyModifiers(generateTriadic(baseColor, options), options.modifiers),
