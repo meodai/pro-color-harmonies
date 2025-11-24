@@ -616,7 +616,7 @@ function renderPalette() {
 
 // Interpolated palette (approximate)
 const palette = ColorPaletteGenerator.generate(
-  { l: ${Number(baseColorOKLCH.l).toFixed(3)}, c: ${Number(baseColorOKLCH.c).toFixed(3)}, h: ${Number(baseColorOKLCH.h).toFixed(3)} },
+  { l: ${Number(baseColorOKLCH.l).toFixed(6)}, c: ${Number(baseColorOKLCH.c).toFixed(6)}, h: ${Number(baseColorOKLCH.h).toFixed(6)} },
   '${activeHarmony}',
   {
     style: '${activeStyle}'${modifiersSection}

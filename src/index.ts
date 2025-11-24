@@ -5,6 +5,14 @@
  */
 
 // Utils
+export * from './utils/color';
+export * from './utils/modifiers';
+export * from './utils/palette';
+export * from './utils/variations';
+export * from './utils/hue-strategies';
+export * from './utils/interpolation';
+export * from './utils/enhancer';
+
 import { safeHue } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
 import { createPaletteGenerator } from './utils/palette';

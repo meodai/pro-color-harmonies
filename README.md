@@ -44,6 +44,28 @@ console.log(palette);
 // Returns array of 6 OKLCH colors: [{ l: ..., c: ..., h: ... }, ...]
 ```
 
+## Usage via CDN / UMD
+
+If you are using the library via a script tag (e.g. from a CDN like jsDelivr or unpkg), the library exposes a global variable `ColorPaletteGenerator`.
+
+**Note:** The global variable contains all named exports. To access the main class, you need to access the `ColorPaletteGenerator` property *on* the global object.
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/pro-color-harmonies/dist/pro-color-harmonies.umd.js"></script>
+<script>
+  // Access the class from the global namespace
+  const Generator = window.ColorPaletteGenerator.ColorPaletteGenerator;
+  
+  const palette = Generator.generate(
+    { l: 0.7, c: 0.12, h: 200 },
+    'triadic',
+    { style: 'triangle' }
+  );
+  
+  console.log(palette);
+</script>
+```
+
 ## Library entry
 
 Main entry point: `src/index.ts`.
@@ -218,9 +240,9 @@ Ordering: modifiers are applied in sequence (`sine` → `wave` → `zap` → `bl
 
 ### Utility exports
 
-The library exposes all its internal utilities for custom palette generation:
+The library exposes all its internal utilities for custom palette generation. You can import them directly from the main package:
 
-#### Color utilities (`src/utils/color.ts`)
+#### Color utilities
 
 ```ts
 import { 
@@ -228,10 +250,10 @@ import {
   clampOKLCH,          // Clamp OKLCH values to valid ranges
   normalizeHue,        // Normalize hue to 0-360 range
   avoidMuddyZones      // Adjust hues to avoid muddy color zones
-} from './src/utils/color';
+} from 'pro-color-harmonies';
 ```
 
-#### Hue strategy utilities (`src/utils/hue-strategies.ts`)
+#### Hue strategy utilities
 
 ```ts
 import { 
@@ -240,10 +262,10 @@ import {
   getTriadicHues,
   getTetradicHues,
   getSplitComplementaryHues
-} from './src/utils/hue-strategies';
+} from 'pro-color-harmonies';
 ```
 
-#### Interpolation utilities (`src/utils/interpolation.ts`)
+#### Interpolation utilities
 
 ```ts
 import { 
@@ -251,10 +273,10 @@ import {
   lerpColor,           // Interpolate between culori colors in OKLAB
   lerpOKLCH,           // Interpolate between OKLCH colors
   scaleSpreadArray     // Spread/interpolate array to target size
-} from './src/utils/interpolation';
+} from 'pro-color-harmonies';
 ```
 
-#### `src/utils/modifiers.ts`
+#### Modifiers
 
 ```ts
 import { 
@@ -263,37 +285,31 @@ import {
   zapModifier,         // Spiral modulation
   blockModifier,       // Triangle wave modulation
   applyModifiers       // Apply all modifiers in sequence
-} from './src/utils/modifiers';
+} from 'pro-color-harmonies';
 ```
 
-#### Enhancer utilities (`src/utils/enhancer.ts`)
+#### Enhancer utilities
 
 ```ts
 import { 
   enhancePalette,      // Apply chroma narratives and color hierarchy
-} from './src/utils/enhancer';
+} from 'pro-color-harmonies';
 ```
 
-#### Palette utilities (`src/utils/palette.ts`)
+#### Palette utilities
 
 ```ts
 import { 
   createPaletteGenerator   // Factory for creating palette generators (OKLCH in/out only)
-} from './src/utils/palette';
+} from 'pro-color-harmonies';
 ```
 
-#### Variation utilities (`src/utils/variations.ts`)
+#### Variation utilities
 
 ```ts
 import { 
   getTriadicVariations     // Adaptive variation logic for Triadic palettes
-} from './src/utils/variations';
-```
-
-All utilities are also available via a single import:
-
-```ts
-import * as utils from './src/utils';
+} from 'pro-color-harmonies';
 ```
 
 ## Development
