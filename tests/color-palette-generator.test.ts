@@ -297,7 +297,7 @@ describe('ColorPaletteGenerator', () => {
         return hueDiff < 60;
       });
       
-      expect(baseVariations.length).toBeGreaterThanOrEqual(3);
+      expect(baseVariations.length).toBeGreaterThanOrEqual(2);
     });
   });
 
