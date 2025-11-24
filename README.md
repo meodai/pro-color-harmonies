@@ -345,6 +345,7 @@ npm run test:ui
 ```
 
 Tests are located in the `tests/` directory and cover:
+
 - All 5 palette types (analogous, complementary, triadic, tetradic, splitComplementary)
 - All 4 styles (square, triangle, circle, diamond)
 - Color utilities and interpolation functions
