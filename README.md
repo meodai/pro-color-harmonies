@@ -85,7 +85,7 @@ The library is organized into modular utilities for better maintainability:
 ### Types
 
 ```ts
-export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
+export type PaletteStyle = 'default' | 'square' | 'triangle' | 'circle' | 'diamond';
 
 export type PaletteType =
   | 'analogous'
@@ -112,7 +112,6 @@ export interface PaletteModifiers {
 
 export interface GeneratorOptions {
   style: PaletteStyle;
-  chromaAdjust?: number;                  // fine-tune saturation response for some generators
   modifiers?: PaletteModifiers;           // 4 modulation knobs, each 0–1
 }
 ```
@@ -127,11 +126,11 @@ Generate a single palette.
 - **`paletteType`**: one of the five harmony types.
 - **`options`**:
   - `style`: how the relationships are shaped perceptually:
+    - `default` (square alias): behaves identically to `square` style.
     - `square` (mathematical): strict geometric relationships (e.g. exact +180° complements, +120°/+240° triads) with simple, symmetric lightness/chroma tweaks.
     - `triangle` (perceptual): bends angles and variations so the palette looks balanced, especially in tricky red/orange/yellow regions. Applies **Chroma Narratives** to create visual weight distribution.
     - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.). Applies **Color Hierarchy** to assign roles like "protagonist" or "supporting".
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
-  - `chromaAdjust` (optional): fine-tune saturation response for some generators (default varies by generator).
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
     - For fewer colors (< 6): sample evenly from the base palette.
     - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
@@ -144,7 +143,7 @@ Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 Generate every palette type at once.
 
 ```ts
-const all = ColorPaletteGenerator.generateAll({
+  const all = ColorPaletteGenerator.generateAll({
   l: 0.7,
   c: 0.13,
   h: 260,
@@ -153,7 +152,7 @@ const all = ColorPaletteGenerator.generateAll({
   modifiers: { sine: 0.1 },
 });
 
-// all.analogous, all.complementary, all.triadic, all.tetradic, all.splitComplementary
+// all.analogous, all.complementary, all.triadic, all.tetradic, all.splitComplementary, all.tintsShades
 ```
 
 Each palette is run through the modifiers (if provided), just like `generate`.
@@ -198,7 +197,7 @@ const palette = generateAnalogous({
 - `generateTintsAndShades(baseColor, style)`
   - Generates a 6-step lightness scale (tints and shades) for a single color.
   - Applies different perceptual strategies based on the selected style (e.g., Bezold-Brücke shift for 'triangle', chroma curve for 'circle').
-  - Returns 6 colors ranging from light to dark.
+  - Returns 6 colors ranging from dark to light.
 
 You can also import them via the `generators` export:
 
@@ -379,8 +378,8 @@ npm run build:demo
 Controls:
 
 - **Base color**: free text color input (hex, CSS color, etc.).
-- **Palette type**: selects one of analogous / complementary / triadic / tetradic / splitComplementary.
-- **Style**: square / triangle / circle / diamond.
+- **Palette type**: selects one of analogous / complementary / triadic / tetradic / splitComplementary / tintsShades.
+- **Style**: default / square / triangle / circle / diamond.
 - **Count**: range 3–24; the library generates 6 base OKLCH colors, then the demo:
   - For values < 6: evenly samples from the base palette
   - For values > 6: uses OKLAB interpolation (via `culori` in `src/utils/demo-palette.ts`) between the 6 base colors for smooth color transitions
