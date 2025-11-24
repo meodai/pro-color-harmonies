@@ -16,7 +16,13 @@ export * from './utils/enhancer';
 import { safeHue } from './utils/color';
 import { applyModifiers } from './utils/modifiers';
 import { createPaletteGenerator } from './utils/palette';
-import { getTriadicVariations } from './utils/variations';
+import { 
+  getTriadicVariations,
+  getComplementaryVariations,
+  getAnalogousVariations,
+  getTetradicVariations,
+  getSplitComplementaryVariations
+} from './utils/variations';
 import {
   getComplementaryHue,
   getAnalogousHues,
@@ -90,15 +96,22 @@ export const generateComplementary = createPaletteGenerator('complementary', (ba
   const chromaAdjust = 0.9;
   
   let complementHue = getComplementaryHue(base, options.style);
-  complementHue = safeHue(complementHue, baseLightness, baseChroma * chromaAdjust, enhanced);
+  const { base: baseVars, complement: compVars } = getComplementaryVariations(base, options.style);
+
+  const createColor = (hue: number, v: { l: number, c: number }) => {
+    const finalL = baseLightness + v.l;
+    const finalC = baseChroma * v.c * chromaAdjust;
+    const finalHue = safeHue(hue, finalL, finalC, enhanced);
+    return { l: finalL, c: finalC, h: finalHue };
+  };
 
   return [
     { l: baseLightness, c: baseChroma, h: baseHue },
-    { l: baseLightness + 0.05, c: baseChroma * chromaAdjust, h: complementHue },
-    { l: baseLightness - 0.2, c: baseChroma * 1.1, h: baseHue },
-    { l: baseLightness + 0.2, c: baseChroma * 0.8, h: baseHue },
-    { l: baseLightness + 0.25, c: baseChroma * 0.7, h: complementHue },
-    { l: baseLightness - 0.15, c: baseChroma * 0.5, h: complementHue },
+    createColor(complementHue, compVars.main),
+    createColor(baseHue, baseVars.dark),
+    createColor(baseHue, baseVars.light),
+    createColor(complementHue, compVars.light),
+    createColor(complementHue, compVars.muted),
   ];
 });
 
@@ -111,15 +124,7 @@ export const generateAnalogous = createPaletteGenerator('analogous', (base, opti
   const chromaAdjust = 0.9;
   
   const analogousHues = getAnalogousHues(base, options.style);
-
-  const variations = [
-    { l: 0, c: 1.0 },
-    { l: -0.2, c: 0.8 },
-    { l: -0.1, c: 0.9 },
-    { l: 0.15, c: 0.85 },
-    { l: 0.25, c: 0.7 },
-    { l: 0.35, c: 0.6 },
-  ];
+  const variations = getAnalogousVariations(base, options.style);
 
   return analogousHues.map((hue, index) => {
     if (index === 0) return { l: baseLightness, c: baseChroma, h: baseHue };
@@ -164,21 +169,55 @@ export const generateTriadic = createPaletteGenerator('triadic', (base, options,
 export const generateTetradic = createPaletteGenerator('tetradic', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const tetradicHues = getTetradicHues(base, options.style);
+  const variations = getTetradicVariations(base, options.style);
 
   const colors: OKLCH[] = [];
+  
+  // 1. Base color
   colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
 
-  tetradicHues.slice(1, 3).forEach((hue, idx) => {
-    let finalHue = safeHue(hue, baseLightness, baseChroma, enhanced);
-    const v = idx === 0 ? { l: 0.1, c: 0.9 } : { l: -0.15, c: 0.85 };
-    colors.push({ l: baseLightness + v.l, c: baseChroma * v.c, h: finalHue });
+  // 2. First tetradic color (Pure)
+  const h1 = tetradicHues[1];
+  const v1Pure = variations.first.pure;
+  colors.push({ 
+    l: baseLightness + v1Pure.l, 
+    c: baseChroma * v1Pure.c, 
+    h: safeHue(h1, baseLightness + v1Pure.l, baseChroma * v1Pure.c, enhanced) 
   });
 
-  const fourthHue = tetradicHues[3];
-  const finalFourthHue = safeHue(fourthHue, baseLightness + 0.2, baseChroma * 0.7, enhanced);
-  colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.7, h: finalFourthHue });
-  colors.push({ l: baseLightness - 0.25, c: baseChroma * 1.1, h: baseHue });
-  colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.8, h: baseHue });
+  // 3. First tetradic color (Muted)
+  const v1Muted = variations.first.muted;
+  colors.push({ 
+    l: baseLightness + v1Muted.l, 
+    c: baseChroma * v1Muted.c, 
+    h: safeHue(h1, baseLightness + v1Muted.l, baseChroma * v1Muted.c, enhanced) 
+  });
+
+  // 4. Complement color
+  const h2 = tetradicHues[2];
+  const vComp = variations.complement;
+  colors.push({ 
+    l: baseLightness + vComp.l, 
+    c: baseChroma * vComp.c, 
+    h: safeHue(h2, baseLightness + vComp.l, baseChroma * vComp.c, enhanced) 
+  });
+
+  // 5. Fourth tetradic color (Light)
+  const h3 = tetradicHues[3];
+  const v4Light = variations.fourth.light;
+  colors.push({ 
+    l: baseLightness + v4Light.l, 
+    c: baseChroma * v4Light.c, 
+    h: safeHue(h3, baseLightness + v4Light.l, baseChroma * v4Light.c, enhanced) 
+  });
+
+  // 6. Fourth tetradic color (Dark)
+  const v4Dark = variations.fourth.dark;
+  colors.push({ 
+    l: baseLightness + v4Dark.l, 
+    c: baseChroma * v4Dark.c, 
+    h: safeHue(h3, baseLightness + v4Dark.l, baseChroma * v4Dark.c, enhanced) 
+  });
 
   return colors;
 });
@@ -190,20 +229,53 @@ export const generateTetradic = createPaletteGenerator('tetradic', (base, option
 export const generateSplitComplementary = createPaletteGenerator('splitComplementary', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const splitHues = getSplitComplementaryHues(base, options.style);
+  const { base: baseVars, complement: compVars } = getSplitComplementaryVariations(base, options.style);
 
   const colors: OKLCH[] = [];
+  
+  // 1. Base color
   colors.push({ l: baseLightness, c: baseChroma, h: baseHue });
-  colors.push({ l: baseLightness - 0.18, c: baseChroma * 1.05, h: baseHue });
-  colors.push({ l: baseLightness + 0.15, c: baseChroma * 0.85, h: baseHue });
 
-  splitHues.slice(1).forEach((hue, idx) => {
-    let finalHue = safeHue(hue, baseLightness, baseChroma, enhanced);
-    const v = idx === 0 ? { l: 0.08, c: 0.9 } : { l: -0.08, c: 0.75 };
-    colors.push({ l: baseLightness + v.l, c: baseChroma * v.c, h: finalHue });
+  // 2. Base Dark
+  colors.push({ 
+    l: baseLightness + baseVars.dark.l, 
+    c: baseChroma * baseVars.dark.c, 
+    h: baseHue 
   });
 
-  const mutedHue = safeHue(splitHues[1], baseLightness + 0.2, baseChroma * 0.6, enhanced);
-  colors.push({ l: baseLightness + 0.2, c: baseChroma * 0.6, h: mutedHue });
+  // 3. First Split (Pure)
+  const h1 = splitHues[1];
+  const v1Pure = compVars.first.pure;
+  colors.push({ 
+    l: baseLightness + v1Pure.l, 
+    c: baseChroma * v1Pure.c, 
+    h: safeHue(h1, baseLightness + v1Pure.l, baseChroma * v1Pure.c, enhanced) 
+  });
+
+  // 4. First Split (Muted)
+  const v1Muted = compVars.first.muted;
+  colors.push({ 
+    l: baseLightness + v1Muted.l, 
+    c: baseChroma * v1Muted.c, 
+    h: safeHue(h1, baseLightness + v1Muted.l, baseChroma * v1Muted.c, enhanced) 
+  });
+
+  // 5. Second Split (Pure)
+  const h2 = splitHues[2];
+  const v2Pure = compVars.second.pure;
+  colors.push({ 
+    l: baseLightness + v2Pure.l, 
+    c: baseChroma * v2Pure.c, 
+    h: safeHue(h2, baseLightness + v2Pure.l, baseChroma * v2Pure.c, enhanced) 
+  });
+
+  // 6. Second Split (Muted)
+  const v2Muted = compVars.second.muted;
+  colors.push({ 
+    l: baseLightness + v2Muted.l, 
+    c: baseChroma * v2Muted.c, 
+    h: safeHue(h2, baseLightness + v2Muted.l, baseChroma * v2Muted.c, enhanced) 
+  });
 
   return colors;
 });
