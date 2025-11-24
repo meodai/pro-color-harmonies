@@ -27,17 +27,41 @@ import {
 
 // ============= Type Definitions =============
 
+/**
+ * Represents a color in the OKLCH color space.
+ * @property l - Lightness (0 to 1 usually, but can go higher for HDR)
+ * @property c - Chroma (0 to ~0.4 usually)
+ * @property h - Hue (0 to 360)
+ */
 export interface OKLCH {
   l: number;
   c: number;
   h: number;
 }
 
+/**
+ * The geometric style used to calculate hue relationships.
+ * - 'square': Standard geometric angles (90°, 180°, etc.)
+ * - 'triangle': Adjusted for perceptual balance
+ * - 'circle': Smooth, continuous variation
+ * - 'diamond': Contrast-oriented variation
+ */
 export type PaletteStyle = 'square' | 'triangle' | 'circle' | 'diamond';
+
+/**
+ * The type of color harmony to generate.
+ */
 export type PaletteType = 'analogous' | 'complementary' | 'triadic' | 'tetradic' | 'splitComplementary';
 
+/**
+ * Alias for OKLCH, representing a color in a palette.
+ */
 export type PaletteColor = OKLCH;
 
+/**
+ * Configuration for post-generation palette modifiers.
+ * Values should be between 0 and 1.
+ */
 export interface PaletteModifiers {
   sine?: number;
   wave?: number;
@@ -45,13 +69,22 @@ export interface PaletteModifiers {
   block?: number;
 }
 
+/**
+ * Options for generating a palette.
+ */
 export interface GeneratorOptions {
+  /** The geometric style to use for hue calculation */
   style: PaletteStyle;
+  /** Optional modifiers to apply to the generated palette */
   modifiers?: PaletteModifiers; // Optional palette modulation knobs (0-1)
 }
 
 // ============= Generators =============
 
+/**
+ * Generates a complementary palette (base color + opposite hue).
+ * Creates high contrast and visual tension.
+ */
 export const generateComplementary = createPaletteGenerator('complementary', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const chromaAdjust = 0.9;
@@ -69,6 +102,10 @@ export const generateComplementary = createPaletteGenerator('complementary', (ba
   ];
 });
 
+/**
+ * Generates an analogous palette (colors adjacent on the color wheel).
+ * Creates harmonious, low-contrast designs.
+ */
 export const generateAnalogous = createPaletteGenerator('analogous', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const chromaAdjust = 0.9;
@@ -96,6 +133,10 @@ export const generateAnalogous = createPaletteGenerator('analogous', (base, opti
   });
 });
 
+/**
+ * Generates a triadic palette (three colors evenly spaced).
+ * Balanced and vibrant.
+ */
 export const generateTriadic = createPaletteGenerator('triadic', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const triadicHues = getTriadicHues(base, options.style);
@@ -116,6 +157,10 @@ export const generateTriadic = createPaletteGenerator('triadic', (base, options,
   return colors;
 });
 
+/**
+ * Generates a tetradic palette (two pairs of complementary colors).
+ * Rich and complex, offers many possibilities for variation.
+ */
 export const generateTetradic = createPaletteGenerator('tetradic', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const tetradicHues = getTetradicHues(base, options.style);
@@ -138,6 +183,10 @@ export const generateTetradic = createPaletteGenerator('tetradic', (base, option
   return colors;
 });
 
+/**
+ * Generates a split-complementary palette (base + two colors adjacent to the complement).
+ * High contrast like complementary, but less aggressive.
+ */
 export const generateSplitComplementary = createPaletteGenerator('splitComplementary', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const splitHues = getSplitComplementaryHues(base, options.style);
@@ -161,7 +210,18 @@ export const generateSplitComplementary = createPaletteGenerator('splitComplemen
 
 // ============= Main Palette Generator =============
 
+/**
+ * Main class for generating color palettes.
+ * Provides static methods to generate specific or all palette types.
+ */
 export class ColorPaletteGenerator {
+  /**
+   * Generates a single palette of the specified type.
+   * @param baseColor - The root color for the palette
+   * @param paletteType - The type of harmony to generate
+   * @param options - Configuration options
+   * @returns Array of generated colors
+   */
   static generate(baseColor: OKLCH, paletteType: PaletteType, options: GeneratorOptions): PaletteColor[] {
     const baseOptions = { ...options };
     const modifiers = baseOptions.modifiers;
@@ -179,6 +239,12 @@ export class ColorPaletteGenerator {
     return applyModifiers(palette, modifiers);
   }
 
+  /**
+   * Generates all available palette types for a given base color.
+   * @param baseColor - The root color
+   * @param options - Configuration options
+   * @returns Object containing all palette types
+   */
   static generateAll(baseColor: OKLCH, options: GeneratorOptions): Record<PaletteType, PaletteColor[]> {
     return {
       analogous: applyModifiers(generateAnalogous(baseColor, options), options.modifiers),
@@ -190,6 +256,9 @@ export class ColorPaletteGenerator {
   }
 }
 
+/**
+ * Collection of individual generator functions.
+ */
 export const generators = {
   analogous: generateAnalogous,
   complementary: generateComplementary,
