@@ -7,7 +7,6 @@ import {
   type GeneratorOptions,
   type PaletteModifiers,
   type PaletteColor,
-  generateTintsAndShades,
 } from './index';
 import { extendPalette, createPieChartSvg } from './utils/demo-palette';
 
@@ -589,20 +588,8 @@ function renderPalette() {
       const type1 = HARMONY_ORDER[lowerIndex];
       const type2 = HARMONY_ORDER[upperIndex];
 
-      let palette1: PaletteColor[];
-      let palette2: PaletteColor[];
-
-      if (type1 === 'tintsShades') {
-        palette1 = generateTintsAndShades(baseColorOKLCH, style);
-      } else {
-        palette1 = allPalettes[type1];
-      }
-
-      if (type2 === 'tintsShades') {
-        palette2 = generateTintsAndShades(baseColorOKLCH, style);
-      } else {
-        palette2 = allPalettes[type2];
-      }
+      let palette1: PaletteColor[] = allPalettes[type1];
+      let palette2: PaletteColor[] = allPalettes[type2];
       
       // Ensure palettes are same length for interpolation
       const maxLength = Math.max(palette1.length, palette2.length);
