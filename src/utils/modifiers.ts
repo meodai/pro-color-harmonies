@@ -5,6 +5,13 @@
 import type { PaletteColor, PaletteModifiers } from '../index';
 import { clampOKLCH, normalizeHue } from './color';
 
+/**
+ * Applies a sine wave modulation to the palette.
+ * Good for gentle, flowing variations.
+ * @param palette - The source palette
+ * @param modifier - Intensity of the effect (0-1)
+ * @returns The modified palette
+ */
 export function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const hueIntensity = modifier * 45;
   const lightnessIntensity = modifier * 0.15;
@@ -24,6 +31,13 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
   });
 }
 
+/**
+ * Applies a chaotic wave modulation using a logistic map.
+ * Produces irregular yet controlled changes.
+ * @param palette - The source palette
+ * @param modifier - Intensity/Chaos level (0-1)
+ * @returns The modified palette
+ */
 export function waveModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const chaosLevel = 2.0 + modifier * 1.2;
   const hueRange = modifier * 120;
@@ -48,6 +62,13 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
   });
 }
 
+/**
+ * Applies a spiral-like modulation.
+ * Feels more directional and energetic.
+ * @param palette - The source palette
+ * @param modifier - Intensity/Tightness of the spiral (0-1)
+ * @returns The modified palette
+ */
 export function zapModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const spiralTightness = 0.2 + Math.abs(modifier) * 1.0;
   const maxHueShift = modifier * 90;
@@ -70,6 +91,13 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
   });
 }
 
+/**
+ * Applies a triangular wave pattern.
+ * Emphasizes stepped blocks of contrast.
+ * @param palette - The source palette
+ * @param modifier - Intensity of the effect (0-1)
+ * @returns The modified palette
+ */
 export function blockModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
   const lightnessAmplitude = modifier * 0.25;
   const hueAmplitude = modifier * 30;
@@ -93,7 +121,10 @@ export function blockModifier(palette: PaletteColor[], modifier: number): Palett
 }
 
 /**
- * Apply a series of modifiers to a palette
+ * Apply a series of modifiers to a palette in sequence.
+ * @param palette - The source palette
+ * @param modifiers - Object containing modifier values
+ * @returns The final modified palette
  */
 export function applyModifiers(
   palette: PaletteColor[],

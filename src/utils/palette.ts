@@ -3,7 +3,11 @@ import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../inde
 
 /**
  * Creates a palette generator function with common boilerplate.
- * Note: this stays Culori-free; it operates purely on OKLCH.
+ * Handles the enhanced mode logic and error wrapping.
+ * 
+ * @param paletteType - The type of palette to generate
+ * @param generatorFn - The core generation logic function
+ * @returns A function that takes a base color and options to produce a palette
  */
 export function createPaletteGenerator(
   paletteType: PaletteType,

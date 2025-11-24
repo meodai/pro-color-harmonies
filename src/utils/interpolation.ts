@@ -12,12 +12,20 @@ export type FillFunction<T> = T extends number
 
 /**
  * Linearly interpolates between two values.
+ * @param amt - The interpolation amount (0-1)
+ * @param from - The start value
+ * @param to - The end value
+ * @returns The interpolated value
  */
 export const lerp: FillFunction<number> = (amt, from, to) =>
   from + amt * (to - from);
 
 /**
  * Interpolates between two Color objects
+ * @param amt - The interpolation amount (0-1)
+ * @param from - The start color
+ * @param to - The end color
+ * @returns The interpolated color in OKLAB space
  */
 export const lerpColor = (amt: number, from: CuloriColor, to: CuloriColor): CuloriColor => {
   const f = from.mode === 'oklab' ? from : oklab(from);
@@ -32,6 +40,10 @@ export const lerpColor = (amt: number, from: CuloriColor, to: CuloriColor): Culo
 
 /**
  * Interpolates between two OKLCH objects
+ * @param amt - The interpolation amount (0-1)
+ * @param from - The start OKLCH color
+ * @param to - The end OKLCH color
+ * @returns The interpolated OKLCH color
  */
 export const lerpOKLCH = (amt: number, from: { l: number; c: number; h: number } | null, to: { l: number; c: number; h: number } | null): { l: number; c: number; h: number } => {
   // Handle null cases
@@ -55,6 +67,11 @@ export const lerpOKLCH = (amt: number, from: { l: number; c: number; h: number }
 
 /**
  * Scales and spreads an array to the target size using interpolation
+ * @param valuesToFill - The source array of values
+ * @param targetSize - The desired length of the resulting array
+ * @param padding - Optional padding to apply to the interpolation range (0-0.5)
+ * @param fillFunction - The interpolation function to use
+ * @returns The scaled array
  */
 export const scaleSpreadArray = <T>(
   valuesToFill: T[],

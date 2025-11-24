@@ -3,6 +3,12 @@ import type { OKLCH, PaletteStyle } from '../index';
 
 // ============= Complementary Strategies =============
 
+/**
+ * Calculates the complementary hue based on the selected style.
+ * @param base - The base OKLCH color
+ * @param style - The palette style (square, triangle, circle, diamond)
+ * @returns The calculated complementary hue
+ */
 export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number => {
   const { h: hue, l: lightness, c: chroma } = base;
   
@@ -34,6 +40,12 @@ export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number =>
 
 // ============= Analogous Strategies =============
 
+/**
+ * Calculates analogous hues based on the selected style.
+ * @param base - The base OKLCH color
+ * @param style - The palette style
+ * @returns An array of analogous hues
+ */
 export const getAnalogousHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue, l: lightness } = base;
   
@@ -58,6 +70,12 @@ export const getAnalogousHues = (base: OKLCH, style: PaletteStyle): number[] => 
 
 // ============= Triadic Strategies =============
 
+/**
+ * Calculates triadic hues based on the selected style.
+ * @param base - The base OKLCH color
+ * @param style - The palette style
+ * @returns An array of 3 hues (base + 2 triadic)
+ */
 export const getTriadicHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue, l: lightness, c: chroma } = base;
 
@@ -100,6 +118,12 @@ export const getTriadicHues = (base: OKLCH, style: PaletteStyle): number[] => {
 
 // ============= Tetradic Strategies =============
 
+/**
+ * Calculates tetradic hues based on the selected style.
+ * @param base - The base OKLCH color
+ * @param style - The palette style
+ * @returns An array of 4 hues
+ */
 export const getTetradicHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue } = base;
   
@@ -120,6 +144,12 @@ export const getTetradicHues = (base: OKLCH, style: PaletteStyle): number[] => {
 
 // ============= Split Complementary Strategies =============
 
+/**
+ * Calculates split complementary hues based on the selected style.
+ * @param base - The base OKLCH color
+ * @param style - The palette style
+ * @returns An array of 3 hues (base + 2 split complements)
+ */
 export const getSplitComplementaryHues = (base: OKLCH, style: PaletteStyle): number[] => {
   const { h: hue, l: lightness, c: chroma } = base;
   

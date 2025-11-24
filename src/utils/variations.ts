@@ -9,6 +9,15 @@ export type TriadVariations = {
   };
 };
 
+/**
+ * Calculates adaptive lightness and chroma variations for triadic palettes.
+ * These variations ensure the palette remains balanced even when the base color
+ * is very dark, very light, or in a specific hue range.
+ * 
+ * @param base - The base OKLCH color
+ * @param style - The palette style
+ * @returns Object containing variation settings for the base and triad colors
+ */
 export const getTriadicVariations = (base: OKLCH, style: PaletteStyle): TriadVariations => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   

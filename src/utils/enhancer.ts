@@ -1,19 +1,45 @@
 import type { OKLCH, PaletteType, PaletteStyle } from '../index';
 import { clampOKLCH } from './color';
 
+/**
+ * Defines the narrative structure for chroma distribution across the palette.
+ * This helps create a sense of progression or rhythm in the color saturation.
+ */
 interface ChromaNarrative {
+  /** Array of chroma multipliers (0-5) to shape the saturation curve */
   pattern: number[];
+  /** Human-readable intent for this narrative */
   description: string;
+  /** If true, applies alternating lightness shifts for better contrast/separation */
   breathingRoom: boolean;
 }
 
+/**
+ * Defines the role of a color within the palette hierarchy.
+ * This assigns semantic meaning and visual weight to each color position.
+ */
 interface ColorRole {
+  /** The semantic role of the color */
   name: 'protagonist' | 'deuteragonist' | 'supporting' | 'accent' | 'background' | 'neutral';
+  /** Multiplier applied to the base chroma */
   chromaMultiplier: number;
+  /** Absolute shift applied to the lightness */
   lightnessShift: number;
+  /** Approximate visual weight or intended usage frequency (0-1) */
   presence: number;
 }
 
+/**
+ * Determines the narrative structure for chroma distribution across the palette.
+ * 
+ * @param paletteType - The type of harmony being generated
+ * @param style - The style variant
+ * @param _baseChroma - The chroma of the base color (currently unused but reserved for adaptive narratives)
+ * @returns {ChromaNarrative}
+ * - pattern: Array of chroma multipliers (0-5) to shape the saturation curve
+ * - description: Human-readable intent for this narrative
+ * - breathingRoom: If true, applies alternating lightness shifts for better contrast/separation
+ */
 function getChromaNarrative(
   paletteType: PaletteType,
   style: PaletteStyle,
@@ -172,6 +198,13 @@ function getChromaNarrative(
   };
 }
 
+/**
+ * Determines the color hierarchy and role assignments for a given palette type.
+ * 
+ * @param paletteType - The type of harmony being generated
+ * @param _style - The style variant (currently unused but reserved for future style-specific hierarchies)
+ * @returns Array of ColorRole objects defining the characteristics of each position
+ */
 function getColorHierarchy(
   paletteType: PaletteType,
   _style: PaletteStyle
@@ -240,6 +273,16 @@ function getColorHierarchy(
   });
 }
 
+/**
+ * Enhances a raw palette by applying chroma narratives and color hierarchy roles.
+ * This post-processing step adds depth, rhythm, and balance to the mathematically generated colors.
+ * 
+ * @param colors - The raw array of OKLCH colors
+ * @param paletteType - The type of harmony
+ * @param style - The style variant
+ * @param baseColorIndex - The index of the base color (which should remain relatively unchanged)
+ * @returns A new array of enhanced OKLCH colors
+ */
 export function enhancePalette(
   colors: OKLCH[],
   paletteType: PaletteType,

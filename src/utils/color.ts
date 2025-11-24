@@ -7,6 +7,8 @@ import { OKLCH_LIMITS, MUDDY_ZONES } from './constants';
 
 /**
  * Normalize hue to 0-360 range
+ * @param hue - The hue value to normalize
+ * @returns The normalized hue value between 0 and 360
  */
 export function normalizeHue(hue: number): number {
   return ((hue % 360) + 360) % 360;
@@ -14,6 +16,10 @@ export function normalizeHue(hue: number): number {
 
 /**
  * Clamp OKLCH values to valid ranges
+ * @param l - Lightness value
+ * @param c - Chroma value
+ * @param h - Hue value
+ * @returns A new OKLCH object with clamped values
  */
 export function clampOKLCH(l: number, c: number, h: number): OKLCH {
   return {
@@ -25,7 +31,11 @@ export function clampOKLCH(l: number, c: number, h: number): OKLCH {
 
 
 /**
- * Avoid muddy zones in the color space
+ * Avoid muddy zones in the color space by shifting hue away from problematic areas
+ * @param hue - The original hue
+ * @param lightness - The lightness value
+ * @param chroma - The chroma value
+ * @returns A new OKLCH object with potentially adjusted hue
  */
 export function avoidMuddyZones(hue: number, lightness: number, chroma: number): OKLCH {
   let adjustedHue = hue;
@@ -41,6 +51,11 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
 
 /**
  * Safely get a hue, avoiding muddy zones if enhanced mode is on
+ * @param hue - The target hue
+ * @param lightness - The lightness context
+ * @param chroma - The chroma context
+ * @param enhanced - Whether to apply enhancement/correction logic
+ * @returns The safe hue value
  */
 export function safeHue(hue: number, lightness: number, chroma: number, enhanced: boolean): number {
   if (!enhanced) return hue;
