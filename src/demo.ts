@@ -577,11 +577,6 @@ function renderPalette() {
     // Helper to get interpolated palette for a specific style
     const getInterpolatedPaletteForStyle = (style: PaletteStyle) => {
       const options: GeneratorOptions = { style, modifiers };
-      
-      // Handle tints-shades specially
-      if (activeHarmony === 'tintsShades') {
-        return generateTintsAndShades(baseColorOKLCH, style);
-      }
 
       const allPalettes = ColorPaletteGenerator.generateAll(baseColorOKLCH, options);
       
