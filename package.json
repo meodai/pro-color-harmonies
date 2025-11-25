@@ -1,6 +1,6 @@
 {
   "name": "pro-color-harmonies",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "A TypeScript color-harmony library working purely in OKLCH data to generate perceptually-tuned palettes.",
   "keywords": [
     "color",
