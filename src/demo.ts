@@ -440,6 +440,7 @@ function createGridInteractionHandler(
   };
 
   gridElement.addEventListener('mousedown', (e) => {
+    e.preventDefault();
     handleInteraction(e);
 
     const onMouseMove = (moveEvent: MouseEvent) => {
