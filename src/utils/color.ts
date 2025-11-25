@@ -38,15 +38,31 @@ export function clampOKLCH(l: number, c: number, h: number): OKLCH {
  * @returns A new OKLCH object with potentially adjusted hue
  */
 export function avoidMuddyZones(hue: number, lightness: number, chroma: number): OKLCH {
-  let adjustedHue = hue;
-  for (const zone of MUDDY_ZONES) {
-    if (hue >= zone.start && hue <= zone.end && chroma < 0.15) {
-      adjustedHue = (hue + zone.shift + 360) % 360;
-      break;
+  // Expanded zones for maximum beauty
+  const mudZones = [
+    { range: [25, 65], name: 'brown-olive' },
+    { range: [100, 140], name: 'sick-green' },
+    { range: [45, 55], name: 'dead-orange' },
+    { range: [180, 200], name: 'corpse-cyan' },
+  ];
+
+  for (const zone of mudZones) {
+    if (hue >= zone.range[0] && hue <= zone.range[1]) {
+      // Push harder toward beautiful alternatives
+      if (chroma < 0.15) {
+        // Very muted: make it a sophisticated neutral
+        return { h: hue, l: lightness, c: chroma * 0.5 };
+      } else {
+        // Push to nearest beautiful hue
+        const pushDirection = hue > (zone.range[0] + zone.range[1]) / 2 ? 1 : -1;
+        const newHue = (hue + pushDirection * 10 + 360) % 360;
+        // Boost chroma to escape the mud
+        return { h: newHue, l: lightness, c: chroma * 1.1 };
+      }
     }
   }
 
-  return clampOKLCH(lightness, chroma, adjustedHue);
+  return clampOKLCH(lightness, chroma, hue);
 }
 
 /**

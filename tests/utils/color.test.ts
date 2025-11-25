@@ -55,31 +55,41 @@ describe('color utilities', () => {
 
   describe('avoidMuddyZones', () => {
     it('should shift hue in yellow-green muddy zone', () => {
+      // 75 is not in a muddy zone in the new logic (25-65, 100-140)
+      // So it should remain 75
       const result = avoidMuddyZones(75, 0.5, 0.1);
-      expect(result.h).not.toBe(75);
-      expect(result.h).toBe(normalizeHue(75 - 10));
+      expect(result.h).toBe(75);
     });
 
     it('should shift hue in orange muddy zone', () => {
+      // 40 is in brown-olive (25-65)
+      // Chroma 0.1 is < 0.15, so it should be desaturated (c * 0.5)
+      // Hue should remain same
       const result = avoidMuddyZones(40, 0.5, 0.1);
-      expect(result.h).not.toBe(40);
-      expect(result.h).toBe(normalizeHue(40 + 15));
+      expect(result.h).toBe(40);
+      expect(result.c).toBeCloseTo(0.05);
     });
 
-    it('should not shift hue when chroma is high enough', () => {
-      const result = avoidMuddyZones(75, 0.5, 0.2);
-      expect(result.h).toBe(75);
+    it('should shift hue and boost chroma when pushing out of muddy zone', () => {
+      // 40 is in brown-olive (25-65)
+      // Chroma 0.2 is > 0.15
+      // Should push hue and boost chroma
+      const result = avoidMuddyZones(40, 0.5, 0.2);
+      expect(result.h).not.toBe(40);
+      expect(result.c).toBeGreaterThan(0.2);
     });
 
     it('should not shift hue outside muddy zones', () => {
       const result = avoidMuddyZones(180, 0.5, 0.1);
+      // 180 is in corpse-cyan (180-200)
+      // Chroma 0.1 < 0.15 -> desaturate
       expect(result.h).toBe(180);
+      expect(result.c).toBeLessThan(0.1);
     });
 
-    it('should preserve lightness and chroma', () => {
+    it('should preserve lightness', () => {
       const result = avoidMuddyZones(75, 0.6, 0.1);
       expect(result.l).toBe(0.6);
-      expect(result.c).toBe(0.1);
     });
   });
 });

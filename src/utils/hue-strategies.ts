@@ -30,6 +30,11 @@ export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number =>
     case 'diamond':
       if (lightness > 0.8 && chroma < 0.3) return normalizeHue(hue + 200);
       if (hue >= 30 && hue < 90 && lightness > 0.6) return 240 + (hue - 30) * 0.3;
+      if (hue >= 180 && hue < 240 && lightness < 0.5) return 40 + (hue - 180) * 0.4;
+      if (chroma > 0.8 && lightness < 0.4) {
+        return hue < 180 ? normalizeHue(hue + 160) : normalizeHue(hue + 200);
+      }
+      if (hue >= 270 && hue < 330) return 90 + (hue - 270) * 0.6;
       return normalizeHue(hue + 180 + (lightness * 20 - 10));
     case 'square':
     default:
@@ -46,19 +51,31 @@ export const getComplementaryHue = (base: OKLCH, style: PaletteStyle): number =>
  * @returns An array of analogous hues
  */
 export const getAnalogousHues = (base: OKLCH, style: PaletteStyle): number[] => {
-  const { h: hue, l: lightness } = base;
+  const { h: hue, l: lightness, c: chroma } = base;
   
   switch (style) {
     case 'triangle':
       if (hue < 30) return [0, -15, -8, 8, 20, 35].map(d => normalizeHue(hue + d));
-      if (hue < 90) return [0, -25, -12, 10, 20, 30].map(d => normalizeHue(hue + d));
+      if (hue < 90) {
+        if (hue < 50) return [0, -25, -12, 10, 20, 30].map(d => normalizeHue(hue + d));
+        return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+      }
+      if (hue < 180) return [0, -25, -12, 10, 20, 35].map(d => normalizeHue(hue + d));
+      if (hue < 240) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
       return [0, -25, -12, 10, 20, 35].map(d => normalizeHue(hue + d));
     case 'circle':
       if (hue >= 345 || hue < 30) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+      if (hue >= 30 && hue < 90) return [0, -25, -12, 10, 20, 35].map(d => normalizeHue(hue + d));
+      if (hue >= 90 && hue < 150) return [0, -22, -10, 10, 20, 35].map(d => normalizeHue(hue + d));
       if (hue >= 150 && hue < 210) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
-      return [0, -22, -10, 10, 20, 35].map(d => normalizeHue(hue + d));
+      if (hue >= 210 && hue < 270) return [0, -25, -12, 10, 20, 35].map(d => normalizeHue(hue + d));
+      return [0, -20, -10, 10, 20, 35].map(d => normalizeHue(hue + d));
     case 'diamond':
-      if (lightness > 0.6 && hue >= 30 && hue < 90) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+      if (lightness > 0.8 && chroma < 0.3) return [0, -22, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+      if (hue >= 30 && hue < 90 && lightness > 0.6) return [0, -20, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
+      if (hue >= 180 && hue < 240 && lightness < 0.5) return [0, -25, -12, 10, 20, 35].map(d => normalizeHue(hue + d));
+      if (chroma > 0.8 && lightness < 0.4) return [0, -35, -18, 15, 28, 45].map(d => normalizeHue(hue + d));
+      if (hue >= 270 && hue < 330) return [0, -30, -15, 12, 25, 40].map(d => normalizeHue(hue + d));
       return [0, -22, -10, 8, 18, 30].map(d => normalizeHue(hue + d));
     case 'square':
     default:
@@ -122,16 +139,39 @@ export const getTriadicHues = (base: OKLCH, style: PaletteStyle): number[] => {
  * @returns An array of 4 hues
  */
 export const getTetradicHues = (base: OKLCH, style: PaletteStyle): number[] => {
-  const { h: hue } = base;
+  const { h: hue, l: lightness, c: chroma } = base;
   
   switch (style) {
     case 'triangle':
-      return [0, 60, 180, 240].map(d => normalizeHue(hue + d));
+      if (hue < 45) return [0, 75, 165, 255].map(d => normalizeHue(hue + d));
+      if (hue < 90) return [0, 105, 195, 285].map(d => normalizeHue(hue + d));
+      if (hue < 135) return [0, 85, 175, 265].map(d => normalizeHue(hue + d));
+      if (hue < 180) return [0, 80, 170, 280].map(d => normalizeHue(hue + d));
+      if (hue < 225) return [0, 85, 175, 275].map(d => normalizeHue(hue + d));
+      if (hue < 270) return [0, 90, 180, 270].map(d => normalizeHue(hue + d));
+      if (hue < 315) return [0, 95, 185, 275].map(d => normalizeHue(hue + d));
+      return [0, 85, 165, 255].map(d => normalizeHue(hue + d));
     case 'circle':
-      if (hue < 90) return [0, 85, 180, 265].map(d => normalizeHue(hue + d));
-      return [0, 95, 180, 275].map(d => normalizeHue(hue + d));
+      if (hue >= 345 || hue < 30) return [0, 75, 165, 255].map(d => normalizeHue(hue + d));
+      if (hue < 90) {
+        const i = chroma * lightness;
+        return [hue, normalizeHue(hue + 90 + i * 10), normalizeHue(hue + 180), normalizeHue(hue + 270 - i * 5)];
+      }
+      if (hue < 150) return [0, 85, 175, 265].map(d => normalizeHue(hue + d));
+      if (hue < 210) return [0, 80, 170, 280].map(d => normalizeHue(hue + d));
+      if (hue < 270) return [0, 95, 185, 275].map(d => normalizeHue(hue + d));
+      return [0, 90, 180, 270].map(d => normalizeHue(hue + d));
     case 'diamond':
-      return [0, 30, 180, 210].map(d => normalizeHue(hue + d));
+      if (lightness > 0.8 && chroma < 0.3) return [0, 85, 185, 275].map(d => normalizeHue(hue + d));
+      if (hue >= 30 && hue < 90 && lightness > 0.6) return [0, 70, 160, 250].map(d => normalizeHue(hue + d));
+      if (hue >= 180 && hue < 240 && lightness < 0.5) return [0, 95, 175, 285].map(d => normalizeHue(hue + d));
+      if (chroma > 0.8 && lightness < 0.4) {
+        const wc = hue < 180 ? 1 : -1;
+        return [hue, normalizeHue(hue + 80 * wc), normalizeHue(hue + 160), normalizeHue(hue + 260 * wc)];
+      }
+      if (hue >= 270 && hue < 330) return [0, 100, 200, 280].map(d => normalizeHue(hue + d));
+      const inf = (lightness - 0.5) * 20;
+      return [hue, normalizeHue(hue + 90 + inf), normalizeHue(hue + 180), normalizeHue(hue + 270 - inf)];
     case 'square':
     default:
       return [0, 90, 180, 270].map(d => normalizeHue(hue + d));
@@ -153,18 +193,32 @@ export const getSplitComplementaryHues = (base: OKLCH, style: PaletteStyle): num
     case 'triangle':
       if (hue < 45) return [hue, normalizeHue(hue + 155), normalizeHue(hue + 185)];
       if (hue < 90) return [hue, normalizeHue(hue + 165), normalizeHue(hue + 205)];
-      return [hue, normalizeHue(hue + 150), normalizeHue(hue + 210)];
+      if (hue < 135) return [hue, normalizeHue(hue + 170), normalizeHue(hue + 210)];
+      if (hue < 180) return [hue, normalizeHue(hue + 160), normalizeHue(hue + 200)];
+      if (hue < 225) return [hue, normalizeHue(hue + 150), normalizeHue(hue + 190)];
+      if (hue < 270) return [hue, normalizeHue(hue + 145), normalizeHue(hue + 175)];
+      if (hue < 315) return [hue, normalizeHue(hue + 135), normalizeHue(hue + 165)];
+      return [hue, normalizeHue(hue + 125), normalizeHue(hue + 155)];
     case 'circle':
       if (hue >= 345 || hue < 30) return [hue, normalizeHue(hue + 165), normalizeHue(hue + 195)];
       if (hue >= 30 && hue < 90) {
         const i = chroma * lightness;
         return [hue, normalizeHue(hue + 160 + i * 15), normalizeHue(hue + 200 + i * 10)];
       }
-      return [hue, normalizeHue(hue + 170), normalizeHue(hue + 210)];
-    case 'diamond': {
+      if (hue < 150) return [hue, normalizeHue(hue + 170), normalizeHue(hue + 210)];
+      if (hue < 210) return [hue, normalizeHue(hue + 155), normalizeHue(hue + 185)];
+      if (hue < 270) return [hue, normalizeHue(hue + 145), normalizeHue(hue + 175)];
+      return [hue, normalizeHue(hue + 135), normalizeHue(hue + 165)];
+    case 'diamond':
+      if (lightness > 0.8 && chroma < 0.3) return [hue, normalizeHue(hue + 170), normalizeHue(hue + 190)];
+      if (hue >= 30 && hue < 90 && lightness > 0.6) return [hue, normalizeHue(hue + 160), normalizeHue(hue + 190)];
+      if (hue >= 180 && hue < 240 && lightness < 0.5) return [hue, normalizeHue(hue + 140), normalizeHue(hue + 170)];
+      if (chroma > 0.8 && lightness < 0.4) {
+        return [hue, normalizeHue(hue + 150), normalizeHue(hue + 210)];
+      }
+      if (hue >= 270 && hue < 330) return [hue, normalizeHue(hue + 120), normalizeHue(hue + 160)];
       const inf = lightness * 15 - 7.5;
       return [hue, normalizeHue(hue + 165 + inf), normalizeHue(hue + 195 - inf)];
-    }
     case 'square':
     default: {
       const c = normalizeHue(hue + 180);

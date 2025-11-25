@@ -1,4 +1,4 @@
-import { enhancePalette } from './enhancer';
+import { enhancePalette, polishPalette } from './enhancer';
 import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../index';
 
 /**
@@ -23,7 +23,8 @@ export function createPaletteGenerator(
       );
       
       if (enhanced) {
-        return enhancePalette(colors, paletteType, options.style);
+        const enhancedColors = enhancePalette(colors, paletteType, options.style);
+        return polishPalette(enhancedColors);
       }
       
       return colors;

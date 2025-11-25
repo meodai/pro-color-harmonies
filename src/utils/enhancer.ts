@@ -119,8 +119,8 @@ function getChromaNarrative(
         };
       case 'circle':
         return {
-          pattern: [1.0, 0.9, 1.1, 0.8, 0.95, 0.75],
-          description: 'Three-act drama',
+          pattern: [1.0, 0.9, 1.1, 0.8, 0.9, 0.7],
+          description: 'Three-part emotional narrative',
           breathingRoom: false,
         };
       case 'diamond':
@@ -133,6 +133,35 @@ function getChromaNarrative(
   }
 
   if (paletteType === 'triadic') {
+    switch (style) {
+      case 'square':
+        return {
+          pattern: [1.0, 0.8, 0.9, 0.85, 0.9, 0.7],
+          description: 'Triangular harmony',
+          breathingRoom: true,
+        };
+      case 'triangle':
+        return {
+          pattern: [1.0, 0.75, 0.95, 0.7, 0.85, 0.6],
+          description: 'Perceptual triangle',
+          breathingRoom: true,
+        };
+      case 'circle':
+        return {
+          pattern: [1.0, 0.9, 1.1, 0.8, 0.95, 0.75],
+          description: 'Three-part emotional story',
+          breathingRoom: false,
+        };
+      case 'diamond':
+        return {
+          pattern: [1.0, 0.8, 0.9, 0.7, 0.85, 0.65],
+          description: 'Three-source illumination',
+          breathingRoom: true,
+        };
+    }
+  }
+
+  if (paletteType === 'tetradic') {
     switch (style) {
       case 'square':
         return {
@@ -161,35 +190,6 @@ function getChromaNarrative(
     }
   }
 
-  if (paletteType === 'tetradic') {
-    switch (style) {
-      case 'square':
-        return {
-          pattern: [1.0, 0.9, 0.9, 0.9, 0.9, 0.9],
-          description: 'Balanced square',
-          breathingRoom: true,
-        };
-      case 'triangle':
-        return {
-          pattern: [1.0, 0.8, 0.9, 0.7, 0.85, 0.75],
-          description: 'Dynamic tension',
-          breathingRoom: true,
-        };
-      case 'circle':
-        return {
-          pattern: [1.0, 0.9, 1.1, 0.8, 0.9, 0.7],
-          description: 'Three-part emotional narrative',
-          breathingRoom: false,
-        };
-      case 'diamond':
-        return {
-          pattern: [1.0, 0.8, 0.9, 0.6, 0.85, 0.5],
-          description: 'Multi-source lighting',
-          breathingRoom: true,
-        };
-    }
-  }
-
   // Default fallback
   return {
     pattern: [1.0, 0.9, 0.8, 0.7, 0.6, 0.5],
@@ -211,12 +211,12 @@ function getColorHierarchy(
 ): ColorRole[] {
   if (paletteType === 'analogous') {
     return [
-      { name: 'protagonist', chromaMultiplier: 1.0, lightnessShift: 0, presence: 0.4 },
       { name: 'supporting', chromaMultiplier: 0.8, lightnessShift: -0.05, presence: 0.15 },
       { name: 'accent', chromaMultiplier: 1.0, lightnessShift: 0.02, presence: 0.1 },
+      { name: 'protagonist', chromaMultiplier: 1.0, lightnessShift: 0, presence: 0.4 },
+      { name: 'protagonist', chromaMultiplier: 0.95, lightnessShift: 0, presence: 0.4 },
       { name: 'deuteragonist', chromaMultiplier: 0.9, lightnessShift: 0.03, presence: 0.2 },
       { name: 'background', chromaMultiplier: 0.6, lightnessShift: 0.08, presence: 0.25 },
-      { name: 'neutral', chromaMultiplier: 0.5, lightnessShift: -0.1, presence: 0.1 },
     ];
   }
 
@@ -248,8 +248,8 @@ function getColorHierarchy(
       { name: 'supporting', chromaMultiplier: 0.9, lightnessShift: -0.1, presence: 0.2 },
       { name: 'deuteragonist', chromaMultiplier: 0.85, lightnessShift: 0.05, presence: 0.3 },
       { name: 'neutral', chromaMultiplier: 0.65, lightnessShift: 0.08, presence: 0.15 },
-      { name: 'accent', chromaMultiplier: 0.8, lightnessShift: -0.05, presence: 0.15 },
-      { name: 'background', chromaMultiplier: 0.5, lightnessShift: 0.1, presence: 0.1 },
+      { name: 'accent', chromaMultiplier: 0.8, lightnessShift: 0.02, presence: 0.25 },
+      { name: 'background', chromaMultiplier: 0.6, lightnessShift: -0.05, presence: 0.12 },
     ];
   }
 
@@ -314,5 +314,46 @@ export function enhancePalette(
     }
 
     return clampOKLCH(newL, newC, color.h);
+  });
+}
+
+/**
+ * Polishes the palette to ensure all colors are visually interesting.
+ * Prevents dead grays and adds subtle tints to very light colors.
+ * 
+ * @param colors - The palette to polish
+ * @param baseColorIndex - The index of the base color to preserve
+ * @returns The polished palette
+ */
+export function polishPalette(colors: OKLCH[], baseColorIndex: number = 0): OKLCH[] {
+  return colors.map((color, index) => {
+    if (index === baseColorIndex) {
+      return color;
+    }
+
+    const polished = { ...color };
+
+    // 1. Prevent "dead" grays in mid-tones
+    if (polished.c < 0.05 && polished.l > 0.2 && polished.l < 0.8) {
+      polished.c = Math.max(0.08, polished.c * 2); // Minimum life
+    }
+
+    // 2. Make very light colors more interesting
+    if (polished.l > 0.85) {
+      // Add subtle tint based on the hue
+      if (polished.c < 0.04) {
+        polished.c = 0.04; // Minimum tint
+      }
+      
+      // Slight warm shift for most hues (except already warm ones)
+      if (polished.h < 30 || polished.h > 330) {
+        // Already warm
+      } else {
+        // Nudge towards warmth for better UI feel
+        // This is a subtle "sunlight" effect
+      }
+    }
+
+    return clampOKLCH(polished.l, polished.c, polished.h);
   });
 }
