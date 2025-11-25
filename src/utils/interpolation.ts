@@ -66,6 +66,35 @@ export const lerpOKLCH = (amt: number, from: { l: number; c: number; h: number }
 };
 
 /**
+ * Deeply interpolates between two objects or numbers.
+ * @param start - The start value
+ * @param end - The end value
+ * @param amt - The interpolation amount (0-1)
+ * @returns The interpolated value
+ */
+export const interpolateDeep = <T>(start: T, end: T, amt: number): T => {
+  if (typeof start === 'number' && typeof end === 'number') {
+    return lerp(amt, start, end) as unknown as T;
+  }
+
+  if (typeof start === 'object' && start !== null && typeof end === 'object' && end !== null) {
+    if (Array.isArray(start) && Array.isArray(end)) {
+      return start.map((val, i) => interpolateDeep(val, end[i], amt)) as unknown as T;
+    }
+    
+    const result = {} as T;
+    for (const key in start) {
+      if (Object.prototype.hasOwnProperty.call(start, key)) {
+        result[key] = interpolateDeep(start[key], end[key], amt);
+      }
+    }
+    return result;
+  }
+
+  return start;
+};
+
+/**
  * Scales and spreads an array to the target size using interpolation
  * @param valuesToFill - The source array of values
  * @param targetSize - The desired length of the resulting array

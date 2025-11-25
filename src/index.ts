@@ -86,6 +86,8 @@ export interface GeneratorOptions {
   style: PaletteStyle;
   /** Optional modifiers to apply to the generated palette */
   modifiers?: PaletteModifiers; // Optional palette modulation knobs (0-1)
+  /** Whether to interpolate variations for smooth transitions */
+  interpolation?: boolean;
 }
 
 // ============= Generators =============
@@ -99,7 +101,7 @@ export const generateComplementary = createPaletteGenerator('complementary', (ba
   const chromaAdjust = 0.9;
   
   let complementHue = getComplementaryHue(base, options.style);
-  const { base: baseVars, complement: compVars } = getComplementaryVariations(base, options.style);
+  const { base: baseVars, complement: compVars } = getComplementaryVariations(base, options.style, options.interpolation);
 
   const createColor = (hue: number, v: { l: number, c: number }) => {
     const finalL = baseLightness + v.l;
@@ -127,7 +129,7 @@ export const generateAnalogous = createPaletteGenerator('analogous', (base, opti
   const chromaAdjust = 0.9;
   
   const analogousHues = getAnalogousHues(base, options.style);
-  const variations = getAnalogousVariations(base, options.style);
+  const variations = getAnalogousVariations(base, options.style, options.interpolation);
 
   return analogousHues.map((hue, index) => {
     if (index === 0) return { l: baseLightness, c: baseChroma, h: baseHue };
@@ -148,7 +150,7 @@ export const generateAnalogous = createPaletteGenerator('analogous', (base, opti
 export const generateTriadic = createPaletteGenerator('triadic', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const triadicHues = getTriadicHues(base, options.style);
-  const { base: baseVariations, triad: triadVariations } = getTriadicVariations(base, options.style);
+  const { base: baseVariations, triad: triadVariations } = getTriadicVariations(base, options.style, options.interpolation);
 
   const colors: OKLCH[] = [];
   triadicHues.forEach((hue, idx) => {
@@ -172,7 +174,7 @@ export const generateTriadic = createPaletteGenerator('triadic', (base, options,
 export const generateTetradic = createPaletteGenerator('tetradic', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const tetradicHues = getTetradicHues(base, options.style);
-  const variations = getTetradicVariations(base, options.style);
+  const variations = getTetradicVariations(base, options.style, options.interpolation);
 
   const colors: OKLCH[] = [];
   
@@ -232,7 +234,7 @@ export const generateTetradic = createPaletteGenerator('tetradic', (base, option
 export const generateSplitComplementary = createPaletteGenerator('splitComplementary', (base, options, enhanced) => {
   const { l: baseLightness, c: baseChroma, h: baseHue } = base;
   const splitHues = getSplitComplementaryHues(base, options.style);
-  const { base: baseVars, complement: compVars } = getSplitComplementaryVariations(base, options.style);
+  const { base: baseVars, complement: compVars } = getSplitComplementaryVariations(base, options.style, options.interpolation);
 
   const colors: OKLCH[] = [];
   
@@ -298,7 +300,7 @@ export class ColorPaletteGenerator {
    * @returns Array of generated colors
    */
   static generate(baseColor: OKLCH, paletteType: PaletteType, options: GeneratorOptions): PaletteColor[] {
-    const baseOptions = { ...options };
+    const baseOptions = { interpolation: true, ...options };
     const modifiers = baseOptions.modifiers;
 
     let palette: PaletteColor[];
@@ -322,13 +324,14 @@ export class ColorPaletteGenerator {
    * @returns Object containing all palette types
    */
   static generateAll(baseColor: OKLCH, options: GeneratorOptions): Record<PaletteType, PaletteColor[]> {
+    const baseOptions = { interpolation: true, ...options };
     return {
-      tintsShades: applyModifiers(generateTintsAndShades(baseColor, options.style), options.modifiers),
-      analogous: applyModifiers(generateAnalogous(baseColor, options), options.modifiers),
-      complementary: applyModifiers(generateComplementary(baseColor, options), options.modifiers),
-      triadic: applyModifiers(generateTriadic(baseColor, options), options.modifiers),
-      tetradic: applyModifiers(generateTetradic(baseColor, options), options.modifiers),
-      splitComplementary: applyModifiers(generateSplitComplementary(baseColor, options), options.modifiers),
+      tintsShades: applyModifiers(generateTintsAndShades(baseColor, baseOptions.style), baseOptions.modifiers),
+      analogous: applyModifiers(generateAnalogous(baseColor, baseOptions), baseOptions.modifiers),
+      complementary: applyModifiers(generateComplementary(baseColor, baseOptions), baseOptions.modifiers),
+      triadic: applyModifiers(generateTriadic(baseColor, baseOptions), baseOptions.modifiers),
+      tetradic: applyModifiers(generateTetradic(baseColor, baseOptions), baseOptions.modifiers),
+      splitComplementary: applyModifiers(generateSplitComplementary(baseColor, baseOptions), baseOptions.modifiers),
     };
   }
 }

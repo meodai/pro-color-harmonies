@@ -16,10 +16,23 @@ Pro Palette takes a different approach, heavily leaning on the research and "mag
 Key differences:
 
 - **Perceptual Space**: All calculations happen in **OKLCH**, ensuring that changes in lightness and chroma are perceptually uniform.
+- **Adaptive Variations**: Unlike static formulas (e.g., always keeping the same lightness), this library analyzes the base color (is it dark? light? vibrant?) and applies different strategies to ensure the resulting palette maintains usable contrast and harmony.
 - **Muddy Zone Avoidance**: The library actively steers hues away from known "muddy" or unappealing zones (like certain dark yellows/browns) to ensure cleaner results.
 - **Style-Based Logic**: Instead of just one "Triadic" formula, you get four distinct interpretations (`square`, `triangle`, `circle`, `diamond`), each with its own logic for balancing visual weight and emotional feel.
 - **Narrative & Hierarchy**: It applies concepts like "Chroma Narratives" and "Color Hierarchy" to assign roles (protagonist, supporting, etc.) to colors, rather than treating them as equal data points.
 - **Modifiers**: It includes four unique post-processing algorithms (Sine, Wave, Zap, Block) that add organic variation and texture to the palette, simulating natural lighting or artistic shifts.
+
+### Adaptive Variations & Thresholds
+
+One of the biggest flaws in standard color generation is that a formula that works for a mid-tone red often fails for a dark navy blue.
+
+Pro Palette solves this by using **threshold-based logic**. It checks if your base color falls into specific ranges (e.g., "Dark" if Lightness < 0.3, "Light" if Lightness > 0.7) and changes the generation strategy accordingly.
+
+- **Dark Base**: The library might generate lighter variations to ensure visibility.
+- **Light Base**: It might generate darker, richer variations to provide grounding.
+
+**Smooth Interpolation**:
+Traditionally, threshold-based systems suffer from "jumps"—as you drag a lightness slider from 0.29 to 0.31, the entire palette might snap to a new configuration. Pro Palette solves this with **interpolation**. When your color is near a threshold, the library calculates both strategies and smoothly blends them. This gives you the best of both worlds: adaptive, intelligent palettes with buttery-smooth transitions.
 
 ## Installation
 
@@ -113,6 +126,7 @@ export interface PaletteModifiers {
 export interface GeneratorOptions {
   style: PaletteStyle;
   modifiers?: PaletteModifiers;           // 4 modulation knobs, each 0–1
+  interpolation?: boolean;                // Smooth transitions (default: true)
 }
 ```
 
@@ -131,6 +145,7 @@ Generate a single palette.
     - `triangle` (perceptual): bends angles and variations so the palette looks balanced, especially in tricky red/orange/yellow regions. Applies **Chroma Narratives** to create visual weight distribution.
     - `circle` (emotional): uses hue bands and lightness bands to create more expressive, story-like shifts (fiery vs tranquil, etc.). Applies **Color Hierarchy** to assign roles like "protagonist" or "supporting".
     - `diamond` (luminosity-aware): decisions are driven primarily by lightness + chroma so very light/dark bases still yield usable, UI-friendly palettes.
+  - `interpolation` (optional, default: `true`): whether to smooth out transitions between different variation states (e.g. lightness thresholds). When enabled, prevents abrupt jumps in the palette as the base color changes.
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
     - For fewer colors (< 6): sample evenly from the base palette.
     - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
@@ -403,4 +418,6 @@ The project includes GitHub Actions workflows:
 - For extended palettes (> 6 colors), interpolate between OKLCH colors yourself, or reuse the demo's `extendPalette` (which uses `culori` and lives in `src/utils/demo-palette.ts`).
 - For reduced palettes (< 6 colors), sample evenly from the base palette or use your own selection logic.
 - The port is designed to be close to the original `color-palette-generator-main` behavior while exposing OKLCH colors directly for integration into other tools, with the core kept free of parsing/formatting concerns.
-- This project heavily leans on the logic of [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator) (the source for [colorpalette.pro](https://colorpalette.pro)) while taking a few shortcuts to make it easier to integrate. The codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
+- This project heavily leans on the logic of [royalfig/color-palette-generator](https://github.com/royalfig/color-palette-generator) (the source for [colorpalette.pro](https://colorpalette.pro)). The codebase has been completely rewritten, modularized, and simplified to serve as a standalone, framework-agnostic library.
+- **Why this library?** This version was created to make it easy to integrate Ryan's color logic into other tools, libraries, or generative art projects without dragging in heavy dependencies or UI-specific code.
+- **Divergence**: While staying true to the original "magic numbers", this version introduces new features like **smooth interpolation** and **adaptive thresholds** to make the palettes more robust for programmatic use cases where inputs might vary continuously (e.g., generative art or interactive UIs).
