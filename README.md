@@ -20,6 +20,7 @@ Key differences:
 - **Muddy Zone Avoidance**: The library actively steers hues away from known "muddy" or unappealing zones (like certain dark yellows/browns) to ensure cleaner results.
 - **Style-Based Logic**: Instead of just one "Triadic" formula, you get four distinct interpretations (`square`, `triangle`, `circle`, `diamond`), each with its own logic for balancing visual weight and emotional feel.
 - **Narrative & Hierarchy**: It applies concepts like "Chroma Narratives" and "Color Hierarchy" to assign roles (protagonist, supporting, etc.) to colors, rather than treating them as equal data points.
+- **Polishing**: A final pass ensures no color feels "dead" or "washed out" by subtly boosting chroma in mid-tones and warming up highlights, mimicking how painters adjust colors for vibrancy.
 - **Modifiers**: It includes four unique post-processing algorithms (Sine, Wave, Zap, Block) that add organic variation and texture to the palette, simulating natural lighting or artistic shifts.
 
 ### Adaptive Variations & Thresholds
@@ -313,6 +314,7 @@ import {
 ```ts
 import { 
   enhancePalette,      // Apply chroma narratives and color hierarchy
+  polishPalette        // Post-processing to prevent dead grays and boost vibrancy
 } from 'pro-color-harmonies';
 ```
 
