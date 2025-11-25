@@ -3,7 +3,7 @@
  */
 
 import type { OKLCH } from '../index';
-import { OKLCH_LIMITS, MUDDY_ZONES } from './constants';
+import { OKLCH_LIMITS } from './constants';
 
 /**
  * Normalize hue to 0-360 range
