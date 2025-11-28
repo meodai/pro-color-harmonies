@@ -430,6 +430,7 @@ body {
   background-size: calc(100% + 1px);
 
   &::before {
+    pointer-events: none;
     content: '';
     position: absolute;
     top: 50%;

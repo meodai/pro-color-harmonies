@@ -796,33 +796,28 @@ const interactiveElements = document.querySelectorAll<HTMLElement>('.control__in
 
 interactiveElements.forEach(element => {
   // Remove transition class on interaction start
-  element.addEventListener('mousedown', () => {
+  const removeTransitions = () => {
     element.classList.remove('transition');
-  });
+  };
   
-  element.addEventListener('touchstart', () => {
-    element.classList.remove('transition');
-  });
-  
-  element.addEventListener('focus', () => {
-    element.classList.remove('transition');
-  });
-  
-  // Add transition class back on interaction end
-  element.addEventListener('mouseup', () => {
+  const addTransitions = () => {
     element.classList.add('transition');
+  };
+  
+  element.addEventListener('pointerdown', () => {
+    removeTransitions();
+    
+    // Add listener to document for pointerup to ensure it fires even if released outside element
+    const onPointerUp = () => {
+      addTransitions();
+      document.removeEventListener('pointerup', onPointerUp);
+    };
+    
+    document.addEventListener('pointerup', onPointerUp);
   });
   
-  element.addEventListener('touchend', () => {
-    element.classList.add('transition');
-  });
-  
-  element.addEventListener('blur', () => {
-    element.classList.add('transition');
-  });
-  
-  // Also handle when mouse leaves while dragging
-  element.addEventListener('mouseleave', () => {
-    element.classList.add('transition');
-  });
+  element.addEventListener('touchstart', removeTransitions);
+  element.addEventListener('touchend', addTransitions);
+  element.addEventListener('focus', removeTransitions);
+  element.addEventListener('blur', addTransitions);
 });
