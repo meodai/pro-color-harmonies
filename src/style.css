@@ -443,6 +443,32 @@ body {
   box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
 }
 
+.grid-control__indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--distance);
+  height: 0;
+  transform-origin: left center;
+  transform: rotate(var(--angle));
+  pointer-events: none;
+  font-style: normal;
+  border-top: 1px dashed currentColor;
+}
+
+.grid-control__indicator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(50% - .5px);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 0 0 1px currentColor, 0 0 0 2px var(--bg);
+  transform: translate(-50%, -50%);
+}
+
 .control__input {
   font: inherit;
   border: 2px solid currentColor;

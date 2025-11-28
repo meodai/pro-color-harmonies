@@ -177,6 +177,7 @@ app.innerHTML = `
           <span class="control__label-value"><span id="mod1Value">0</span> / <span id="mod3Value">0</span></span>
         </span>
         <div id="gridControl1" class="grid-control">
+          <i class="grid-control__indicator" style="--angle: 0deg; --distance: 0%;"></i>
           <div id="gridDot1" class="grid-control__dot"></div>
         </div>
       </div>
@@ -191,6 +192,7 @@ app.innerHTML = `
           <span class="control__label-value"><span id="mod2Value">0</span> / <span id="mod4Value">0</span></span>
         </span>
         <div id="gridControl2" class="grid-control">
+          <i class="grid-control__indicator" style="--angle: 0deg; --distance: 0%;"></i>
           <div id="gridDot2" class="grid-control__dot"></div>
         </div>
       </div>
@@ -418,11 +420,33 @@ function updateGridDotPosition() {
   gridDot1.style.left = `${x1}%`;
   gridDot1.style.top = `${y1}%`;
   
+  // Update indicator 1
+  const indicator1 = gridControl1.querySelector<HTMLElement>('.grid-control__indicator');
+  if (indicator1) {
+    const dx1 = x1 - 50;
+    const dy1 = y1 - 50;
+    const distance1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+    const angle1 = Math.atan2(dy1, dx1) * (180 / Math.PI);
+    indicator1.style.setProperty('--distance', `${distance1}%`);
+    indicator1.style.setProperty('--angle', `${angle1}deg`);
+  }
+  
   // Grid 2: Wave (X) / Block (Y)
   const x2 = ((mod2 / 100 + 1) / 2) * 100;
   const y2 = ((1 - (mod4 / 100 + 1) / 2)) * 100;
   gridDot2.style.left = `${x2}%`;
   gridDot2.style.top = `${y2}%`;
+  
+  // Update indicator 2
+  const indicator2 = gridControl2.querySelector<HTMLElement>('.grid-control__indicator');
+  if (indicator2) {
+    const dx2 = x2 - 50;
+    const dy2 = y2 - 50;
+    const distance2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+    const angle2 = Math.atan2(dy2, dx2) * (180 / Math.PI);
+    indicator2.style.setProperty('--distance', `${distance2}%`);
+    indicator2.style.setProperty('--angle', `${angle2}deg`);
+  }
 }
 
 function createGridInteractionHandler(
