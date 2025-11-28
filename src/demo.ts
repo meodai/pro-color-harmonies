@@ -33,14 +33,14 @@ app.innerHTML = `
               <span class="control__label-text">Base Color</span>
               <span class="control__label-value" id="baseColorValue">#4c6fff</span>
             </span>
-            <input id="baseColor" class="control__input control__input--color" type="color" value="#4c6fff" />
+            <input id="baseColor" class="control__input control__input--color transition" type="color" value="#4c6fff" />
           </label>
           <button id="randomize" class="button" type="button">Random</button>
         </div>
 
         <label class="control control--small" style="--graduations: 8">
           <div class="range-wrapper">
-            <input id="colorCount" class="control__input" type="range" min="3" max="24" value="6" />
+            <input id="colorCount" class="control__input transition" type="range" min="3" max="24" value="6" />
             <i class="range-marker"></i>
           </div>
           <span class="control__label">
@@ -56,7 +56,7 @@ app.innerHTML = `
           </span>
           <div class="control control--small control--flip" style="--graduations: 6">
             <div class="range-wrapper range-wrapper--harmony" id="harmonyInterpolatorWrapper">
-              <input id="harmonyInterpolator" class="control__input" type="range" min="0" max="100" value="60" step="0.1" />
+              <input id="harmonyInterpolator" class="control__input transition" type="range" min="0" max="100" value="60" step="0.1" />
               <i class="range-marker"></i>
             </div>
           </div>
@@ -153,7 +153,7 @@ app.innerHTML = `
           </div>
           <div class="control control--small" style="--graduations: 4">
             <div class="range-wrapper range-wrapper--style" id="styleInterpolatorWrapper">
-              <input id="styleInterpolator" class="control__input" type="range" min="0" max="100" value="0" step="0.1" />
+              <input id="styleInterpolator" class="control__input transition" type="range" min="0" max="100" value="0" step="0.1" />
               <i class="range-marker"></i>
             </div>
           </div>
@@ -176,7 +176,7 @@ app.innerHTML = `
           </span>
           <span class="control__label-value"><span id="mod1Value">0</span> / <span id="mod3Value">0</span></span>
         </span>
-        <div id="gridControl1" class="grid-control" style="--angle: 0deg; --distance: 0%;">
+        <div id="gridControl1" class="grid-control transition" style="--angle: 0deg; --distance: 0%;">
           <i class="grid-control__indicator"></i>
           <div id="gridDot1" class="grid-control__dot"></div>
         </div>
@@ -191,7 +191,7 @@ app.innerHTML = `
           </span>
           <span class="control__label-value"><span id="mod2Value">0</span> / <span id="mod4Value">0</span></span>
         </span>
-        <div id="gridControl2" class="grid-control" style="--angle: 0deg; --distance: 0%;">
+        <div id="gridControl2" class="grid-control transition" style="--angle: 0deg; --distance: 0%;">
           <i class="grid-control__indicator"></i>
           <div id="gridDot2" class="grid-control__dot"></div>
         </div>
@@ -417,8 +417,6 @@ function updateGridDotPosition() {
   // Grid 1: Sine (X) / Zap (Y)
   const x1 = ((mod1 / 100 + 1) / 2) * 100;
   const y1 = ((1 - (mod3 / 100 + 1) / 2)) * 100;
-  gridDot1.style.left = `${x1}%`;
-  gridDot1.style.top = `${y1}%`;
   
   // Update indicator 1
   const dx1 = x1 - 50;
@@ -431,8 +429,6 @@ function updateGridDotPosition() {
   // Grid 2: Wave (X) / Block (Y)
   const x2 = ((mod2 / 100 + 1) / 2) * 100;
   const y2 = ((1 - (mod4 / 100 + 1) / 2)) * 100;
-  gridDot2.style.left = `${x2}%`;
-  gridDot2.style.top = `${y2}%`;
   
   // Update indicator 2
   const dx2 = x2 - 50;
@@ -796,3 +792,39 @@ randomizeSettingsButton.addEventListener('click', () => {
 });
 
 renderPalette();
+
+// Add transition class management for all interactive controls
+const interactiveElements = document.querySelectorAll<HTMLElement>('.control__input, .grid-control');
+
+interactiveElements.forEach(element => {
+  // Remove transition class on interaction start
+  element.addEventListener('mousedown', () => {
+    element.classList.remove('transition');
+  });
+  
+  element.addEventListener('touchstart', () => {
+    element.classList.remove('transition');
+  });
+  
+  element.addEventListener('focus', () => {
+    element.classList.remove('transition');
+  });
+  
+  // Add transition class back on interaction end
+  element.addEventListener('mouseup', () => {
+    element.classList.add('transition');
+  });
+  
+  element.addEventListener('touchend', () => {
+    element.classList.add('transition');
+  });
+  
+  element.addEventListener('blur', () => {
+    element.classList.add('transition');
+  });
+  
+  // Also handle when mouse leaves while dragging
+  element.addEventListener('mouseleave', () => {
+    element.classList.add('transition');
+  });
+});

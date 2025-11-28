@@ -445,6 +445,10 @@ body {
   }
 }
 
+.grid-control.transition::before {
+  transition: width 0.4s cubic-bezier(.3, .7, 0, 1), height 0.4s cubic-bezier(.3, .7, 0, 1), clip-path 0.4s cubic-bezier(.3, .7, 0, 1);
+}
+
 .grid-control__dot {
   position: absolute;
   width: var(--dotSize);
@@ -453,8 +457,8 @@ body {
   transform: translate(-50%, -50%);
   pointer-events: none;
   background: var(--bg);
-  top: 100%;
-  left: 0%;
+  left: calc(50% + var(--distance) * cos(var(--angle)));
+  top: calc(50% + var(--distance) * sin(var(--angle)));
   box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
 
   &::after {
@@ -471,6 +475,10 @@ body {
   }
 }
 
+.transition .grid-control__dot {
+  transition: top 0.4s cubic-bezier(.3, .7, 0, 1), left 0.4s cubic-bezier(.3, .7, 0, 1);
+}
+
 .grid-control__indicator {
   position: absolute;
   top: 50%;
@@ -482,6 +490,10 @@ body {
   pointer-events: none;
   font-style: normal;
   border-top: 1px dashed currentColor;
+}
+
+.transition .grid-control__indicator {
+  transition: transform 0.4s cubic-bezier(.3, .7, 0, 1);
 }
 
 .grid-control__indicator::before {
@@ -578,6 +590,10 @@ body {
     pointer-events: none;
   }
 
+}
+
+.range-wrapper:has(.transition) .range-marker {
+  transition: left 0.4s cubic-bezier(.3, .7, 0, 1);
 }
 
 .control--flip {
