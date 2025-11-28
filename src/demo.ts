@@ -290,9 +290,7 @@ const mod2Value = document.querySelector<HTMLSpanElement>('#mod2Value')!;
 const mod3Value = document.querySelector<HTMLSpanElement>('#mod3Value')!;
 const mod4Value = document.querySelector<HTMLSpanElement>('#mod4Value')!;
 const gridControl1 = document.querySelector<HTMLDivElement>('#gridControl1')!;
-const gridDot1 = document.querySelector<HTMLDivElement>('#gridDot1')!;
 const gridControl2 = document.querySelector<HTMLDivElement>('#gridControl2')!;
-const gridDot2 = document.querySelector<HTMLDivElement>('#gridDot2')!;
 
 let mod1 = 0;
 let mod2 = 0;
