@@ -428,6 +428,21 @@ body {
   cursor: crosshair;
   user-select: none;
   background-size: calc(100% + 1px);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: calc(2 * var(--distance));
+    height: calc(2 * var(--distance));
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px currentColor;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    --inset: clamp(0%, calc(var(--distance) - 50%), 29%);
+    clip-path: inset(var(--inset) var(--inset) var(--inset) var(--inset));
+  }
 }
 
 .grid-control__dot {
@@ -441,6 +456,19 @@ body {
   top: 100%;
   left: 0%;
   box-shadow: 0 0 0 1px currentColor, 0 0 0 0.25rem var(--bg);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background: var(--cc01);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 0 1px currentColor;
+  }
 }
 
 .grid-control__indicator {
