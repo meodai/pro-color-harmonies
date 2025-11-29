@@ -443,7 +443,7 @@ function createGridInteractionHandler(
   gridElement: HTMLDivElement,
   updateModifiers: (x: number, y: number) => void,
 ) {
-  const handleInteraction = (e: MouseEvent, snapToCenter: boolean = false) => {
+  const handleInteraction = (e: PointerEvent, snapToCenter: boolean = false) => {
     const rect = gridElement.getBoundingClientRect();
     let x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     let y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
@@ -465,21 +465,21 @@ function createGridInteractionHandler(
     renderPalette();
   };
 
-  gridElement.addEventListener('mousedown', (e) => {
+  gridElement.addEventListener('pointerdown', (e) => {
     e.preventDefault();
     handleInteraction(e, true); // Enable snap on initial click
 
-    const onMouseMove = (moveEvent: MouseEvent) => {
+    const onPointerMove = (moveEvent: PointerEvent) => {
       handleInteraction(moveEvent, false); // Disable snap during drag
     };
 
-    const onMouseUp = () => {
-      document.removeEventListener('pointermove', onMouseMove);
-      document.removeEventListener('pointerup', onMouseUp);
+    const onPointerUp = () => {
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
     };
 
-    document.addEventListener('pointermove', onMouseMove);
-    document.addEventListener('pointerup', onMouseUp);
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
   });
 }
 
