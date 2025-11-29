@@ -443,10 +443,22 @@ function createGridInteractionHandler(
   gridElement: HTMLDivElement,
   updateModifiers: (x: number, y: number) => void,
 ) {
-  const handleInteraction = (e: MouseEvent) => {
+  const handleInteraction = (e: MouseEvent, snapToCenter: boolean = false) => {
     const rect = gridElement.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+    let x = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    let y = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+    // Snap to center if within 5% of center and snapToCenter is true
+    if (snapToCenter) {
+      const dx = x - 0.5;
+      const dy = y - 0.5;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      
+      if (distance <  0.075) {
+        x = 0.5;
+        y = 0.5;
+      }
+    }
 
     updateModifiers(x, y);
     updateGridDotPosition();
@@ -455,10 +467,10 @@ function createGridInteractionHandler(
 
   gridElement.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    handleInteraction(e);
+    handleInteraction(e, true); // Enable snap on initial click
 
     const onMouseMove = (moveEvent: MouseEvent) => {
-      handleInteraction(moveEvent);
+      handleInteraction(moveEvent, false); // Disable snap during drag
     };
 
     const onMouseUp = () => {
