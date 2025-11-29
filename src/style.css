@@ -105,7 +105,6 @@ body {
     }
     &::after {
       background: linear-gradient(180deg, var(--grad-stops));
-
     }
 
     .bg {
@@ -497,17 +496,18 @@ body {
   transition: transform 0.4s cubic-bezier(.3, .7, 0, 1);
 }
 
-.grid-control__indicator::before {
+.grid-control__center {
   content: '';
   position: absolute;
-  left: 0;
-  top: calc(50% - .5px);
+  left: 50%;
+  top: 50%;
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: var(--bg);
   box-shadow: 0 0 0 1px currentColor, 0 0 0 2px var(--bg);
   transform: translate(-50%, -50%);
+  pointer-events: none;
 }
 
 .control__input {

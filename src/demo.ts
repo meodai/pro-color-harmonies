@@ -179,6 +179,7 @@ app.innerHTML = `
         <div id="gridControl1" class="grid-control transition" style="--angle: 0deg; --distance: 0%;">
           <i class="grid-control__indicator"></i>
           <div id="gridDot1" class="grid-control__dot"></div>
+          <i class="grid-control__center"></i>
         </div>
       </div>
 
@@ -194,6 +195,7 @@ app.innerHTML = `
         <div id="gridControl2" class="grid-control transition" style="--angle: 0deg; --distance: 0%;">
           <i class="grid-control__indicator"></i>
           <div id="gridDot2" class="grid-control__dot"></div>
+          <i class="grid-control__center"></i>
         </div>
       </div>
     </section>
