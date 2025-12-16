@@ -714,18 +714,9 @@ body {
   font-weight: 200;
   margin-bottom: 1rem;
   z-index: 2;
-  top: -8.6rem;
+  top: -6rem;
   left: 1.7rem;
-  right: 1.7rem;
   letter-spacing: -0.03em;
-  text-align: center;
-}
-
-@media (orientation: portrait) {
-  .palette-title {
-    font-size: 1.5rem;
-    top: -6.75rem;
-  }
 }
 
 .about {
