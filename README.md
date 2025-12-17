@@ -159,7 +159,7 @@ Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 Generate every palette type at once.
 
 ```ts
-  const all = ColorPaletteGenerator.generateAll({
+const all = ColorPaletteGenerator.generateAll({
   l: 0.7,
   c: 0.13,
   h: 260,
