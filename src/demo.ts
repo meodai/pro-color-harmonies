@@ -1,5 +1,5 @@
 import './style.css';
-import { formatHex, formatCss, parse, oklch, interpolate } from 'culori';
+import { formatHex, formatCss, parse, oklch, lab, interpolate } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
@@ -172,9 +172,9 @@ app.innerHTML = `
             <span class="button-group__icon" data-icon="ꗬ"></span>
           </span>
 
-          <!--button class="button button--export" type="button" data-toggle="export">
+          <button class="button button--export" type="button" data-toggle="export">
             <span class="button__text">Export Palette</span>
-          </button-->
+          </button>
         </div>
       </div>
 
@@ -210,6 +210,8 @@ app.innerHTML = `
         </div>
       </div>
     </section>
+
+    <section class="export-panel" data-export-panel aria-hidden="true"></section>
 
     <section class="demo__palettes">
       <div id="palette" class="palette"></div>
@@ -313,6 +315,51 @@ const paletteContainer = document.querySelector<HTMLDivElement>('#palette')!;
 const pieChartContainer = document.querySelector<HTMLDivElement>('#pieChart')!;
 const randomizeButton = document.querySelector<HTMLButtonElement>('#randomize')!;
 const randomizeSettingsButton = document.querySelector<HTMLButtonElement>('#randomizeSettings')!;
+const exportButton = document.querySelector<HTMLButtonElement>('[data-toggle="export"]')!;
+const exportPanel = document.querySelector<HTMLElement>('[data-export-panel]')!;
+const demoRoot = document.querySelector<HTMLElement>('.demo')!;
+
+let latestExportColors6: string[] = [];
+
+function renderExportPanel() {
+  if (!exportPanel) return;
+  exportPanel.replaceChildren(
+    ...latestExportColors6.map((color, i) => {
+      const row = document.createElement('div');
+      row.className = 'export-panel__row';
+      row.style.setProperty('--cc', color);
+      row.style.setProperty('--i', String(i));
+
+      const swatch = document.createElement('span');
+      swatch.className = 'export-panel__swatch';
+
+      const text = document.createElement('span');
+      text.className = 'export-panel__text';
+
+      const parsed = parse(color);
+      text.textContent = parsed ? formatCss(lab(parsed)) : color;
+
+      row.append(swatch, text);
+      return row;
+    })
+  );
+}
+
+exportButton?.addEventListener('click', () => {
+  const isCurrentlyOpen = demoRoot.classList.contains('demo--export');
+  if (isCurrentlyOpen) {
+    demoRoot.classList.remove('demo--export');
+    exportPanel.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  exportPanel.setAttribute('aria-hidden', 'false');
+  renderExportPanel();
+
+  requestAnimationFrame(() => {
+    demoRoot.classList.add('demo--export');
+  });
+});
 
 // const tintsShadesContainer = document.querySelector<HTMLDivElement>('#tintsShades')!;
 // const tonesContainer = document.querySelector<HTMLDivElement>('#tones')!;
@@ -662,11 +709,17 @@ function renderPalette() {
     });
 
     const palette = extendPalette(finalInterpolatedPalette, count);
+    const exportPalette6 = extendPalette(finalInterpolatedPalette, 6);
     
     // Convert OKLCH to CSS format
     const colors = palette.map(c => {
       const { l, c: chroma, h } = c;
       // Convert to Culori OKLCH format for CSS output
+      return formatCss(oklch({ mode: 'oklch', l, c: chroma, h }));
+    });
+
+    latestExportColors6 = exportPalette6.map(c => {
+      const { l, c: chroma, h } = c;
       return formatCss(oklch({ mode: 'oklch', l, c: chroma, h }));
     });
 

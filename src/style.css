@@ -55,6 +55,7 @@ body {
   position: relative;
   width: min(70rem, 90vw);
   padding-top: 5rem;
+  perspective: 1000px;
   
   &::before {
     content: '';
@@ -136,6 +137,11 @@ body {
   position: relative;
   padding: 1.5rem 2rem 2rem 2rem;
   z-index: 5;
+  opacity: 1;
+  transform-origin: top center;
+  transition:
+    transform 0.35s cubic-bezier(0.3, 0.7, 0, 1),
+    opacity 0.2s linear;
   /*
   box-shadow: 0 0 0 1px var(--bg);
   -webkit-text-stroke: 5px var(--bg);
@@ -148,6 +154,66 @@ body {
   &>div {
     flex: 1;
   }
+}
+
+.export-panel {
+  position: absolute;
+  inset: -1rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.export-panel__row {
+  flex: 1;
+  min-height: 2.5rem;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition:
+    transform 0.3s cubic-bezier(0.3, 0.7, 0, 1),
+    opacity 0.2s linear;
+}
+
+.export-panel__swatch {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: var(--cc);
+  flex: 0 0 auto;
+}
+
+.export-panel__text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.demo--export .demo__controls {
+  transform: translateY(100%) rotateX(-40deg);
+  opacity: 0;
+  transition:
+    transform 0.35s cubic-bezier(0.3, 0.7, 0, 1),
+    opacity 0.1s linear 0.1s;
+  pointer-events: none;
+}
+
+.demo--export .export-panel {
+  pointer-events: auto;
+}
+
+.demo--export .export-panel__row {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: calc(.05s + (var(--i, 0) * 75ms));
 }
 
 @media (orientation: portrait) {
