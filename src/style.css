@@ -180,6 +180,7 @@ body {
   flex: 1;
   background: var(--tone);
   position: relative;
+  color: var(--black);
   opacity: 0;
   transform: translateY(-50%);
   transition:
@@ -187,26 +188,33 @@ body {
     opacity 0.2s linear;
 }
 
+.export-panel__tone--whitetext {
+  color: var(--white);
+}
+
 .export-panel__tone-label {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  top: 0;
-  width: 5rem;
+  left: 2px;
+  bottom: 2px;
+  top: 2px;
+  right: 2px;
   padding: 0.4rem 0.5rem;
   font-size: 0.7rem;
   line-height: 1.1;
-  background: var(--bg);
-  text-wrap: balance;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
   span {
+    font-weight: 200;
     display: block;
     font-size: .8em;
-
   }
   span + span {
-    font-weight: 700;
-    font-size: .8em;
-    margin-top: 0.2rem;
+    font-weight: 400;
+    font-size: 1em;
+    margin-top: 0.1rem;
   }
 }
 
@@ -234,7 +242,15 @@ body {
 }
 
 .export-panel__tone--matched {
-  box-shadow: inset 0 0 0 1px var(--bg);
+  box-shadow: inset 2px 0 0 0 var(--bg);
+}
+
+.export-panel__tone--matched .export-panel__tone-label span + span:after {
+  content: '◆';
+  font-size: 0.7em;
+  margin-left: 0.3rem;
+  position: relative;
+  top: -0.2em;
 }
 
 .export-actions {
@@ -249,18 +265,41 @@ body {
   transition: opacity 0.15s linear, transform 0.2s cubic-bezier(0.3, 0.7, 0, 1);
   
   transform: translateY(-50%);
+
+
+  .button {
+    font-size: .6em;
+  }
 }
 
 .demo--export .export-actions {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(1rem);
+  transform: translateY(1.25rem);
   transition-delay: 1000ms, 1000ms;
 }
 
 @media (orientation: portrait) {
   .demo__controls {
     flex-direction: column;
+  }
+
+  .export-panel {
+    flex-direction: column;
+  }
+
+  .export-panel__tone-label {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.35rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-direction: row;
+    align-items: center;
+    span + span {
+      margin-top: 0;
+      margin-left: 0.4rem;
+    }
   }
 }
 

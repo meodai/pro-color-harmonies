@@ -1,5 +1,5 @@
 import './style.css';
-import { formatHex, formatCss, parse, oklch, lab, interpolate } from 'culori';
+import { formatHex, formatCss, parse, oklch, lab, interpolate, wcagContrast } from 'culori';
 import {
   ColorPaletteGenerator,
   type PaletteType,
@@ -416,6 +416,14 @@ async function renderExportPanel() {
         const toneCss = formatCss(tone as any) ?? '';
         const toneHex = formatHex(tone as any) ?? '';
         toneEl.style.setProperty('--tone', toneCss);
+
+        const bgColor = toneCss || toneHex;
+        const contrastWhite = wcagContrast(bgColor, 'white');
+        const contrastBlack = wcagContrast(bgColor, 'black');
+        if (contrastWhite > contrastBlack) {
+          toneEl.classList.add('export-panel__tone--whitetext');
+        }
+
         toneEl.setAttribute('data-shade', shade);
         toneEl.setAttribute('data-name', `${closestRampName}-${shade}`);
         toneEl.setAttribute('data-value', toneHex || toneCss);
