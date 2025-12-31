@@ -35,7 +35,6 @@ app.innerHTML = `
             </span>
             <input id="baseColor" class="control__input control__input--color transition" type="color" value="#4c6fff" />
           </label>
-          <button id="randomize" class="button" type="button">Random</button>
         </div>
 
         <label class="control control--small" style="--graduations: 8">
@@ -163,8 +162,20 @@ app.innerHTML = `
           </span>
         </div>
 
+        <div class="button-group">
+          <span class="buttons-wrap">
+            <span class="button-group__label">Random</span>
+            <span class="button-group__surprise">
+              <button id="randomizeSettings" class="button" type="button"><span class="button__text">Settings</span></button>
+              <button id="randomize" class="button" type="button"><span class="button__text">Color</span></button>
+            </span>
+            <span class="button-group__icon" data-icon="ꗬ"></span>
+          </span>
 
-        <button id="randomizeSettings" class="button button--last" type="button">Random settings</button>
+          <!--button class="button button--export" type="button" data-toggle="export">
+            <span class="button__text">Export Palette</span>
+          </button-->
+        </div>
       </div>
 
       <div class="control control--grid">
