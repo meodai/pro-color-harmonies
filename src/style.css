@@ -230,7 +230,7 @@ body {
 .demo--export .export-panel__tone {
   opacity: 1;
   transform: translateY(0);
-  transition-delay: calc(0.2s + (var(--i, 0) * 75ms) + 50ms + (var(--j, 0) * 20ms));
+  transition-delay: calc(0.15s + (var(--i, 0) * 35ms) + 30ms + (var(--j, 0) * 15ms));
 }
 
 .export-panel__tone--matched {
