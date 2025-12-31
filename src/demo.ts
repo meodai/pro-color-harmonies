@@ -436,7 +436,7 @@ async function renderExportPanel() {
         label.innerHTML  = `<span>${closestRampName}-${shade}</span> <span>${toneHex || toneCss}</span>`;
         toneEl.appendChild(label);
 
-        cssVarLines.push(`  --color-palette-${i + 1}-${closestRampName}-${shade}: ${toneCss};`);
+        cssVarLines.push(`  --color-${closestRampName}-${shade}: ${toneCss};`);
         row.appendChild(toneEl);
       }
 
