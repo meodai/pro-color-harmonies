@@ -171,30 +171,43 @@ body {
   flex: 1;
   min-height: 2.5rem;
   display: flex;
+  flex-direction: column;
+  opacity: 1;
+  transform: none;
+}
+
+.export-panel__tone {
+  flex: 1;
+  background: var(--tone);
   position: relative;
-  overflow: hidden;
   opacity: 0;
   transform: translateY(-50%);
   transition:
-    transform 0.3s cubic-bezier(0.3, 0.7, 0, 1),
+    transform 0.2s cubic-bezier(0.3, 0.7, 0, 1),
     opacity 0.2s linear;
 }
 
-.export-panel__swatch {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: var(--cc);
-  flex: 0 0 auto;
-}
-
-.export-panel__text {
+.export-panel__tone-label {
   position: absolute;
   left: 0;
-  right: 0;
   bottom: 0;
-  padding: 0.5rem;
-  font-size: 0.85rem;
+  top: 0;
+  width: 5rem;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.7rem;
+  line-height: 1.1;
+  background: var(--bg);
+  text-wrap: balance;
+  span {
+    display: block;
+    font-size: .8em;
+
+  }
+  span + span {
+    font-weight: 700;
+    font-size: .8em;
+    margin-top: 0.2rem;
+  }
 }
 
 .demo--export .demo__controls {
@@ -212,8 +225,37 @@ body {
 
 .demo--export .export-panel__row {
   opacity: 1;
+}
+
+.demo--export .export-panel__tone {
+  opacity: 1;
   transform: translateY(0);
-  transition-delay: calc(.05s + (var(--i, 0) * 75ms));
+  transition-delay: calc(0.2s + (var(--i, 0) * 75ms) + 50ms + (var(--j, 0) * 20ms));
+}
+
+.export-panel__tone--matched {
+  box-shadow: inset 0 0 0 1px var(--bg);
+}
+
+.export-actions {
+  position: absolute;
+  top: -6rem;
+  right: 1.7rem;
+  z-index: 2;
+  display: flex;
+  gap: .5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s linear, transform 0.2s cubic-bezier(0.3, 0.7, 0, 1);
+  
+  transform: translateY(-50%);
+}
+
+.demo--export .export-actions {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(1rem);
+  transition-delay: 1000ms, 1000ms;
 }
 
 @media (orientation: portrait) {

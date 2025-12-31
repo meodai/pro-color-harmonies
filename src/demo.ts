@@ -21,6 +21,10 @@ app.innerHTML = `
   </div>
   <div class="demo">
     <h1 class="palette-title" id="paletteTitle"></h1>
+    <div class="export-actions" data-export-actions aria-hidden="true">
+      <button class="button" type="button" data-export-copy><span class="button__text">Copy</span></button>
+      <button class="button" type="button" data-export-close><span class="button__text">Close</span></button>
+    </div>
     <section class="demo__controls">
       <div class="control control--combined">
         <!--header class="demo__header">
@@ -318,47 +322,153 @@ const randomizeSettingsButton = document.querySelector<HTMLButtonElement>('#rand
 const exportButton = document.querySelector<HTMLButtonElement>('[data-toggle="export"]')!;
 const exportPanel = document.querySelector<HTMLElement>('[data-export-panel]')!;
 const demoRoot = document.querySelector<HTMLElement>('.demo')!;
+const exportActions = document.querySelector<HTMLElement>('[data-export-actions]')!;
+const exportCopyButton = document.querySelector<HTMLButtonElement>('[data-export-copy]')!;
+const exportCloseButton = document.querySelector<HTMLButtonElement>('[data-export-close]')!;
 
 let latestExportColors6: string[] = [];
+let latestExportCssVars = '';
 
-function renderExportPanel() {
+async function copyTextToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return;
+  } catch {
+    // Fallback
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', 'true');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    textarea.remove();
+  }
+}
+
+function closeExport() {
+  demoRoot.classList.remove('demo--export');
+  exportPanel.setAttribute('aria-hidden', 'true');
+  exportActions.setAttribute('aria-hidden', 'true');
+}
+
+let dittoTonesPromise: Promise<{ DittoTones: any; tailwindRamps: any }> | null = null;
+
+async function loadDittoTones() {
+  if (dittoTonesPromise) return dittoTonesPromise;
+
+  dittoTonesPromise = (async () => {
+    const dittotonesUrl = 'https://cdn.jsdelivr.net/npm/dittotones@0.9.0/+esm';
+    const tailwindRampsUrl = 'https://cdn.jsdelivr.net/npm/dittotones@0.9.0/ramps/tailwind/+esm';
+
+    const [dtModule, rampsModule] = await Promise.all([
+      import(/* @vite-ignore */ dittotonesUrl) as Promise<any>,
+      import(/* @vite-ignore */ tailwindRampsUrl) as Promise<any>,
+    ]);
+
+    const DittoTones = dtModule?.DittoTones ?? dtModule?.default;
+    const tailwindRamps = rampsModule?.tailwindRamps ?? rampsModule?.default;
+
+    return {
+      DittoTones,
+      tailwindRamps,
+    };
+  })();
+
+  return dittoTonesPromise;
+}
+
+async function renderExportPanel() {
   if (!exportPanel) return;
+
+  const { DittoTones, tailwindRamps } = await loadDittoTones();
+  const ditto = new DittoTones({ ramps: tailwindRamps });
+
+  const cssVarLines: string[] = [];
+  cssVarLines.push(':root {');
+
   exportPanel.replaceChildren(
     ...latestExportColors6.map((color, i) => {
       const row = document.createElement('div');
       row.className = 'export-panel__row';
-      row.style.setProperty('--cc', color);
       row.style.setProperty('--i', String(i));
 
-      const swatch = document.createElement('span');
-      swatch.className = 'export-panel__swatch';
-
-      const text = document.createElement('span');
-      text.className = 'export-panel__text';
-
+      // Use LAB as input (as requested)
       const parsed = parse(color);
-      text.textContent = parsed ? formatCss(lab(parsed)) : color;
+      const labCss = parsed ? formatCss(lab(parsed)) : color;
 
-      row.append(swatch, text);
+      const result = ditto.generate(labCss);
+      const closestRampName = String(
+        (result.sources?.slice()?.sort((a: any, b: any) => (a.diff ?? 0) - (b.diff ?? 0))?.[0]?.name ?? 'tailwind')
+      );
+      const matchedShade = String(result.matchedShade ?? '');
+
+      cssVarLines.push(`  /* slice ${i + 1} (${closestRampName}) */`);
+      const entries = Object.entries(result.scale as Record<string, any>)
+        .map(([shade, tone]) => ({ shade, tone }))
+        .sort((a, b) => Number(a.shade) - Number(b.shade));
+
+      for (const [toneIndex, { shade, tone }] of entries.entries()) {
+        const toneEl = document.createElement('div');
+        toneEl.className = 'export-panel__tone';
+        toneEl.style.setProperty('--j', String(toneIndex));
+        const toneCss = formatCss(tone as any) ?? '';
+        const toneHex = formatHex(tone as any) ?? '';
+        toneEl.style.setProperty('--tone', toneCss);
+        toneEl.setAttribute('data-shade', shade);
+        toneEl.setAttribute('data-name', `${closestRampName}-${shade}`);
+        toneEl.setAttribute('data-value', toneHex || toneCss);
+        if (shade === matchedShade) {
+          toneEl.classList.add('export-panel__tone--matched');
+        }
+
+        const label = document.createElement('div');
+        label.className = 'export-panel__tone-label';
+        label.innerHTML  = `<span>${closestRampName}-${shade}</span> <span>${toneHex || toneCss}</span>`;
+        toneEl.appendChild(label);
+
+        cssVarLines.push(`  --color-palette-${i + 1}-${closestRampName}-${shade}: ${toneCss};`);
+        row.appendChild(toneEl);
+      }
+
       return row;
     })
   );
+
+  cssVarLines.push('}');
+  latestExportCssVars = cssVarLines.join('\n');
 }
 
-exportButton?.addEventListener('click', () => {
+exportCopyButton?.addEventListener('click', async () => {
+  if (!latestExportCssVars) {
+    await renderExportPanel();
+  }
+  await copyTextToClipboard(latestExportCssVars);
+});
+
+exportCloseButton?.addEventListener('click', () => {
+  closeExport();
+});
+
+exportButton?.addEventListener('click', async () => {
   const isCurrentlyOpen = demoRoot.classList.contains('demo--export');
   if (isCurrentlyOpen) {
-    demoRoot.classList.remove('demo--export');
-    exportPanel.setAttribute('aria-hidden', 'true');
+    closeExport();
     return;
   }
 
   exportPanel.setAttribute('aria-hidden', 'false');
-  renderExportPanel();
+  exportActions.setAttribute('aria-hidden', 'false');
+  await renderExportPanel();
 
-  requestAnimationFrame(() => {
+  // Ensure the "before" state is painted before we toggle the class.
+  await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+  // Force style/layout flush so transitions start reliably.
+  void exportPanel.offsetHeight;
+  window.setTimeout(() => {
     demoRoot.classList.add('demo--export');
-  });
+  }, 50);
 });
 
 // const tintsShadesContainer = document.querySelector<HTMLDivElement>('#tintsShades')!;
