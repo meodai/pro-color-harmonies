@@ -22,7 +22,7 @@ app.innerHTML = `
   <div class="demo">
     <h1 class="palette-title" id="paletteTitle"></h1>
     <div class="export-actions" data-export-actions aria-hidden="true">
-      <button class="button" type="button" data-export-copy><span class="button__text">Copy</span></button>
+      <button class="button" type="button" data-export-copy><span class="button__text">Copy Tailwind CSS</span></button>
       <button class="button" type="button" data-export-close><span class="button__text">Close</span></button>
     </div>
     <section class="demo__controls">
