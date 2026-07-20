@@ -1,4 +1,5 @@
 import { normalizeHue, clampOKLCH } from './color';
+import { OKLCH_LIMITS } from './constants';
 import { lerp } from './interpolation';
 import { resolvePaletteStyle } from './palette';
 import type { OKLCH, PaletteStyle } from '../index';
@@ -7,7 +8,9 @@ import type { OKLCH, PaletteStyle } from '../index';
  * Generates a 6-step lightness scale (tints and shades) for a single color.
  * Applies different perceptual strategies based on the selected style.
  * The scale follows a fixed lightness progression from near black to near
- * white; the base color's own lightness is not necessarily part of it.
+ * white; the base color is snapped into its nearest slot (clamped between
+ * the neighboring slots to keep the scale monotonic), so the input color
+ * itself is part of the ramp.
  *
  * @param base - The base OKLCH color
  * @param style - The palette style (square, triangle, circle, diamond)
@@ -31,7 +34,23 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
     0.98  // White
   ];
 
+  // The slot whose lightness is closest to the base color carries the base
+  // color itself, so the input is always part of the scale
+  const baseSlotIndex = lightnessProgression.reduce(
+    (best, l, i) => (Math.abs(l - lightness) < Math.abs(lightnessProgression[best] - lightness) ? i : best),
+    0
+  );
+
   for (let i = 0; i < steps; i++) {
+    if (i === baseSlotIndex) {
+      // Clamp between the neighboring slots so the ramp stays monotonic
+      const lower = lightnessProgression[i - 1] ?? OKLCH_LIMITS.l.min;
+      const upper = lightnessProgression[i + 1] ?? OKLCH_LIMITS.l.max;
+      const snappedL = Math.min(Math.max(lightness, lower), upper);
+      results.push(clampOKLCH(snappedL, chroma, hue));
+      continue;
+    }
+
     const targetL = lightnessProgression[i];
     let newColor: OKLCH = { l: targetL, c: chroma, h: hue };
 

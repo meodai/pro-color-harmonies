@@ -68,6 +68,23 @@ describe('generateTintsAndShades', () => {
     expect(darkest.c).toBeLessThan(baseColor.c);
   });
 
+  it('should include the base color in its nearest slot', () => {
+    for (const l of [0.1, 0.3, 0.5, 0.7, 0.9]) {
+      const base: OKLCH = { l, c: 0.2, h: 180 };
+      const result = generateTintsAndShades(base, 'square');
+      expect(result).toContainEqual(base);
+    }
+  });
+
+  it('should stay monotonic with the base color snapped in', () => {
+    for (const l of [0.05, 0.31, 0.5, 0.73, 0.99]) {
+      const result = generateTintsAndShades({ l, c: 0.2, h: 180 }, 'square');
+      for (let i = 0; i < result.length - 1; i++) {
+        expect(result[i].l).toBeLessThanOrEqual(result[i + 1].l);
+      }
+    }
+  });
+
   it('should clamp values to valid ranges', () => {
     const result = generateTintsAndShades(baseColor, 'square');
     result.forEach(color => {
