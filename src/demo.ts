@@ -36,8 +36,8 @@ app.innerHTML = `
         <div class="control control--base-color">
           <div class="control">
             <span class="control__label">
-              <span class="control__label-text">Base Color</span>
-              <input class="control__label-value" id="baseColorValue" value="#4c6fff" spellcheck="false" autocomplete="off" aria-label="Base color value" />
+              <label class="control__label-text" for="baseColorValue">Base Color</label>
+              <input class="control__label-value" id="baseColorValue" value="#4c6fff" spellcheck="false" autocomplete="off" />
             </span>
             <color-input id="baseColor" class="control__input control__input--color transition" value="#4c6fff"></color-input>
           </div>

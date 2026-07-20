@@ -361,6 +361,13 @@ body {
 
 /* The base color readout is an <input>, styled to be indistinguishable
    from the plain-span value labels */
+label.control__label-text {
+  /* The label row disables pointer events; restore them so clicking the
+     label focuses its field */
+  pointer-events: auto;
+  cursor: text;
+}
+
 input.control__label-value {
   /* The label row disables pointer events; the field needs them back */
   pointer-events: auto;
