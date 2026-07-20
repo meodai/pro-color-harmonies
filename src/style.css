@@ -362,6 +362,8 @@ body {
 /* The base color readout is an <input>, styled to be indistinguishable
    from the plain-span value labels */
 input.control__label-value {
+  /* The label row disables pointer events; the field needs them back */
+  pointer-events: auto;
   appearance: none;
   border: 0;
   padding: 0;
