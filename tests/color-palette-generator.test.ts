@@ -61,6 +61,14 @@ describe('ColorPaletteGenerator', () => {
       });
     });
 
+    it("should treat style 'default' as an alias for 'square'", () => {
+      paletteTypes.forEach(type => {
+        const asDefault = ColorPaletteGenerator.generate(baseColor, type, { style: 'default' });
+        const asSquare = ColorPaletteGenerator.generate(baseColor, type, { style: 'square' });
+        expect(asDefault).toEqual(asSquare);
+      });
+    });
+
     it('should throw error for unknown palette type', () => {
       const options: GeneratorOptions = { style: 'square' };
       expect(() => 

@@ -1,5 +1,13 @@
 import { enhancePalette, polishPalette } from './enhancer';
-import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH } from '../index';
+import type { PaletteColor, PaletteType, GeneratorOptions, OKLCH, PaletteStyle } from '../index';
+
+/**
+ * Resolves the effective palette style. 'default' is an alias for 'square',
+ * so both produce identical palettes (no enhancement pass).
+ */
+export function resolvePaletteStyle(style: PaletteStyle): Exclude<PaletteStyle, 'default'> {
+  return style === 'default' ? 'square' : style;
+}
 
 /**
  * Creates a palette generator function with common boilerplate.
@@ -15,15 +23,16 @@ export function createPaletteGenerator(
 ) {
   return (baseColor: OKLCH, options: GeneratorOptions): PaletteColor[] => {
     try {
-      const enhanced = options.style !== 'square';
+      const style = resolvePaletteStyle(options.style);
+      const enhanced = style !== 'square';
       const colors = generatorFn(
         { l: baseColor.l, c: baseColor.c, h: baseColor.h || 0 },
-        options,
+        { ...options, style },
         enhanced
       );
-      
+
       if (enhanced) {
-        const enhancedColors = enhancePalette(colors, paletteType, options.style);
+        const enhancedColors = enhancePalette(colors, paletteType, style);
         return polishPalette(enhancedColors);
       }
       

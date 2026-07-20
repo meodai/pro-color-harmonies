@@ -1,5 +1,6 @@
 import { normalizeHue, clampOKLCH } from './color';
 import { lerp } from './interpolation';
+import { resolvePaletteStyle } from './palette';
 import type { OKLCH, PaletteStyle } from '../index';
 
 /**
@@ -11,6 +12,7 @@ import type { OKLCH, PaletteStyle } from '../index';
  * @returns Array of 12 OKLCH colors ranging from dark to light
  */
 export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[] => {
+  const resolvedStyle = resolvePaletteStyle(style);
   const { h: hue, c: chroma, l: lightness } = base;
   
   // Generate 6 lightness steps from near black to near white
@@ -37,7 +39,7 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
     const targetL = lightnessProgression[i];
     let newColor: OKLCH = { l: targetL, c: chroma, h: hue };
 
-    switch (style) {
+    switch (resolvedStyle) {
       case 'square':
         // Pure numerical consistency
         // No extra adjustments

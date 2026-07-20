@@ -50,6 +50,7 @@ export interface OKLCH {
 
 /**
  * The geometric style used to calculate hue relationships.
+ * - 'default': Alias for 'square'
  * - 'square': Standard geometric angles (90°, 180°, etc.)
  * - 'triangle': Adjusted for perceptual balance
  * - 'circle': Smooth, continuous variation
