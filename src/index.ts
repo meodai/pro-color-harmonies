@@ -6,6 +6,7 @@
 
 // Utils
 export * from './utils/color';
+export * from './utils/constants';
 export * from './utils/modifiers';
 export * from './utils/palette';
 export * from './utils/variations';
