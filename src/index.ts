@@ -72,7 +72,8 @@ export type PaletteColor = OKLCH;
 
 /**
  * Configuration for post-generation palette modifiers.
- * Values should be between 0 and 1.
+ * Values range from -1 to 1; 0 disables an effect and negative values
+ * invert the direction of the modulation.
  */
 export interface PaletteModifiers {
   sine?: number;
@@ -88,7 +89,7 @@ export interface GeneratorOptions {
   /** The geometric style to use for hue calculation */
   style: PaletteStyle;
   /** Optional modifiers to apply to the generated palette */
-  modifiers?: PaletteModifiers; // Optional palette modulation knobs (0-1)
+  modifiers?: PaletteModifiers; // Optional palette modulation knobs (-1 to 1)
   /** Whether to interpolate variations for smooth transitions */
   interpolation?: boolean;
   /**

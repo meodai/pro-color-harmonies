@@ -339,19 +339,8 @@ export function polishPalette(colors: OKLCH[], baseColorIndex: number = 0): OKLC
     }
 
     // 2. Make very light colors more interesting
-    if (polished.l > 0.85) {
-      // Add subtle tint based on the hue
-      if (polished.c < 0.04) {
-        polished.c = 0.04; // Minimum tint
-      }
-      
-      // Slight warm shift for most hues (except already warm ones)
-      if (polished.h < 30 || polished.h > 330) {
-        // Already warm
-      } else {
-        // Nudge towards warmth for better UI feel
-        // This is a subtle "sunlight" effect
-      }
+    if (polished.l > 0.85 && polished.c < 0.04) {
+      polished.c = 0.04; // Minimum tint
     }
 
     return clampOKLCH(polished.l, polished.c, polished.h);

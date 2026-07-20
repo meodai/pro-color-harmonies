@@ -4,23 +4,24 @@ import { resolvePaletteStyle } from './palette';
 import type { OKLCH, PaletteStyle } from '../index';
 
 /**
- * Generates a 12-step lightness scale (tints and shades) for a single color.
+ * Generates a 6-step lightness scale (tints and shades) for a single color.
  * Applies different perceptual strategies based on the selected style.
- * 
+ * The scale follows a fixed lightness progression from near black to near
+ * white; the base color's own lightness is not necessarily part of it.
+ *
  * @param base - The base OKLCH color
  * @param style - The palette style (square, triangle, circle, diamond)
- * @returns Array of 12 OKLCH colors ranging from dark to light
+ * @returns Array of 6 OKLCH colors ranging from dark to light
  */
 export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[] => {
   const resolvedStyle = resolvePaletteStyle(style);
   const { h: hue, c: chroma, l: lightness } = base;
   
   // Generate 6 lightness steps from near black to near white
-  // We ensure the base lightness is included or approximated in the scale
   const steps = 6;
   const results: OKLCH[] = [];
-  
-  // Base progression (0.02 to 0.98) - Reduced to 6 steps
+
+  // Base progression (0.02 to 0.98)
   const lightnessProgression = [
     0.02, // Abyss
     0.25, // Shadow
@@ -30,11 +31,6 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
     0.98  // White
   ];
 
-  // Find the closest step to the base lightness to potentially replace it
-  // or adjust the curve to pass through it. For simplicity in this implementation,
-  // we'll generate the scale and then ensure the base color is represented if needed,
-  // but strictly following the progression often yields better scales.
-  
   for (let i = 0; i < steps; i++) {
     const targetL = lightnessProgression[i];
     let newColor: OKLCH = { l: targetL, c: chroma, h: hue };

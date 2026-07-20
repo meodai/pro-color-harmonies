@@ -9,7 +9,7 @@ import { clampOKLCH, normalizeHue } from './color';
  * Applies a sine wave modulation to the palette.
  * Good for gentle, flowing variations.
  * @param palette - The source palette
- * @param modifier - Intensity of the effect (0-1)
+ * @param modifier - Intensity of the effect (-1 to 1)
  * @returns The modified palette
  */
 export function sineModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
@@ -35,7 +35,7 @@ export function sineModifier(palette: PaletteColor[], modifier: number): Palette
  * Applies a chaotic wave modulation using a logistic map.
  * Produces irregular yet controlled changes.
  * @param palette - The source palette
- * @param modifier - Intensity/Chaos level (0-1)
+ * @param modifier - Intensity/Chaos level (-1 to 1)
  * @returns The modified palette
  */
 export function waveModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
@@ -66,7 +66,7 @@ export function waveModifier(palette: PaletteColor[], modifier: number): Palette
  * Applies a spiral-like modulation.
  * Feels more directional and energetic.
  * @param palette - The source palette
- * @param modifier - Intensity/Tightness of the spiral (0-1)
+ * @param modifier - Intensity/Tightness of the spiral (-1 to 1)
  * @returns The modified palette
  */
 export function zapModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {
@@ -95,7 +95,7 @@ export function zapModifier(palette: PaletteColor[], modifier: number): PaletteC
  * Applies a triangular wave pattern.
  * Emphasizes stepped blocks of contrast.
  * @param palette - The source palette
- * @param modifier - Intensity of the effect (0-1)
+ * @param modifier - Intensity of the effect (-1 to 1)
  * @returns The modified palette
  */
 export function blockModifier(palette: PaletteColor[], modifier: number): PaletteColor[] {

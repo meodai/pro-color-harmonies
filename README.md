@@ -126,7 +126,7 @@ export interface PaletteModifiers {
 
 export interface GeneratorOptions {
   style: PaletteStyle;
-  modifiers?: PaletteModifiers;           // 4 modulation knobs, each 0–1
+  modifiers?: PaletteModifiers;           // 4 modulation knobs, each −1–1
   interpolation?: boolean;                // Smooth transitions (default: true)
   clampToGamut?: boolean | 'rgb' | 'p3';  // Gamut-map results (default: off)
 }
@@ -151,7 +151,7 @@ Generate a single palette.
   - **Note**: Generators always construct **6 base colors** internally. To create palettes with different counts, you can:
     - For fewer colors (< 6): sample evenly from the base palette.
     - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
-  - `modifiers` (optional): `{ sine, wave, zap, block }` (each `0–1`); see **Modifiers** below.
+  - `modifiers` (optional): `{ sine, wave, zap, block }` (each `−1–1`, 0 = off); see **Modifiers** below.
   - `clampToGamut` (optional, default: off): clamp every generated color into a displayable gamut by reducing chroma while preserving lightness and hue. `true` targets sRGB (`'rgb'`); pass `'p3'` for Display P3. Raw OKLCH output can exceed the target gamut (especially very light or very dark colors) — that is fine when rendering with CSS `oklch()`, which gamut-maps automatically, but converting to hex/rgb in JS clips channels and shifts hues. Enable this option (or use the exported `clampPaletteToGamut` helper) before hex conversion.
 
 Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
@@ -236,7 +236,7 @@ const tri = generators.triadic({
 These are post-processors that sculpt an existing palette. They work on `OKLCH[]` and are controlled via the `modifiers` object in `GeneratorOptions`:
 
 ```ts
-modifiers: { sine: 0.5, wave: 0.2 }; // each 0–1
+modifiers: { sine: 0.5, wave: 0.2 }; // each −1–1
 ```
 
 Behind the scenes:
