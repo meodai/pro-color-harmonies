@@ -681,6 +681,34 @@ body {
   cursor: pointer;
 }
 
+/* <color-input> web component (hdr-color-input), styled to match the old
+   native color input: the chip becomes a full-width swatch bar and the
+   inline text field is hidden — text entry lives in the picker popover */
+color-input.control__input--color {
+  display: block;
+  padding: 0;
+}
+
+color-input.control__input--color::part(input) {
+  display: none;
+}
+
+color-input.control__input--color::part(trigger) {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+}
+
+color-input.control__input--color::part(chip) {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
 .range-wrapper {
   position: relative;
   width: 100%;

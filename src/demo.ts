@@ -1,4 +1,6 @@
 import './style.css';
+import 'hdr-color-input';
+import type { ColorInput } from 'hdr-color-input';
 import { formatHex, formatCss, parse, oklch, lab, interpolate, wcagContrast } from 'culori';
 import {
   ColorPaletteGenerator,
@@ -37,7 +39,7 @@ app.innerHTML = `
               <span class="control__label-text">Base Color</span>
               <span class="control__label-value" id="baseColorValue">#4c6fff</span>
             </span>
-            <input id="baseColor" class="control__input control__input--color transition" type="color" value="#4c6fff" />
+            <color-input id="baseColor" class="control__input control__input--color transition" value="#4c6fff"></color-input>
           </label>
         </div>
 
@@ -258,7 +260,7 @@ app.innerHTML = `
   </div>
 `;
 
-const baseInput = document.querySelector<HTMLInputElement>('#baseColor')!;
+const baseInput = document.querySelector<ColorInput>('#baseColor')!;
 const baseColorValue = document.querySelector<HTMLSpanElement>('#baseColorValue')!;
 const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteType"]')!;
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
@@ -725,7 +727,9 @@ function updateStyleProgress() {
 
 function updateBaseColorValue() {
   if (baseColorValue) {
-    baseColorValue.textContent = baseInput.value.toUpperCase();
+    const value = baseInput.value;
+    // Hex reads better uppercased; functional syntax (oklch(), color()) does not
+    baseColorValue.textContent = value.startsWith('#') ? value.toUpperCase() : value;
   }
 }
 
@@ -943,9 +947,9 @@ const palette = ColorPaletteGenerator.generate(
   }
 }
 
+// <color-input> dispatches a bubbling 'change' CustomEvent whenever the
+// color changes (typing, sliders, area picker, eyedropper)
 baseInput.addEventListener('change', renderPalette);
-baseInput.addEventListener('blur', renderPalette);
-baseInput.addEventListener('input', renderPalette);
 harmonyInterpolator.addEventListener('input', renderPalette);
 styleInterpolator.addEventListener('input', renderPalette);
 
