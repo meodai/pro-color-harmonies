@@ -51,13 +51,13 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
       // Push harder toward beautiful alternatives
       if (chroma < 0.15) {
         // Very muted: make it a sophisticated neutral
-        return { h: hue, l: lightness, c: chroma * 0.5 };
+        return clampOKLCH(lightness, chroma * 0.5, hue);
       } else {
         // Push to nearest beautiful hue
         const pushDirection = hue > (zone.range[0] + zone.range[1]) / 2 ? 1 : -1;
         const newHue = (hue + pushDirection * 10 + 360) % 360;
         // Boost chroma to escape the mud
-        return { h: newHue, l: lightness, c: chroma * 1.1 };
+        return clampOKLCH(lightness, chroma * 1.1, newHue);
       }
     }
   }
@@ -66,7 +66,24 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
 }
 
 /**
+ * Builds a color from the given components, avoiding muddy zones when
+ * enhanced mode is on. Unlike {@link safeHue}, the full adjusted color is
+ * returned so the muddy-zone chroma corrections take effect as well.
+ * @param hue - The target hue
+ * @param lightness - The lightness value
+ * @param chroma - The chroma value
+ * @param enhanced - Whether to apply enhancement/correction logic
+ * @returns The resulting OKLCH color
+ */
+export function safeColor(hue: number, lightness: number, chroma: number, enhanced: boolean): OKLCH {
+  if (!enhanced) return { l: lightness, c: chroma, h: hue };
+  return avoidMuddyZones(hue, lightness, chroma);
+}
+
+/**
  * Safely get a hue, avoiding muddy zones if enhanced mode is on
+ * @deprecated Use {@link safeColor} instead — this discards the muddy-zone
+ * chroma adjustments and only returns the hue.
  * @param hue - The target hue
  * @param lightness - The lightness context
  * @param chroma - The chroma context
@@ -74,6 +91,5 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
  * @returns The safe hue value
  */
 export function safeHue(hue: number, lightness: number, chroma: number, enhanced: boolean): number {
-  if (!enhanced) return hue;
-  return avoidMuddyZones(hue, lightness, chroma).h;
+  return safeColor(hue, lightness, chroma, enhanced).h;
 }

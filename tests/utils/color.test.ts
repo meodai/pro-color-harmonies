@@ -3,6 +3,8 @@ import {
   clampOKLCH,
   normalizeHue,
   avoidMuddyZones,
+  safeColor,
+  safeHue,
 } from '../../src/utils/color';
 import { OKLCH_LIMITS } from '../../src/utils/constants';
 
@@ -90,6 +92,32 @@ describe('color utilities', () => {
     it('should preserve lightness', () => {
       const result = avoidMuddyZones(75, 0.6, 0.1);
       expect(result.l).toBe(0.6);
+    });
+  });
+
+  describe('safeColor', () => {
+    it('should pass values through untouched when not enhanced', () => {
+      const result = safeColor(40, 0.5, 0.2, false);
+      expect(result).toEqual({ l: 0.5, c: 0.2, h: 40 });
+    });
+
+    it('should apply the muddy-zone desaturation when enhanced', () => {
+      // 40 is in brown-olive (25-65), chroma 0.1 < 0.15 -> sophisticated neutral
+      const result = safeColor(40, 0.5, 0.1, true);
+      expect(result.h).toBe(40);
+      expect(result.c).toBeCloseTo(0.05);
+    });
+
+    it('should apply the muddy-zone chroma boost when enhanced', () => {
+      // 40 is in brown-olive (25-65), chroma 0.2 > 0.15 -> push hue, boost chroma
+      const result = safeColor(40, 0.5, 0.2, true);
+      expect(result.h).not.toBe(40);
+      expect(result.c).toBeCloseTo(0.22);
+    });
+
+    it('should keep safeHue consistent with safeColor', () => {
+      expect(safeHue(40, 0.5, 0.2, true)).toBe(safeColor(40, 0.5, 0.2, true).h);
+      expect(safeHue(40, 0.5, 0.2, false)).toBe(40);
     });
   });
 });
