@@ -53,9 +53,12 @@ export function avoidMuddyZones(hue: number, lightness: number, chroma: number):
         // Very muted: make it a sophisticated neutral
         return clampOKLCH(lightness, chroma * 0.5, hue);
       } else {
-        // Push to nearest beautiful hue
+        // Push past the nearest zone edge so the hue actually leaves the zone
+        const escapeMargin = 10;
         const pushDirection = hue > (zone.range[0] + zone.range[1]) / 2 ? 1 : -1;
-        const newHue = (hue + pushDirection * 10 + 360) % 360;
+        const newHue = normalizeHue(
+          pushDirection === 1 ? zone.range[1] + escapeMargin : zone.range[0] - escapeMargin
+        );
         // Boost chroma to escape the mud
         return clampOKLCH(lightness, chroma * 1.1, newHue);
       }

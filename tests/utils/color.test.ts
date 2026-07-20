@@ -93,6 +93,16 @@ describe('color utilities', () => {
       const result = avoidMuddyZones(75, 0.6, 0.1);
       expect(result.l).toBe(0.6);
     });
+
+    it('should push the hue fully outside the muddy zone', () => {
+      // brown-olive spans 25-65; a fixed 10-degree nudge from deep inside
+      // the zone would previously land at 30, still inside it
+      const fromLowerHalf = avoidMuddyZones(40, 0.5, 0.2);
+      expect(fromLowerHalf.h).toBeLessThan(25);
+
+      const fromUpperHalf = avoidMuddyZones(60, 0.5, 0.2);
+      expect(fromUpperHalf.h).toBeGreaterThan(65);
+    });
   });
 
   describe('safeColor', () => {
