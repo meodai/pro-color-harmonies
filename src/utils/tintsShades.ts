@@ -41,12 +41,9 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
         // No extra adjustments
         break;
 
-      case 'triangle':
-        // Perceptual compensation for Bezold-Brücke effect
-        // Hues appear to shift as lightness changes
+      case 'triangle': {
         const lDelta = targetL - lightness;
-        const hueShift = getBezoldBruckeCompensation(hue, lDelta);
-        
+
         // Adjust chroma: Darker colors can handle more chroma, lighter ones less
         let chromaMult = 1.0;
         if (targetL < lightness) {
@@ -54,10 +51,21 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
         } else {
           chromaMult = Math.max(0.2, 1.0 - Math.abs(lDelta) * 0.8);
         }
-        
-        newColor.h = normalizeHue(hue + hueShift);
+
+        // Perceptual hue-drift compensation, modeled as smooth sinusoids of
+        // hue instead of hard hue-range brackets:
+        // - Bezold-Brücke: hues appear to drift as lightness changes; the
+        //   drift peaks around yellow (~90°) and reverses around blue (~270°).
+        // - Abney: desaturating a color also shifts its apparent hue,
+        //   strongest around the red/cyan axis.
+        const bezoldBrucke = clampShift(lDelta * Math.cos(((hue - 90) * Math.PI) / 180) * 4, 4);
+        const chromaReduction = Math.max(0, 1 - chromaMult);
+        const abney = clampShift(chromaReduction * Math.sin(((hue - 30) * Math.PI) / 180) * 15, 2);
+
+        newColor.h = normalizeHue(hue + bezoldBrucke + abney);
         newColor.c = chroma * chromaMult;
         break;
+      }
 
       case 'circle':
         // Chroma storytelling - dark=rich, light=ethereal
@@ -96,26 +104,7 @@ export const generateTintsAndShades = (base: OKLCH, style: PaletteStyle): OKLCH[
   return results;
 };
 
-/**
- * Calculates the Bezold-Brücke shift compensation.
- * Adjusts hue based on lightness changes to maintain perceptual hue constancy.
- */
-function getBezoldBruckeCompensation(hue: number, lightnessDelta: number): number {
-  let shift = 0;
-  
-  if (hue >= 220 && hue <= 280) {
-    // Blues shift toward red when darker
-    shift = lightnessDelta * -8;
-  } else if (hue >= 60 && hue <= 90) {
-    // Yellows shift toward green when darker
-    shift = lightnessDelta * -5;
-  } else if ((hue >= 0 && hue <= 30) || hue >= 330) {
-    // Reds shift toward yellow when lighter
-    shift = lightnessDelta * 3;
-  } else if (hue >= 150 && hue <= 200) {
-    // Cyans shift toward blue when darker
-    shift = lightnessDelta * -4;
-  }
-  
-  return shift;
+/** Clamps a hue shift to ±maxDegrees. */
+function clampShift(shift: number, maxDegrees: number): number {
+  return Math.max(-maxDegrees, Math.min(maxDegrees, shift));
 }

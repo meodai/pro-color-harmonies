@@ -37,6 +37,17 @@ describe('generateTintsAndShades', () => {
     expect(uniqueHues.size).toBeGreaterThan(1);
   });
 
+  it('should keep triangle hue drift within the perceptual caps', () => {
+    // Bezold-Brücke is capped at ±4°, Abney at ±2°
+    for (const h of [0, 45, 90, 135, 180, 225, 270, 315]) {
+      const result = generateTintsAndShades({ l: 0.5, c: 0.2, h }, 'triangle');
+      result.forEach(color => {
+        const diff = Math.abs(((color.h - h + 540) % 360) - 180);
+        expect(diff).toBeLessThanOrEqual(6);
+      });
+    }
+  });
+
   it('should respect the circle style (chroma curve)', () => {
     const result = generateTintsAndShades(baseColor, 'circle');
     // In circle style, chroma varies
