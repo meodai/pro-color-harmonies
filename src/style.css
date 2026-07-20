@@ -686,7 +686,8 @@ body {
    inline text field is hidden — text entry lives in the picker popover */
 color-input.control__input--color {
   display: block;
-  padding: 0;
+  /* Small inset between the swatch and the outline, like the native input */
+  padding: 3px;
 }
 
 color-input.control__input--color::part(input) {
