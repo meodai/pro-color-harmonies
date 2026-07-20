@@ -388,6 +388,10 @@ async function renderExportPanel() {
   const cssVarLines: string[] = [];
   cssVarLines.push(':root {');
 
+  // Two slices can match the same ramp; suffix repeats so the emitted
+  // CSS variables stay unique instead of silently overwriting each other.
+  const usedRampNames = new Map<string, number>();
+
   exportPanel.replaceChildren(
     ...latestExportColors6.map((color, i) => {
       const row = document.createElement('div');
@@ -399,9 +403,12 @@ async function renderExportPanel() {
       const labCss = parsed ? formatCss(lab(parsed)) : color;
 
       const result = ditto.generate(labCss);
-      const closestRampName = String(
+      const matchedRampName = String(
         (result.sources?.slice()?.sort((a: any, b: any) => (a.diff ?? 0) - (b.diff ?? 0))?.[0]?.name ?? 'tailwind')
       );
+      const timesUsed = usedRampNames.get(matchedRampName) ?? 0;
+      usedRampNames.set(matchedRampName, timesUsed + 1);
+      const closestRampName = timesUsed === 0 ? matchedRampName : `${matchedRampName}-${timesUsed + 1}`;
       const matchedShade = String(result.matchedShade ?? '');
 
       cssVarLines.push(`  /* slice ${i + 1} (${closestRampName}) */`);
@@ -446,6 +453,16 @@ async function renderExportPanel() {
 
   cssVarLines.push('}');
   latestExportCssVars = cssVarLines.join('\n');
+}
+
+let exportRefreshTimeout: number | null = null;
+
+function scheduleExportPanelRefresh() {
+  if (exportRefreshTimeout !== null) return;
+  exportRefreshTimeout = window.setTimeout(() => {
+    exportRefreshTimeout = null;
+    void renderExportPanel();
+  }, 150);
 }
 
 exportCopyButton?.addEventListener('click', async () => {
@@ -510,44 +527,46 @@ function updateFavicon(svg: string) {
   }, 500);
 }
 
+let colorNamePending: ((value: any) => void) | null = null;
+
 const getColorNames = async (colors: string[]) => {
   // Cancel any pending request
   if (colorNameAbortController) {
     colorNameAbortController.abort();
   }
-  
-  // Clear any pending timeout
+
+  // Clear any pending timeout and settle its promise so callers don't hang
   if (colorNameTimeout !== null) {
     clearTimeout(colorNameTimeout);
   }
-  
+  if (colorNamePending) {
+    colorNamePending(null);
+    colorNamePending = null;
+  }
+
   // Create new abort controller for this request
   colorNameAbortController = new AbortController();
-  
+
   // Throttle the API call
-  return new Promise<any>((resolve, reject) => {
+  return new Promise<any>((resolve) => {
+    colorNamePending = resolve;
     colorNameTimeout = window.setTimeout(async () => {
       try {
         const response = await fetch(
-          `https://api.color.pizza/v1/?values=${colors.map(color => color.replace('#', '')).join(',')}&list=bestOf&noduplicates=true`, 
+          `https://api.color.pizza/v1/?values=${colors.map(color => color.replace('#', '')).join(',')}&list=bestOf&noduplicates=true`,
           {
-            method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'X-Referrer': 'pro-color-harmonies-demo',
             },
-            body: JSON.stringify({ colors }),
             signal: colorNameAbortController!.signal,
           }
         );
-        const data = await response.json();
-        resolve(data);
-      } catch (error) {
-        // Don't reject on abort, just silently fail
-        if (error instanceof Error && error.name === 'AbortError') {
-          return;
-        }
-        reject(error);
+        resolve(await response.json());
+      } catch {
+        // Aborted or failed: settle with null so callers can ignore it
+        resolve(null);
+      } finally {
+        colorNamePending = null;
       }
     }, 100); // 100ms throttle
   });
@@ -674,7 +693,7 @@ function updateCountProgress() {
   const max = Number.parseInt(countInput.max, 10);
   const value = Number.parseInt(countInput.value, 10);
   const progress = (value - min) / (max - min);
-  const rangeMarker = document.querySelector<HTMLElement>('.range-marker');
+  const rangeMarker = countInput.closest('.range-wrapper')?.querySelector<HTMLElement>('.range-marker');
   if (rangeMarker) {
     rangeMarker.style.setProperty('--progress', String(progress));
   }
@@ -840,6 +859,13 @@ function renderPalette() {
       const { l, c: chroma, h } = c;
       return formatCss(oklch({ mode: 'oklch', l, c: chroma, h }));
     });
+
+    // Invalidate the export snapshot; refresh the panel if it's open so the
+    // copied CSS can't go stale while the palette keeps changing.
+    latestExportCssVars = '';
+    if (demoRoot.classList.contains('demo--export')) {
+      scheduleExportPanelRefresh();
+    }
 
     // Console log colors as hex
     console.log('Colors (hex):', colorsToHex(colors));
