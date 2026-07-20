@@ -38,7 +38,7 @@ export function createPaletteGenerator(
       
       return colors;
     } catch (error) {
-      throw new Error(`Failed to generate ${paletteType} colors: ${error}`);
+      throw new Error(`Failed to generate ${paletteType} colors: ${error}`, { cause: error });
     }
   };
 }

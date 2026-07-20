@@ -112,7 +112,7 @@ export const scaleSpreadArray = <T>(
   if (!valuesToFill || valuesToFill.length < 2) {
     throw new Error("valuesToFill array must have at least two values.");
   }
-  if (targetSize < 1 && padding > 0) {
+  if (targetSize < 1) {
     throw new Error("Target size must be at least 1");
   }
   if (targetSize < valuesToFill.length && padding === 0) {
