@@ -38,11 +38,10 @@ export function clampOKLCH(l: number, c: number, h: number): OKLCH {
  * @returns A new OKLCH object with potentially adjusted hue
  */
 export function avoidMuddyZones(hue: number, lightness: number, chroma: number): OKLCH {
-  // Expanded zones for maximum beauty
+  // Expanded zones for maximum beauty (ranges must not overlap: first match wins)
   const mudZones = [
     { range: [25, 65], name: 'brown-olive' },
     { range: [100, 140], name: 'sick-green' },
-    { range: [45, 55], name: 'dead-orange' },
     { range: [180, 200], name: 'corpse-cyan' },
   ];
 
