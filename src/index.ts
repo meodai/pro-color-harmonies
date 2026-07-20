@@ -13,8 +13,10 @@ export * from './utils/hue-strategies';
 export * from './utils/interpolation';
 export * from './utils/enhancer';
 export * from './utils/tintsShades';
+export * from './utils/gamut';
 
 import { safeColor } from './utils/color';
+import { clampPaletteToGamut, type GamutTarget } from './utils/gamut';
 import { applyModifiers } from './utils/modifiers';
 import { createPaletteGenerator } from './utils/palette';
 import { 
@@ -89,6 +91,14 @@ export interface GeneratorOptions {
   modifiers?: PaletteModifiers; // Optional palette modulation knobs (0-1)
   /** Whether to interpolate variations for smooth transitions */
   interpolation?: boolean;
+  /**
+   * Clamp the generated colors into a displayable gamut by reducing chroma
+   * (lightness and hue are preserved). `true` targets sRGB ('rgb');
+   * pass 'p3' for Display P3. Off by default: raw OKLCH values may exceed
+   * the target gamut, which is fine for CSS `oklch()` (browsers gamut-map)
+   * but clips with hue shifts when converted to hex/rgb in JS.
+   */
+  clampToGamut?: boolean | GamutTarget;
 }
 
 // ============= Generators =============
@@ -270,7 +280,14 @@ export class ColorPaletteGenerator {
       default: throw new Error(`Unknown palette type: ${paletteType}`);
     }
 
-    return applyModifiers(palette, modifiers);
+    const result = applyModifiers(palette, modifiers);
+
+    if (baseOptions.clampToGamut) {
+      const gamut = baseOptions.clampToGamut === true ? 'rgb' : baseOptions.clampToGamut;
+      return clampPaletteToGamut(result, gamut);
+    }
+
+    return result;
   }
 
   /**
@@ -280,14 +297,13 @@ export class ColorPaletteGenerator {
    * @returns Object containing all palette types
    */
   static generateAll(baseColor: OKLCH, options: GeneratorOptions): Record<PaletteType, PaletteColor[]> {
-    const baseOptions = { interpolation: true, ...options };
     return {
-      tintsShades: applyModifiers(generateTintsAndShades(baseColor, baseOptions.style), baseOptions.modifiers),
-      analogous: applyModifiers(generateAnalogous(baseColor, baseOptions), baseOptions.modifiers),
-      complementary: applyModifiers(generateComplementary(baseColor, baseOptions), baseOptions.modifiers),
-      triadic: applyModifiers(generateTriadic(baseColor, baseOptions), baseOptions.modifiers),
-      tetradic: applyModifiers(generateTetradic(baseColor, baseOptions), baseOptions.modifiers),
-      splitComplementary: applyModifiers(generateSplitComplementary(baseColor, baseOptions), baseOptions.modifiers),
+      tintsShades: ColorPaletteGenerator.generate(baseColor, 'tintsShades', options),
+      analogous: ColorPaletteGenerator.generate(baseColor, 'analogous', options),
+      complementary: ColorPaletteGenerator.generate(baseColor, 'complementary', options),
+      triadic: ColorPaletteGenerator.generate(baseColor, 'triadic', options),
+      tetradic: ColorPaletteGenerator.generate(baseColor, 'tetradic', options),
+      splitComplementary: ColorPaletteGenerator.generate(baseColor, 'splitComplementary', options),
     };
   }
 }

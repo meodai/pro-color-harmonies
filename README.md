@@ -128,6 +128,7 @@ export interface GeneratorOptions {
   style: PaletteStyle;
   modifiers?: PaletteModifiers;           // 4 modulation knobs, each 0–1
   interpolation?: boolean;                // Smooth transitions (default: true)
+  clampToGamut?: boolean | 'rgb' | 'p3';  // Gamut-map results (default: off)
 }
 ```
 
@@ -151,6 +152,7 @@ Generate a single palette.
     - For fewer colors (< 6): sample evenly from the base palette.
     - For more colors (> 6): interpolate between the 6 OKLCH colors (the demo shows one approach using `culori` in `utils/demo-palette.ts`).
   - `modifiers` (optional): `{ sine, wave, zap, block }` (each `0–1`); see **Modifiers** below.
+  - `clampToGamut` (optional, default: off): clamp every generated color into a displayable gamut by reducing chroma while preserving lightness and hue. `true` targets sRGB (`'rgb'`); pass `'p3'` for Display P3. Raw OKLCH output can exceed the target gamut (especially very light or very dark colors) — that is fine when rendering with CSS `oklch()`, which gamut-maps automatically, but converting to hex/rgb in JS clips channels and shifts hues. Enable this option (or use the exported `clampPaletteToGamut` helper) before hex conversion.
 
 Returns: `OKLCH[]` (array of OKLCH color objects with `{ l, c, h }` properties).
 
@@ -331,6 +333,15 @@ import {
 ```ts
 import { 
   getTriadicVariations     // Adaptive variation logic for Triadic palettes
+} from 'pro-color-harmonies';
+```
+
+#### Gamut utilities
+
+```ts
+import {
+  clampColorToGamut,   // Clamp a single OKLCH color into sRGB or P3 (chroma reduction)
+  clampPaletteToGamut  // Clamp a whole palette into sRGB or P3
 } from 'pro-color-harmonies';
 ```
 

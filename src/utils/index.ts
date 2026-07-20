@@ -12,3 +12,4 @@ export * from './hue-strategies';
 export * from './variations';
 export * from './enhancer';
 export * from './tintsShades';
+export * from './gamut';
