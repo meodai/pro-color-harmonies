@@ -61,6 +61,25 @@ describe('ColorPaletteGenerator', () => {
       });
     });
 
+    it('should return a neutral grayscale palette for achromatic input', () => {
+      const gray: OKLCH = { l: 0.5, c: 0.001, h: 0 };
+
+      paletteTypes.forEach(type => {
+        if (type === 'tintsShades') return;
+
+        styles.forEach(style => {
+          const result = ColorPaletteGenerator.generate(gray, type, { style });
+          expect(result).toHaveLength(6);
+          expect(result[0]).toEqual(gray);
+          // Enhanced styles must not re-tint grays (polishPalette enforces
+          // a minimum chroma on chromatic palettes)
+          result.forEach(color => {
+            expect(color.c).toBeLessThan(0.002);
+          });
+        });
+      });
+    });
+
     it("should treat style 'default' as an alias for 'square'", () => {
       paletteTypes.forEach(type => {
         const asDefault = ColorPaletteGenerator.generate(baseColor, type, { style: 'default' });
