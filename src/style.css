@@ -686,8 +686,13 @@ body {
    inline text field is hidden — text entry lives in the picker popover */
 color-input.control__input--color {
   display: block;
-  /* Small inset between the swatch and the outline, like the native input */
-  padding: 3px;
+  /* Inset between the swatch and the outline, like the native input */
+  padding: 4px;
+  transition: padding 0.15s ease;
+}
+
+color-input.control__input--color:hover {
+  padding: 1px;
 }
 
 color-input.control__input--color::part(input) {
@@ -708,6 +713,8 @@ color-input.control__input--color::part(chip) {
   height: 100%;
   border-radius: 0;
   box-shadow: none;
+  /* Suppress the component's built-in chip scale on hover */
+  scale: none;
 }
 
 .range-wrapper {
