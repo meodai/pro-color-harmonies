@@ -34,13 +34,13 @@ app.innerHTML = `
         </header-->
 
         <div class="control control--base-color">
-          <label class="control">
+          <div class="control">
             <span class="control__label">
               <span class="control__label-text">Base Color</span>
-              <span class="control__label-value" id="baseColorValue">#4c6fff</span>
+              <input class="control__label-value" id="baseColorValue" value="#4c6fff" spellcheck="false" autocomplete="off" aria-label="Base color value" />
             </span>
             <color-input id="baseColor" class="control__input control__input--color transition" value="#4c6fff"></color-input>
-          </label>
+          </div>
         </div>
 
         <label class="control control--small" style="--graduations: 8">
@@ -261,7 +261,7 @@ app.innerHTML = `
 `;
 
 const baseInput = document.querySelector<ColorInput>('#baseColor')!;
-const baseColorValue = document.querySelector<HTMLSpanElement>('#baseColorValue')!;
+const baseColorValue = document.querySelector<HTMLInputElement>('#baseColorValue')!;
 const paletteTypeRadios = document.querySelectorAll<HTMLInputElement>('input[name="paletteType"]')!;
 const paletteTypeLabel = document.querySelector<HTMLSpanElement>('#paletteTypeLabel')!;
 const harmonyInterpolator = document.querySelector<HTMLInputElement>('#harmonyInterpolator')!;
@@ -726,11 +726,11 @@ function updateStyleProgress() {
 }
 
 function updateBaseColorValue() {
-  if (baseColorValue) {
-    const value = baseInput.value;
-    // Hex reads better uppercased; functional syntax (oklch(), color()) does not
-    baseColorValue.textContent = value.startsWith('#') ? value.toUpperCase() : value;
-  }
+  // Don't clobber the field while the user is typing in it
+  if (!baseColorValue || document.activeElement === baseColorValue) return;
+  const value = baseInput.value;
+  // Hex reads better uppercased; functional syntax (oklch(), color()) does not
+  baseColorValue.value = value.startsWith('#') ? value.toUpperCase() : value;
 }
 
 function renderPalette() {
@@ -950,6 +950,26 @@ const palette = ColorPaletteGenerator.generate(
 // <color-input> dispatches a bubbling 'change' CustomEvent whenever the
 // color changes (typing, sliders, area picker, eyedropper)
 baseInput.addEventListener('change', renderPalette);
+
+// The value readout doubles as a text input: commit any parseable CSS color
+// on Enter/blur, revert to the current color otherwise
+baseColorValue.addEventListener('change', () => {
+  const raw = baseColorValue.value.trim();
+  baseColorValue.blur();
+  if (raw && parse(raw)) {
+    baseInput.value = raw;
+    renderPalette();
+  } else {
+    updateBaseColorValue();
+  }
+});
+
+baseColorValue.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    baseColorValue.blur();
+    updateBaseColorValue();
+  }
+});
 harmonyInterpolator.addEventListener('input', renderPalette);
 styleInterpolator.addEventListener('input', renderPalette);
 
